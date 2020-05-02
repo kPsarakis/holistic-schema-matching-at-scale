@@ -10,12 +10,6 @@ RUN apt-get update && \
 ENV JAVA_VER 8
 ENV JAVA_HOME /usr/lib/jvm/java-1.8.0-openjdk-amd64
 
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
-    bash ~/miniconda.sh -u -b -p /miniconda && \
-    eval "$(/miniconda/bin/conda shell.bash hook)" && \
-    conda init && \
-    "/miniconda/bin/conda" create -n sms38 python=3.8 -y --force
-
 # Create project directory
 RUN mkdir /home/schema-matching-system
 WORKDIR /home/schema-matching-system
@@ -23,7 +17,12 @@ WORKDIR /home/schema-matching-system
 # Copy data to directory
 COPY . .
 
-RUN conda activate sms38 && \
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
+    bash ~/miniconda.sh -u -b -p /miniconda && \
+    eval "$(/miniconda/bin/conda shell.bash hook)" && \
+    conda init && \
+    "/miniconda/bin/conda" create -n sms38 python=3.8 -y --force && \
+    conda activate sms38 && \
     pip install -r requirements.txt && \
     python -m nltk.downloader stopwords && \
     python -m nltk.downloader punkt  && \

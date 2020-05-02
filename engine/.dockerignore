@@ -1,8 +1,4 @@
-schema-matching-engine/cache
+cache
 data/csv_file_store
-data/nltk_data
 data/tmp_xlsx_files
-algorithms/coma/artifact/coma.jar
-.idea
-../.gitignore
-.git
+algorithms/coma/artifact
