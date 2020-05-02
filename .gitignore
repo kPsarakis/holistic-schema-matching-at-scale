@@ -1,0 +1,4 @@
+.idea/
+schema-matching-engine/cache
+schema-matching-engine/data
+schema-matching-engine/algorithms/coma/artifact/coma.jar
