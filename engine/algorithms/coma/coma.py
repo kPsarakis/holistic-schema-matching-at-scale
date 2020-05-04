@@ -2,14 +2,14 @@ import shutil
 import subprocess
 import os
 import csv
-
 from itertools import product
 from typing import List, Dict
-from engine.algorithms.base_matcher import BaseMatcher
-from engine.algorithms.match import Match
-from engine.data_sources.base_db import BaseDB
-from engine.data_sources.base_table import BaseTable
-from engine.utils.utils import get_project_root, create_folder
+
+from ..base_matcher import BaseMatcher
+from ..match import Match
+from ...data_sources.base_db import BaseDB
+from ...data_sources.base_table import BaseTable
+from ...utils.utils import create_folder, get_project_root
 
 
 class Coma(BaseMatcher):

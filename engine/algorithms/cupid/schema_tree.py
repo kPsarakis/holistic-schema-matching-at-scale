@@ -1,8 +1,7 @@
 from anytree import RenderTree
 
-from engine.algorithms.cupid.schema_tree.schema_element_node import SchemaElementNode
-
-from engine.algorithms.cupid.linguistic_matching import normalization
+from .linguistic_matching import normalization
+from .schema_element_node import SchemaElementNode
 
 
 class SchemaTree:

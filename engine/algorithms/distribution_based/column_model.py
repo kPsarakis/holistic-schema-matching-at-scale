@@ -1,8 +1,8 @@
 import numpy as np
 import pickle
 
-from engine.data_sources.base_column import BaseColumn
-from engine.utils.utils import convert_data_type
+from ...data_sources.base_column import BaseColumn
+from ...utils.utils import convert_data_type
 
 
 class CorrelationClusteringColumn(BaseColumn):

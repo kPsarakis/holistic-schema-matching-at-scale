@@ -1,24 +1,32 @@
 from json import JSONDecodeError
 from pathlib import Path
-
 from flask import Flask, request, abort, Response, jsonify
 from pydantic import BaseModel, ValidationError
 from typing import List, Dict, Optional, Union
 from werkzeug.utils import secure_filename
 import os
 
-import engine.algorithms.algorithms as module_algorithms
-from engine.algorithms.algorithms import schema_only_algorithms, instance_only_algorithms, schema_instance_algorithms
-from engine.algorithms.base_matcher import BaseMatcher
+
 from engine.data_sources.atlas.atlas_table import AtlasTable
-from engine.data_sources.base_db import BaseDB
+from engine.data_sources.csv_store_source.csv_store_source import CSVStoreSource, CSVStoreTable
 from engine.data_sources.atlas.atlas_source import AtlasSource, GUIDMissing
+from engine.algorithms.base_matcher import BaseMatcher
+from engine.data_sources.base_db import BaseDB
 from engine.data_sources.base_table import BaseTable
-from engine.data_sources.csv_store_source.csv_store_source import CSVStoreSource
-from engine.data_sources.csv_store_source.csv_store_table import CSVStoreTable
 from engine.utils.exceptions import check_if_table_has_columns, check_if_db_is_empty
 from engine.utils.utils import get_project_root, create_folder, allowed_csv_file, allowed_xlsx_file, xlsx_to_csvs, \
     directory_tree
+from engine.algorithms.coma.coma import Coma
+from engine.algorithms.cupid.cupid_model import Cupid
+from engine.algorithms.distribution_based.correlation_clustering import CorrelationClustering
+from engine.algorithms.jaccard_levenshtein.jaccard_leven import JaccardLevenMatcher
+from engine.algorithms.similarity_flooding.similarity_flooding import SimilarityFlooding
+
+
+schema_only_algorithms = [SimilarityFlooding.__name__, Cupid.__name__]
+instance_only_algorithms = [CorrelationClustering.__name__, JaccardLevenMatcher.__name__]
+schema_instance_algorithms = [Coma.__name__]
+module_algorithms = [Coma, Cupid, CorrelationClustering, JaccardLevenMatcher, SimilarityFlooding]
 
 
 class AtlasPayload(BaseModel):
@@ -312,7 +320,8 @@ def format_matches(matches: list, max_number_matches: int = 1000):
     return jsonify(matches)
 
 
-def get_holistic_matches(dbs: Dict[object, BaseDB], table: BaseTable, payload: Union[AtlasPayload, CSVStorePayload]):
+def get_holistic_matches(dbs: Dict[object, BaseDB], table: Union[AtlasTable, CSVStoreTable],
+                         payload: Union[AtlasPayload, CSVStorePayload]):
     r_table: BaseTable = dbs[table.db_belongs_uid].remove_table(payload.table_name)
     matches = []
     for db in dbs.values():

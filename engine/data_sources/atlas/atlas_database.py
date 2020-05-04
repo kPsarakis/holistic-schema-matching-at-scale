@@ -1,10 +1,10 @@
 from typing import Dict
 from multiprocessing import get_context
 
-from engine.data_sources.atlas.atlas_table import AtlasTable
-from engine.data_sources.atlas.atlas_utils import get_entity_with_guid, get_bulk_entities
-from engine.data_sources.base_db import BaseDB
-from engine.data_sources.base_table import BaseTable
+from .atlas_table import AtlasTable
+from .atlas_utils import get_entity_with_guid, get_bulk_entities
+from ..base_db import BaseDB
+from ..base_table import BaseTable
 
 
 class AtlasDatabase(BaseDB):

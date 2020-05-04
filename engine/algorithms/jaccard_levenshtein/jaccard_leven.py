@@ -2,11 +2,11 @@ from itertools import product
 from multiprocessing import Pool, get_context
 import Levenshtein as Lv
 
-from engine.algorithms.base_matcher import BaseMatcher
-from engine.algorithms.match import Match
-from engine.data_sources.base_column import BaseColumn
-from engine.data_sources.base_db import BaseDB
-from engine.data_sources.base_table import BaseTable
+from ..base_matcher import BaseMatcher
+from ..match import Match
+from ...data_sources.base_column import BaseColumn
+from ...data_sources.base_db import BaseDB
+from ...data_sources.base_table import BaseTable
 
 
 class JaccardLevenMatcher(BaseMatcher):

@@ -4,10 +4,10 @@ from multiprocessing.pool import ThreadPool
 
 import requests
 
-from engine.data_sources.atlas.atlas_database import AtlasDatabase
-from engine.data_sources.atlas.atlas_table import AtlasTable
-from engine.data_sources.atlas.atlas_utils import get_entity_with_guid
-from engine.data_sources.base_source import BaseSource
+from .atlas_database import AtlasDatabase
+from .atlas_table import AtlasTable
+from .atlas_utils import get_entity_with_guid
+from ..base_source import BaseSource
 
 
 class Error(Exception):

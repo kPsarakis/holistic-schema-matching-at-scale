@@ -1,7 +1,7 @@
 import networkx as nx
 
-from engine.algorithms.similarity_flooding.graph.node import Node
-from engine.data_sources.base_db import BaseDB
+from .node import Node
+from ...data_sources.base_db import BaseDB
 
 
 class Graph:

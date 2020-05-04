@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Union
 
-from engine.data_sources.base_db import BaseDB
-from engine.data_sources.base_table import BaseTable
+from .base_db import BaseDB
+from .base_table import BaseTable
 
 
 class BaseSource(ABC):

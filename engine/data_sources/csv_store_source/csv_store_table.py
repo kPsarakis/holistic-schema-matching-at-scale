@@ -1,10 +1,10 @@
 import pandas as pd
 from typing import List
 
-from engine.data_sources.base_db import BaseDB
-from engine.data_sources.base_table import BaseTable
-from engine.data_sources.csv_store_source.csv_store_column import CSVStoreColumn
-from engine.utils.utils import get_encoding, get_delimiter, is_date
+from .csv_store_column import CSVStoreColumn
+from ..base_db import BaseDB
+from ..base_table import BaseTable
+from ...utils.utils import get_encoding, get_delimiter, is_date
 
 
 class CSVStoreTable(BaseTable, BaseDB):

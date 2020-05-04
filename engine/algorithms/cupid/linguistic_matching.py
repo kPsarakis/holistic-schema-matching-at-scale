@@ -2,9 +2,7 @@ import math
 import operator
 import string
 from itertools import product, repeat, combinations_with_replacement
-
 from multiprocessing import get_context
-
 import nltk
 import snakecase as snakecase
 from anytree import LevelOrderIter
@@ -12,7 +10,7 @@ from nltk.corpus import stopwords
 from nltk.corpus import wordnet as wn
 from similarity.ngram import NGram
 
-from engine.algorithms.cupid.schema_tree.schema_element import SchemaElement, Token, TokenTypes
+from .schema_element import SchemaElement, Token, TokenTypes
 
 DATATYPE_COMPATIBILITY_TABLE = {
     "text": {"keyword": 1.0, "varchar": 1.0, "nvarchar": 0.9, "nchar": 0.8, "char": 0.6},

@@ -1,12 +1,12 @@
 import os
 from typing import Dict, Union
 
-from engine.data_sources.atlas.atlas_source import GUIDMissing
-from engine.data_sources.base_db import BaseDB
-from engine.data_sources.base_source import BaseSource
-from engine.data_sources.csv_store_source.csv_store_database import CSVStoreDatabase
-from engine.data_sources.csv_store_source.csv_store_table import CSVStoreTable
-from engine.data_sources.csv_store_source.csv_store_utils import get_folders_within_folder
+from .csv_store_database import CSVStoreDatabase
+from .csv_store_table import CSVStoreTable
+from .csv_store_utils import get_folders_within_folder
+from ..atlas.atlas_source import GUIDMissing
+from ..base_db import BaseDB
+from ..base_source import BaseSource
 
 
 class CSVStoreSource(BaseSource):

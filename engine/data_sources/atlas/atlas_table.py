@@ -1,9 +1,9 @@
 from typing import List
 
-from engine.data_sources.atlas.atlas_column import AtlasColumn
-from engine.data_sources.atlas.atlas_utils import get_bulk_entities
-from engine.data_sources.base_db import BaseDB
-from engine.data_sources.base_table import BaseTable
+from .atlas_column import AtlasColumn
+from .atlas_utils import get_bulk_entities
+from ..base_db import BaseDB
+from ..base_table import BaseTable
 
 
 class AtlasTable(BaseTable, BaseDB):

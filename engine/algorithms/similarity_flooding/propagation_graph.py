@@ -1,6 +1,6 @@
 import networkx as nx
 
-from engine.algorithms.similarity_flooding.graph.node_pair import NodePair
+from .node_pair import NodePair
 
 
 class PropagationGraph:

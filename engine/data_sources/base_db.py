@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from typing import Dict
 
-from engine.data_sources.base_table import BaseTable
+from .base_table import BaseTable
 
 
 class BaseDB(ABC):

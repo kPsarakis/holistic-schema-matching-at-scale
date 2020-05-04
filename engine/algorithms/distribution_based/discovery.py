@@ -1,13 +1,12 @@
 from ast import literal_eval
-
 import numpy as np
 import networkx as nx
 import pulp as plp
 from tqdm import tqdm
 from multiprocessing import Pool
 
-from engine.algorithms.distribution_based.clustering_utils import transform_dict, process_emd, column_combinations, \
-    parallel_cutoff_threshold, cuttoff_column_generator, compute_cutoff_threshold, calc_chunksize
+from .clustering_utils import column_combinations, calc_chunksize, transform_dict, process_emd, \
+    parallel_cutoff_threshold, cuttoff_column_generator, compute_cutoff_threshold
 
 
 def compute_distribution_clusters(columns: list, dataset_name: str, threshold: float, pool: Pool,

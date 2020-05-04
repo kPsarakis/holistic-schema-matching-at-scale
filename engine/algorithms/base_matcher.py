@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict
 
-from engine.data_sources.base_db import BaseDB
+from ..data_sources.base_db import BaseDB
 
 
 class BaseMatcher(ABC):

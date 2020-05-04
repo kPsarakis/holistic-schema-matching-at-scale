@@ -1,0 +1,14 @@
+version: "3"
+services:
+  engine:
+    build:
+      dockerfile: Dockerfile
+      context: ./engine
+    ports:
+      - "5000:5000"
+    env_file:
+      - redis.env
+      - minio.env
+  db-matches:
+    image: 'redis:latest'
+    env_file: redis.env

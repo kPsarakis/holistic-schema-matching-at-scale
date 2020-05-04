@@ -5,11 +5,12 @@ import shutil
 import subprocess
 from functools import lru_cache
 from typing import List
-from engine.algorithms.distribution_based.column_model import CorrelationClusteringColumn
-from engine.algorithms.distribution_based.emd_utils import quantile_emd, intersection_emd
-from engine.algorithms.distribution_based.quantile_histogram import QuantileHistogram
-from engine.data_sources.base_column import BaseColumn
-from engine.utils.utils import convert_data_type, create_folder
+
+from .column_model import CorrelationClusteringColumn
+from .emd_utils import intersection_emd, quantile_emd
+from .quantile_histogram import QuantileHistogram
+from ...data_sources.base_column import BaseColumn
+from ...utils.utils import convert_data_type, create_folder
 
 
 def compute_cutoff_threshold(C: list, threshold: float):

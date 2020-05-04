@@ -1,7 +1,7 @@
 from flask import abort
 
-from engine.data_sources.base_db import BaseDB
-from engine.data_sources.base_table import BaseTable
+from ..data_sources.base_db import BaseDB
+from ..data_sources.base_table import BaseTable
 
 
 def check_if_table_has_columns(table: BaseTable):

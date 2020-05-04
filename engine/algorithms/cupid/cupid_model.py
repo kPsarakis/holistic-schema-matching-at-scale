@@ -1,8 +1,8 @@
-from engine.algorithms.base_matcher import BaseMatcher
-from engine.algorithms.cupid.schema_tree.schema_tree import SchemaTree
-from engine.algorithms.cupid.tree_match import tree_match, recompute_wsim, mapping_generation_leaves
-from engine.data_sources.base_db import BaseDB
-from engine.data_sources.base_table import BaseTable
+from .schema_tree import SchemaTree
+from .tree_match import tree_match, recompute_wsim, mapping_generation_leaves
+from ..base_matcher import BaseMatcher
+from ...data_sources.base_db import BaseDB
+from ...data_sources.base_table import BaseTable
 
 
 class Cupid(BaseMatcher):

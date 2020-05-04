@@ -1,6 +1,6 @@
 from anytree import NodeMixin
 
-from engine.algorithms.cupid.schema_tree.schema_element import SchemaElement
+from .schema_element import SchemaElement
 
 
 class SchemaElementNode(SchemaElement, NodeMixin):

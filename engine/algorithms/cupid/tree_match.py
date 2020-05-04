@@ -2,10 +2,10 @@ import math
 from itertools import product
 from anytree import PostOrderIter, LevelOrderIter
 
-from engine.algorithms.cupid.linguistic_matching import compute_lsim, compute_compatibility, comparison
-from engine.algorithms.cupid.schema_tree.schema_element import SchemaElement
-from engine.algorithms.cupid.structural_similarity import compute_ssim, change_structural_similarity
-from engine.algorithms.match import Match
+from .linguistic_matching import compute_compatibility, comparison, compute_lsim
+from .schema_element import SchemaElement
+from .structural_similarity import compute_ssim, change_structural_similarity
+from ..match import Match
 
 
 def compute_weighted_similarity(ssim, lsim, w_struct=0.5):

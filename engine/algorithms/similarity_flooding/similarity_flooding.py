@@ -1,12 +1,12 @@
-from engine.algorithms.match import Match
-from engine.algorithms.similarity_flooding.graph.graph import Graph
-from engine.algorithms.similarity_flooding.graph.node_pair import NodePair
-from engine.algorithms.similarity_flooding.graph.propagation_graph import PropagationGraph
 import Levenshtein as lv
 import math
 
-from engine.algorithms.base_matcher import BaseMatcher
-from engine.data_sources.base_db import BaseDB
+from .graph import Graph
+from .node_pair import NodePair
+from .propagation_graph import PropagationGraph
+from ..match import Match
+from ..base_matcher import BaseMatcher
+from ...data_sources.base_db import BaseDB
 
 
 class SimilarityFlooding(BaseMatcher):

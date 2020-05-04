@@ -1,4 +1,4 @@
-from engine.data_sources.base_column import BaseColumn
+from ..base_column import BaseColumn
 
 
 class CSVStoreColumn(BaseColumn):
