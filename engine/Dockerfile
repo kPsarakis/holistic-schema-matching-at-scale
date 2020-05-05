@@ -3,7 +3,8 @@ LABEL maintainer="kpsarakis94@gmail.com"
 
 WORKDIR /home/schema-matching-system/engine
 
-COPY . .
+COPY ./requirements.txt .
+COPY ./algorithms/coma/valentine.patch .
 
 ENV JAVA_VERSION 8
 ENV PYTHON_VERSION 3.8
@@ -22,10 +23,12 @@ RUN apt-get -qq update \
     && python -m nltk.downloader stopwords \
     && python -m nltk.downloader punkt \
     && python -m nltk.downloader wordnet \
+    && mkdir -p algorithms/coma \
     && cd algorithms/coma \
     && svn checkout http://svn.code.sf.net/p/coma-ce/mysvn/coma-project \
     && find . -type f -exec dos2unix {} \; \
-    && patch -ruN -p1 -d  coma-project < valentine.patch \
+    && patch -ruN -p1 -d  coma-project < ../../valentine.patch \
+    && rm ../../valentine.patch \
     && cd coma-project \
     && mvn clean \
     && mvn -Dmaven.test.skip=true package \
@@ -40,12 +43,12 @@ RUN apt-get -qq update \
     && rm -rf /var/lib/apt/lists/* /var/log/dpkg.log \
     && conda clean --all --yes
 
+COPY . .
+
 # seconds that a request takes to complete
 ENV SERVER_TIMEOUT 6000
-
 # making number of threads/workers greater than number of cores improves
 # the performance for a network intensive and I/O intensive application.
-
 # threads gunicorn thread can handle a request
 ENV SERVER_THREADS 2
 #workers
