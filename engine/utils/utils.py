@@ -1,4 +1,7 @@
+import calendar
 import csv
+import hashlib
+import time
 from pathlib import Path
 import os
 import openpyxl
@@ -111,3 +114,11 @@ def is_date(string, fuzzy=False):
         return True
     except Exception:
         return False
+
+
+def get_timestamp():
+    return calendar.timegm(time.gmtime())
+
+
+def get_md5_hash_of_string(string: str):
+    return hashlib.md5(string.encode()).hexdigest()
