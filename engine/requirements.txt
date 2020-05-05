@@ -30,3 +30,5 @@ requests==2.23.0
 gunicorn==20.0.4
 # redis connector
 redis==3.5.0
+# minio connector
+minio==5.0.10
