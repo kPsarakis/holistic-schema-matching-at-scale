@@ -1,9 +1,10 @@
-from json import JSONDecodeError
+import json
 from pathlib import Path
 from flask import Flask, request, abort, Response, jsonify
 from pydantic import BaseModel, ValidationError
 from typing import List, Dict, Optional, Union
 from werkzeug.utils import secure_filename
+from redis import Redis
 import os
 
 
@@ -70,6 +71,8 @@ app.config["JSON_SORT_KEYS"] = False  # this is needed for the sorted list outpu
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 104857600  # set 100MB as the maximum csv file size
 
+redis_db: Redis = Redis(host='redis-db-matches', port=6379)
+
 
 @app.route("/matches/atlas/holistic/<table_guid>", methods=['GET'])
 def find_holistic_matches_of_table_atlas(table_guid: str):
@@ -80,7 +83,7 @@ def find_holistic_matches_of_table_atlas(table_guid: str):
         table: AtlasTable = atlas_src.get_db_table(table_guid)
         check_if_table_has_columns(table)
         schemata: Dict[object, BaseDB] = atlas_src.get_all_dbs()
-    except JSONDecodeError:
+    except json.JSONDecodeError:
         abort(500, "Couldn't connect to Atlas. This is a network issue, "
                    "try to lower the request_chunk_size and the request_parallelism in the payload")
     except GUIDMissing:
@@ -103,7 +106,7 @@ def find_matches_other_db_atlas(table_guid: str, db_guid: str):
         table: AtlasTable = atlas_src.get_db_table(table_guid)
         check_if_table_has_columns(table)
         db_schema: BaseDB = atlas_src.get_db(db_guid)
-    except JSONDecodeError:
+    except json.JSONDecodeError:
         abort(500, "Couldn't connect to Atlas. This is a network issue, "
                    "try to lower the request_chunk_size and the request_parallelism in the payload")
     except GUIDMissing:
@@ -128,7 +131,7 @@ def find_matches_within_db_atlas(table_guid: str):
         table: AtlasTable = atlas_src.get_db_table(table_guid)
         check_if_table_has_columns(table)
         db_schema: BaseDB = atlas_src.get_db(table.db_belongs_uid)
-    except JSONDecodeError:
+    except json.JSONDecodeError:
         abort(500, "Couldn't connect to Atlas. This is a network issue, "
                    "try to lower the request_chunk_size and the request_parallelism in the payload")
     except GUIDMissing:
@@ -250,6 +253,20 @@ def show_csv_store():
     return Response(output_str, status=200)
 
 
+@app.route('/test/redis', methods=['POST'])
+def put_test_redis():
+    matches = [
+        {"source": {"name": "s1", "guid": "g1"},
+         "target": {"name": "t1", "guid": "g2"},
+         "sim": 0.78532},
+        {"source": {"name": "s2", "guid": "g3"},
+         "target": {"name": "t2", "guid": "g4"},
+         "sim": 0.5234}]
+    redis_db.set("test_key", json.dumps(matches))
+    matches_from_redis = list(json.loads(redis_db.get("test_key")))
+    return jsonify(matches_from_redis)
+
+
 def validate_matcher(name, args, endpoint):
     """
     Validates the matching algorithm params for early failure in the matching process if something is wrong
@@ -293,7 +310,7 @@ def get_atlas_source(payload: AtlasPayload) -> AtlasSource:
         atlas_source: AtlasSource = AtlasSource(payload.atlas_url, payload.atlas_username, payload.atlas_password,
                                                 payload.db_types, payload.request_parallelism,
                                                 payload.request_chunk_size)
-    except JSONDecodeError:
+    except json.JSONDecodeError:
         abort(500, "Couldn't connect to Atlas. Check the given atlas url and credentials. "
                    "If they are correct, it is a network issue")
     except KeyError:
