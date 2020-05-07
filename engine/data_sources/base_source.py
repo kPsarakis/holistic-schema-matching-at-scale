@@ -5,6 +5,14 @@ from .base_db import BaseDB
 from .base_table import BaseTable
 
 
+class Error(Exception):
+    pass
+
+
+class GUIDMissing(Error):
+    pass
+
+
 class BaseSource(ABC):
     """
     Abstract class representing a source (i.e. Atlas, csv_file_store)

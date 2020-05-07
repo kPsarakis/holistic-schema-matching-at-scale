@@ -7,15 +7,7 @@ import requests
 from .atlas_database import AtlasDatabase
 from .atlas_table import AtlasTable
 from .atlas_utils import get_entity_with_guid
-from ..base_source import BaseSource
-
-
-class Error(Exception):
-    pass
-
-
-class GUIDMissing(Error):
-    pass
+from ..base_source import BaseSource, GUIDMissing
 
 
 class AtlasSource(BaseSource):

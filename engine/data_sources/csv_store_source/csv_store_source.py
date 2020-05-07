@@ -4,9 +4,8 @@ from typing import Dict, Union
 from .csv_store_database import CSVStoreDatabase
 from .csv_store_table import CSVStoreTable
 from .csv_store_utils import get_folders_within_folder
-from ..atlas.atlas_source import GUIDMissing
 from ..base_db import BaseDB
-from ..base_source import BaseSource
+from ..base_source import BaseSource, GUIDMissing
 
 
 class CSVStoreSource(BaseSource):

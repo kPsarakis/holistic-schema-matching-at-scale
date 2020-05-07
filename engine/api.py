@@ -1,16 +1,17 @@
 import json
+import os
 from pathlib import Path
 from flask import Flask, request, abort, Response, jsonify
 from pydantic import BaseModel, ValidationError
 from typing import List, Dict, Optional, Union
 from werkzeug.utils import secure_filename
 from redis import Redis
-import os
 
 
 from engine.data_sources.atlas.atlas_table import AtlasTable
+from engine.data_sources.base_source import GUIDMissing
 from engine.data_sources.csv_store_source.csv_store_source import CSVStoreSource, CSVStoreTable
-from engine.data_sources.atlas.atlas_source import AtlasSource, GUIDMissing
+from engine.data_sources.atlas.atlas_source import AtlasSource
 from engine.algorithms.base_matcher import BaseMatcher
 from engine.data_sources.base_db import BaseDB
 from engine.data_sources.base_table import BaseTable
@@ -67,11 +68,11 @@ class CSVStorePayload(BaseModel):
 UPLOAD_FOLDER = get_project_root() + '/data/csv_file_store'  # The folder that will contain the csv file store
 
 app = Flask(__name__)
-app.config["JSON_SORT_KEYS"] = False  # this is needed for the sorted list output because we sort by value
+app.config['JSON_SORT_KEYS'] = False  # this is needed for the sorted list output because we sort by value
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 104857600  # set 100MB as the maximum csv file size
 
-redis_db: Redis = Redis(host='redis-db-matches', port=6379)
+redis_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'])
 
 
 @app.route("/matches/atlas/holistic/<table_guid>", methods=['GET'])
