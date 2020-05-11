@@ -1,4 +1,3 @@
 cache
-data/csv_file_store
-data/tmp_xlsx_files
+data
 algorithms/coma/artifact
