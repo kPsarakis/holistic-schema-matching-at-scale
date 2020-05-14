@@ -116,9 +116,9 @@ def is_date(string, fuzzy=False):
         return False
 
 
-def get_timestamp():
-    return calendar.timegm(time.gmtime())
+def get_timestamp() -> str:
+    return str(calendar.timegm(time.gmtime()))
 
 
-def get_md5_hash_of_string(string: str):
-    return hashlib.md5(string.encode()).hexdigest()
+def get_sha1_hash_of_string(string: str) -> str:
+    return str(hashlib.sha1(string.encode()).hexdigest())
