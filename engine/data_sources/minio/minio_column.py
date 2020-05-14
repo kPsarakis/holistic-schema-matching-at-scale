@@ -3,14 +3,15 @@ from ..base_column import BaseColumn
 
 class MinioColumn(BaseColumn):
 
-    def __init__(self, column_name: str, data: list, d_type: str):
+    def __init__(self, column_name: str, data: list, d_type: str, table_guid: str):
         self.__column_name = column_name
         self.__data = data
         self.__d_type = d_type
+        self.__table_guid = table_guid
 
     @property
     def unique_identifier(self) -> object:
-        return self.__column_name
+        return self.__table_guid + ":" + self.__column_name
 
     @property
     def name(self):
