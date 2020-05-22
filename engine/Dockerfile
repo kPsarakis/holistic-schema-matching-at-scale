@@ -12,7 +12,8 @@ ENV PYTHONPATH /home/schema-matching-system
 
 RUN apt-get -qq update \
     && apt-get -qq -y install --no-install-recommends g++ gcc subversion patch dos2unix \
-    && pip install -r requirements.txt \
+    && pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt \
     && python -m nltk.downloader stopwords \
     && python -m nltk.downloader punkt \
     && python -m nltk.downloader wordnet \

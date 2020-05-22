@@ -6,7 +6,7 @@ services:
     build: ./engine
     image: kpsarakis/schema-matching-engine:0.1
     ports:
-      - "5000:5000"
+      - 5000:5000
     env_file:
       - env_files/redis.env
       - env_files/minio.env
@@ -18,7 +18,7 @@ services:
   minio:
     image: minio/minio:latest
     ports:
-      - "9000:9000"
+      - 9000:9000
     volumes:
       - ./minio-volume:/mnt/data
     env_file:
@@ -27,7 +27,8 @@ services:
 
   # Celery worker that does schema matching jobs
   celery-worker:
-    build: ./engine/server
+    build: ./engine
+    image: kpsarakis/schema-matching-engine:0.1
     restart: always
     env_file:
       - env_files/celery.env
