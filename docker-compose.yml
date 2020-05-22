@@ -1,23 +1,20 @@
 version: "3"
 services:
+
+  # WSGI Flask service containing the schema matching API
   engine:
     build: ./engine
     image: kpsarakis/schema-matching-engine:0.1
     ports:
       - "5000:5000"
     env_file:
-      - redis.env
-      - minio.env
+      - env_files/redis.env
+      - env_files/minio.env
+      - env_files/celery.env
     restart: always
-    depends_on:
-      - redis-db-matches
-      - minio
+    command: gunicorn -b 0.0.0.0:5000 app:app -t 60 -w 1 --threads 1
 
-  redis-db-matches:
-    image: redis:latest
-    env_file:
-      - redis.env
-
+  # S3-like object store holding the data that we want to match
   minio:
     image: minio/minio:latest
     ports:
@@ -25,5 +22,44 @@ services:
     volumes:
       - ./minio-volume:/mnt/data
     env_file:
-      - minio.env
+      - env_files/minio.env
     command: server /mnt/data
+
+  # Celery worker that does schema matching jobs
+  celery-worker:
+    build: ./engine/server
+    restart: always
+    env_file:
+      - env_files/celery.env
+    depends_on:
+      - celery-rabbitmq
+    command: celery worker -A app.celery --loglevel=info
+
+  # Redis db that holds the schema matching results
+  redis-db-matches:
+    image: redis:latest
+    env_file:
+      - env_files/redis.env
+
+  # Message queue required by Celery
+  celery-rabbitmq:
+    image: rabbitmq:management
+    restart: always
+    env_file: env_files/rabbitmq.env
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  # Celery Flower dashboard
+  celery-flower:
+    image: mher/flower
+    restart: always
+    env_file:
+      - env_files/celery.env
+    environment:
+      - FLOWER_PORT=5555
+    ports:
+      - 5555:5555
+    depends_on:
+      - celery-worker
+      - celery-rabbitmq

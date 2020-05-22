@@ -1,7 +1,9 @@
 import json
 import os
+
+from celery import Celery
 from minio.error import NoSuchKey
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, abort
 from typing import Dict
 from redis import Redis
 
@@ -18,7 +20,10 @@ from engine.utils.exceptions import check_if_table_has_columns, check_if_db_is_e
 from engine.utils.utils import get_sha1_hash_of_string, get_timestamp
 
 app = Flask(__name__)
-app.config['JSON_SORT_KEYS'] = False  # this is needed for the sorted list output because we sort by value
+app.config['CELERY_BROKER_URL'] = os.environ['CELERY_BROKER_URL']
+app.config['CELERY_RESULT_BACKEND_URL'] = os.environ['CELERY_RESULT_BACKEND_URL']
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'], backend=app.config['CELERY_RESULT_BACKEND_URL'])
+celery.conf.update(app.config)
 
 
 redis_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'])
@@ -171,20 +176,6 @@ def find_matches_within_db_minio():
         matching_jobs_guid = get_sha1_hash_of_string(get_timestamp()+'/minio/within_db/' + str(table.unique_identifier))
         redis_db.set(matching_jobs_guid, format_matches(matches, payload.max_number_matches))
         return matching_jobs_guid
-
-
-@app.route('/test/redis', methods=['POST'])
-def put_test_redis():
-    matches = [
-        {"source": {"name": "s1", "guid": "g1"},
-         "target": {"name": "t1", "guid": "g2"},
-         "sim": 0.78532},
-        {"source": {"name": "s2", "guid": "g3"},
-         "target": {"name": "t2", "guid": "g4"},
-         "sim": 0.5234}]
-    redis_db.set("test_key", json.dumps(matches))
-    matches_from_redis = list(json.loads(redis_db.get("test_key")))
-    return jsonify(matches_from_redis)
 
 
 if __name__ == '__main__':

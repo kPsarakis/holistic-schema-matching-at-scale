@@ -36,15 +36,4 @@ RUN apt-get -qq update \
 
 COPY . .
 
-# seconds that a request takes to complete
-ENV SERVER_TIMEOUT 6000
-# making number of threads/workers greater than number of cores improves
-# the performance for a network intensive and I/O intensive application.
-# threads gunicorn thread can handle a request
-ENV SERVER_THREADS 2
-#workers
-ENV SERVER_WORKERS 1
-
 EXPOSE 5000
-# -t is the timeout in seconds. It needs to be large because some schema matching jobs might take a while
-ENTRYPOINT gunicorn -b 0.0.0.0:5000 api:app -t $SERVER_TIMEOUT -w $SERVER_WORKERS --threads $SERVER_THREADS
