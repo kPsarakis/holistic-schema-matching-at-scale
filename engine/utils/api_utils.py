@@ -1,4 +1,5 @@
 import json
+from itertools import product
 from typing import List, Optional, Dict, Union
 from flask import abort
 from pydantic import ValidationError, BaseModel

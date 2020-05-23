@@ -4,7 +4,7 @@ services:
   # WSGI Flask service containing the schema matching API
   engine:
     build: ./engine
-    image: kpsarakis/schema-matching-engine:0.1
+    image: kpsarakis/schema-matching-engine:latest
     ports:
       - 5000:5000
     env_file:
@@ -28,8 +28,10 @@ services:
   # Celery worker that does schema matching jobs
   celery-worker:
     build: ./engine
-    image: kpsarakis/schema-matching-engine:0.1
+    image: kpsarakis/schema-matching-engine:latest
     restart: always
+    environment:
+      - PYTHONUNBUFFERED=1
     env_file:
       - env_files/celery.env
     depends_on:
