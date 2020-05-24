@@ -8,7 +8,7 @@ from ...data_sources.base_table import BaseTable
 class Cupid(BaseMatcher):
     # Optimal parameters suggested in the paper
     def __init__(self, leaf_w_struct=0.2, w_struct=0.2, th_accept=0.7, th_high=0.6, th_low=0.35, c_inc=1.2, c_dec=0.9,
-                 th_ns=0.7):
+                 th_ns=0.7, parallelism=1):
         self.leaf_w_struct = leaf_w_struct
         self.w_struct = w_struct
         self.th_accept = th_accept
@@ -17,6 +17,7 @@ class Cupid(BaseMatcher):
         self.c_inc = c_inc
         self.c_dec = c_dec
         self.th_ns = th_ns
+        self.parallelism = parallelism
         self.categories = set()
         self.schemata = dict()  # schema name:str, schema_tree
 
@@ -28,7 +29,7 @@ class Cupid(BaseMatcher):
         source_tree = self.get_schema_by_name("DB__"+source_input.name)
         target_tree = self.get_schema_by_name("DB__"+target_input.name)
         sims = tree_match(source_tree, target_tree, self.categories, self.leaf_w_struct, self.w_struct, self.th_accept,
-                          self.th_high, self.th_low, self.c_inc, self.c_dec, self.th_ns)
+                          self.th_high, self.th_low, self.c_inc, self.c_dec, self.th_ns, self.parallelism)
         new_sims = recompute_wsim(source_tree, target_tree, sims)
         matches = mapping_generation_leaves(source_tree, target_tree, new_sims, self.th_accept)
         return matches

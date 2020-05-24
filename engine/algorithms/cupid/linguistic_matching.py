@@ -107,14 +107,17 @@ def compute_compatibility(categories):
     return compatibility_table
 
 
-def comparison(source_tree, target_tree, compatibility_table, th_ns):
-    elements_to_compare = list(generate_parallel_lsim_input(source_tree, target_tree, compatibility_table, th_ns))
-    with get_context("spawn").Pool(4) as process_pool:
-        lsim = dict(process_pool.starmap(lsim_proc, zip(elements_to_compare, repeat(compatibility_table))))
-    return lsim
+def comparison(source_tree, target_tree, compatibility_table, th_ns, parallelism):
+    elements_to_compare = generate_parallel_l_sim_input(source_tree, target_tree, compatibility_table, th_ns)
+    if parallelism == 1:
+        l_sim = {k: v for k, v in [l_sim_proc(pair, compatibility_table) for pair in elements_to_compare]}
+    else:
+        with get_context("spawn").Pool(parallelism) as process_pool:
+            l_sim = dict(process_pool.starmap(l_sim_proc, zip(list(elements_to_compare), repeat(compatibility_table))))
+    return l_sim
 
 
-def generate_parallel_lsim_input(source_tree, target_tree, compatibility_table, th_ns):
+def generate_parallel_l_sim_input(source_tree, target_tree, compatibility_table, th_ns):
     all_nodes_s = [node for node in LevelOrderIter(source_tree.root)]
     all_nodes_t = [node for node in LevelOrderIter(target_tree.root)]
     all_nodes = product(all_nodes_s, all_nodes_t)
@@ -125,13 +128,13 @@ def generate_parallel_lsim_input(source_tree, target_tree, compatibility_table, 
             yield pair
 
 
-def lsim_proc(pair: tuple, compatibility_table: dict):
+def l_sim_proc(pair: tuple, compatibility_table: dict):
     s, t = pair
     s_cat = s.categories
     t_cat = t.categories
-    maxs = [max(dict(filter(lambda x: x[0] in t_cat, compatibility_table[c].items())).items(),
-                key=operator.itemgetter(1))[1] for c in s_cat]
-    return (s.long_name, t.long_name), name_similarity_elements(s, t) * max(maxs)
+    max_s = [max(dict(filter(lambda x: x[0] in t_cat, compatibility_table[c].items())).items(),
+                 key=operator.itemgetter(1))[1] for c in s_cat]
+    return (s.long_name, t.long_name), name_similarity_elements(s, t) * max(max_s)
 
 
 def data_type_similarity(token_set1, token_set2):

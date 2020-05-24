@@ -8,14 +8,15 @@ from .structural_similarity import compute_ssim, change_structural_similarity
 from ..match import Match
 
 
-def compute_weighted_similarity(ssim, lsim, w_struct=0.5):
-    return w_struct * ssim + (1 - w_struct) * lsim
+def compute_weighted_similarity(s_sim, l_sim, w_struct=0.5):
+    return w_struct * s_sim + (1 - w_struct) * l_sim
 
 
 def tree_match(source_tree, target_tree, categories, leaf_w_struct, w_struct, th_accept, th_high, th_low, c_inc, c_dec,
-               th_ns):
+               th_ns, parallelism):
     compatibility_table = compute_compatibility(categories)
-    lsims = comparison(source_tree, target_tree, compatibility_table, th_ns)
+    l_sims = comparison(source_tree, target_tree, compatibility_table, th_ns, parallelism)
+    print(l_sims)
     s_leaves = source_tree.get_leaves()
     t_leaves = target_tree.get_leaves()
     all_leaves = product(s_leaves, t_leaves)
@@ -23,10 +24,10 @@ def tree_match(source_tree, target_tree, categories, leaf_w_struct, w_struct, th
 
     for s, t in all_leaves:
         if s.data_type in compatibility_table and t.data_type in compatibility_table:
-            ssim = compatibility_table[s.data_type][t.data_type]
-            wsim = compute_weighted_similarity(ssim, lsims.get((s.long_name, t.long_name), 0), leaf_w_struct)
-            sims[(s.long_name, t.long_name)] = {'ssim': ssim, 'lsim': lsims.get((s.long_name, t.long_name), 0),
-                                                'wsim': wsim}
+            s_sim = compatibility_table[s.data_type][t.data_type]
+            w_sim = compute_weighted_similarity(s_sim, l_sims.get((s.long_name, t.long_name), 0), leaf_w_struct)
+            sims[(s.long_name, t.long_name)] = {'ssim': s_sim, 'lsim': l_sims.get((s.long_name, t.long_name), 0),
+                                                'wsim': w_sim}
 
     s_post_order = [node for node in PostOrderIter(source_tree.root)]
     t_post_order = [node for node in PostOrderIter(target_tree.root)]
@@ -51,11 +52,11 @@ def tree_match(source_tree, target_tree, categories, leaf_w_struct, w_struct, th
                 if math.isnan(ssim):
                     continue
 
-                if (s.long_name, t.long_name) not in lsims:
-                    lsims[(s.long_name, t.long_name)] = 0
+                if (s.long_name, t.long_name) not in l_sims:
+                    l_sims[(s.long_name, t.long_name)] = 0
 
-                wsim = compute_weighted_similarity(ssim, lsims[(s.long_name, t.long_name)], w_struct)
-                sims[(s_name, t_name)] = {'ssim': ssim, 'lsim': lsims[(s.long_name, t.long_name)], 'wsim': wsim}
+                wsim = compute_weighted_similarity(ssim, l_sims[(s.long_name, t.long_name)], w_struct)
+                sims[(s_name, t_name)] = {'ssim': ssim, 'lsim': l_sims[(s.long_name, t.long_name)], 'wsim': wsim}
 
             if (s_name, t_name) in sims and sims[(s_name, t_name)]['wsim'] > th_high:
                 change_structural_similarity(list(map(lambda n: n.long_name, s.leaves)),
