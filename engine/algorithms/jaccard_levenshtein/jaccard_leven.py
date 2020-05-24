@@ -1,5 +1,5 @@
 from itertools import product
-from multiprocessing import Pool, get_context
+from multiprocessing import get_context
 import Levenshtein as Lv
 
 from ..base_matcher import BaseMatcher
