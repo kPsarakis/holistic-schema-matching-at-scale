@@ -38,20 +38,18 @@ class JaccardLevenMatcher(BaseMatcher):
         target_table: BaseTable
         source_column: BaseColumn
         target_column: BaseColumn
-        with get_context("spawn").Pool(self.process_num) as process_pool:
-            for (source_table, target_table) in product(source.get_tables().values(), target.get_tables().values()):
-                for source_column, target_column in product(source_table.get_columns(), target_table.get_columns()):
-                    sim = self.jaccard_leven(source_column.data, target_column.data, self.threshold_leven, process_pool)
-                    if sim > 0.0:
-                        matches.append(Match(target_table.name, target_table.unique_identifier,
-                                             target_column.name, target_column.unique_identifier,
-                                             source_table.name, source_table.unique_identifier,
-                                             source_column.name, source_column.unique_identifier,
-                                             sim).to_dict)
+        for (source_table, target_table) in product(source.get_tables().values(), target.get_tables().values()):
+            for source_column, target_column in product(source_table.get_columns(), target_table.get_columns()):
+                sim = self.jaccard_leven(source_column.data, target_column.data, self.threshold_leven)
+                if sim > 0.0:
+                    matches.append(Match(target_table.name, target_table.unique_identifier,
+                                         target_column.name, target_column.unique_identifier,
+                                         source_table.name, source_table.unique_identifier,
+                                         source_column.name, source_column.unique_identifier,
+                                         sim).to_dict)
         return matches
 
-    @staticmethod
-    def jaccard_leven(list1: list, list2: list, threshold: float, process_pool: Pool) -> float:
+    def jaccard_leven(self, list1: list, list2: list, threshold: float) -> float:
         """
         Function that takes two columns and returns their Jaccard similarity based on the Levenshtein ratio between the
         column entries (lower ration, the entries are more different)
@@ -64,8 +62,6 @@ class JaccardLevenMatcher(BaseMatcher):
             The second column's data
         threshold : float
             The Levenshtein ratio
-        process_pool : Pool
-            The process pool that will check multiple column combinations in parallel
 
         Returns
         -------
@@ -82,9 +78,14 @@ class JaccardLevenMatcher(BaseMatcher):
 
         combinations = list(get_set_combinations(set1, set2, threshold))
 
-        intersection_cnt_list = list(process_pool.map(process_lv, combinations))
-
-        intersection_cnt = sum(intersection_cnt_list)
+        if self.process_num == 1:
+            intersection_cnt = 0
+            for cmb in combinations:
+                intersection_cnt = intersection_cnt + process_lv(cmb)
+        else:
+            with get_context("spawn").Pool(self.process_num) as process_pool:
+                intersection_cnt_list = list(process_pool.map(process_lv, combinations))
+                intersection_cnt = sum(intersection_cnt_list)
 
         union_cnt = len(set1) + len(set2) - intersection_cnt
 
