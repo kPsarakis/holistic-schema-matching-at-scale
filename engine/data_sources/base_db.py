@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from typing import Dict
+from typing import Dict, List
 
 from .base_table import BaseTable
 
@@ -21,7 +21,7 @@ class BaseDB(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_tables(self) -> Dict[str, BaseTable]:
+    def get_tables(self, load_data: bool = True) -> Dict[str, BaseTable]:
         raise NotImplementedError
 
     @abstractmethod
@@ -32,16 +32,16 @@ class BaseDB(ABC):
     def add_table(self, table: BaseTable) -> None:
         raise NotImplementedError
 
-    @property
-    def number_of_tables(self) -> int:
-        return len(self.get_tables())
+    def get_table_str_guids(self) -> List[str]:
+        raise NotImplementedError
 
     @property
-    def number_of_columns(self) -> int:
-        number_of_columns = 0
-        for table in self.get_tables().values():
-            number_of_columns += table.number_of_columns
-        return number_of_columns
+    @abstractmethod
+    def is_empty(self) -> bool:
+        raise NotImplementedError
+
+    def number_of_tables(self) -> int:
+        return len(self.get_tables(load_data=False))
 
     def __str__(self):
         __str = "DB: " + self.name + "  |  " + str(self.unique_identifier) + "\n"

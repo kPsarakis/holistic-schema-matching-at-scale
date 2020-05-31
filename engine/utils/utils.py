@@ -122,3 +122,8 @@ def get_timestamp() -> str:
 
 def get_sha1_hash_of_string(string: str) -> str:
     return str(hashlib.sha1(string.encode()).hexdigest())
+
+
+def delete_file(path: str):
+    if os.path.exists(path):
+        os.remove(path)

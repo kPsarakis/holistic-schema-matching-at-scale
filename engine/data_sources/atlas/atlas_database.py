@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 from multiprocessing import get_context
 
 from .atlas_table import AtlasTable
@@ -31,6 +31,13 @@ class AtlasDatabase(BaseDB):
     def get_tables(self) -> Dict[str, BaseTable]:
         tables: Dict[str, BaseTable] = {val.name: val for val in self.__tables.values() if val.number_of_columns > 0}
         return tables
+
+    def get_table_str_guids(self) -> List[str]:
+        pass
+
+    @property
+    def is_empty(self) -> bool:
+        pass
 
     def remove_table(self, guid: object) -> BaseTable:
         table_to_be_removed = self.__tables[guid]

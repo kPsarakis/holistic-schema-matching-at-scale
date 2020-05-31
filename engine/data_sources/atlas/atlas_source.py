@@ -35,6 +35,9 @@ class AtlasSource(BaseSource):
 
         return self.__schemata[guid]
 
+    def contains_db(self, guid: object) -> bool:
+        pass
+
     def get_all_dbs(self) -> Dict[object, AtlasDatabase]:
         with ThreadPool(self.__parallelism) as process_pool:
             self.__schemata = dict(process_pool.starmap(self.parallel_source_initialization,

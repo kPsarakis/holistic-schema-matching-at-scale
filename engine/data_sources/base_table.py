@@ -30,8 +30,9 @@ class BaseTable(ABC):
         raise NotImplementedError
 
     @property
-    def number_of_columns(self) -> int:
-        return len(self.get_columns())
+    @abstractmethod
+    def is_empty(self) -> bool:
+        raise NotImplementedError
 
     @cached_property
     def get_guid_column_lookup(self) -> Dict[str, object]:

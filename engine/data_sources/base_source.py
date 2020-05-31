@@ -15,17 +15,21 @@ class GUIDMissing(Error):
 
 class BaseSource(ABC):
     """
-    Abstract class representing a source (i.e. Atlas, csv_file_store)
+    Abstract class representing a source (i.e. Atlas, Minio)
     """
 
     @abstractmethod
-    def get_db(self, guid: object) -> BaseDB:
+    def contains_db(self, guid: object) -> bool:
         raise NotImplementedError
 
     @abstractmethod
-    def get_all_dbs(self) -> Dict[object, BaseDB]:
+    def get_db(self, guid: object, load_data: bool = True) -> BaseDB:
         raise NotImplementedError
 
     @abstractmethod
-    def get_db_table(self, guid: object, db_guid: object = None) -> Union[BaseDB, BaseTable]:
+    def get_all_dbs(self, load_data: bool = True) -> Dict[object, BaseDB]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_db_table(self, guid: object, db_guid: object = None, load_data: bool = True) -> Union[BaseDB, BaseTable]:
         raise NotImplementedError

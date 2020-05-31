@@ -39,6 +39,13 @@ class AtlasTable(BaseTable, BaseDB):
     def get_tables(self):
         return {self.name: self}
 
+    @property
+    def is_empty(self) -> bool:
+        pass
+
+    def get_table_str_guids(self) -> List[str]:
+        pass
+
     def remove_table(self, guid: object) -> None:
         pass
 
