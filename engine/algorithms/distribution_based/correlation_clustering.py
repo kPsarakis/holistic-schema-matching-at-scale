@@ -99,6 +99,9 @@ class CorrelationClustering(BaseMatcher):
         self.dataset_name = source.name + "___" + target.name
         all_tables: List[BaseTable] = list(source.get_tables().values()) + list(target.get_tables().values())
 
+        if len(all_tables) == 2 and all_tables[0].unique_identifier == all_tables[1].unique_identifier:
+            return []
+
         if self.clear_cache:
             data = []
             for table in all_tables:
@@ -107,21 +110,58 @@ class CorrelationClustering(BaseMatcher):
             generate_global_ranks(data, self.dataset_name)
             del data
 
-        with get_context("spawn").Pool(self.process_num) as process_pool:
+        if self.process_num == 1:
             for table in all_tables:
+
                 self.column_names.extend(list(map(lambda x: (table.name, table.unique_identifier,
                                                              x.name, x.unique_identifier),
                                                   table.get_columns())))
                 columns: List[BaseColumn] = table.get_columns()
-                process_pool.map(process_columns, ingestion_column_generator(columns, table.name,
-                                                                             str(table.unique_identifier),
-                                                                             self.dataset_name, self.quantiles))
+                for tup in ingestion_column_generator(columns, table.name, table.unique_identifier,
+                                                      self.dataset_name, self.quantiles):
+                    process_columns(tup)
+            matches = self.find_matches()
+        else:
+            with get_context("spawn").Pool(self.process_num) as process_pool:
+                for table in all_tables:
+                    self.column_names.extend(list(map(lambda x: (table.name, table.unique_identifier,
+                                                                 x.name, x.unique_identifier),
+                                                      table.get_columns())))
+                    columns: List[BaseColumn] = table.get_columns()
+                    process_pool.map(process_columns, ingestion_column_generator(columns, table.name,
+                                                                                 table.unique_identifier,
+                                                                                 self.dataset_name, self.quantiles))
 
-            matches = self.find_matches(process_pool, self.chunk_size)
+                matches = self.find_matches_parallel(process_pool, self.chunk_size)
 
         return matches
 
-    def find_matches(self, pool: Pool, chunk_size: int = None):
+    def find_matches(self):
+        connected_components = discovery.compute_distribution_clusters(self.column_names, self.dataset_name,
+                                                                       self.threshold1, self.quantiles)
+
+        # self.write_clusters_to_json(connected_components, 'Distribution_Clusters.json')
+
+        all_attributes = list()
+        i = 1
+        for components in connected_components:
+            if len(components) > 1:
+                i = i + 1
+                edges = discovery.compute_attributes(list(components), self.dataset_name, self.threshold2,
+                                                     self.quantiles)
+                all_attributes.append((list(components), edges))
+
+        results = list()
+        for components, edges in all_attributes:
+            results.append(discovery.correlation_clustering_pulp(components, edges))
+
+        attribute_clusters = discovery.process_correlation_clustering_result(results, self.column_names)
+
+        # self.write_clusters_to_json(attribute_clusters, 'Attribute_Clusters(Matches).json')
+
+        return self.rank_output(attribute_clusters)
+
+    def find_matches_parallel(self, pool: Pool, chunk_size: int = None):
         """
         "Main" function of [1] that will calculate first the distribution clusters and then the attribute clusters
 
@@ -132,9 +172,9 @@ class CorrelationClustering(BaseMatcher):
         chunk_size: int, optional
             the number of chunks of each job process (default let the framework decide)
         """
-        connected_components = discovery.compute_distribution_clusters(self.column_names, self.dataset_name,
-                                                                       self.threshold1, pool, chunk_size,
-                                                                       self.quantiles)
+        connected_components = discovery.compute_distribution_clusters_parallel(self.column_names, self.dataset_name,
+                                                                                self.threshold1, pool, chunk_size,
+                                                                                self.quantiles)
 
         # self.write_clusters_to_json(connected_components, 'Distribution_Clusters.json')
 
@@ -143,8 +183,8 @@ class CorrelationClustering(BaseMatcher):
         for components in connected_components:
             if len(components) > 1:
                 i = i + 1
-                edges = discovery.compute_attributes(list(components), self.dataset_name, self.threshold2, pool,
-                                                     chunk_size, self.quantiles)
+                edges = discovery.compute_attributes_parallel(list(components), self.dataset_name, self.threshold2,
+                                                              pool, chunk_size, self.quantiles)
                 all_attributes.append((list(components), edges))
 
         results = list()

@@ -4,7 +4,7 @@ import re
 import shutil
 import subprocess
 from functools import lru_cache
-from typing import List
+from typing import List, Tuple
 
 from .column_model import CorrelationClusteringColumn
 from .emd_utils import intersection_emd, quantile_emd
@@ -44,7 +44,8 @@ def compute_cutoff_threshold(C: list, threshold: float):
     return cutoff
 
 
-def column_combinations(columns: list, dataset_name: str, quantiles: int, intersection: bool = False):
+def column_combinations(columns: List[Tuple], dataset_name: str, quantiles: int,
+                        intersection: bool = False):
     """
     All the unique combinations between all the columns
 
@@ -67,14 +68,12 @@ def column_combinations(columns: list, dataset_name: str, quantiles: int, inters
     c = len(columns)
     c_i = 0
     while c_i < c:
-        name_i = columns[c_i]
-        table_i = name_i[0]
+        table_name_i, table_guid_i, column_name_i, column_guid_i = columns[c_i]
         c_j = c_i + 1
         while c_j < c:
-            name_j = columns[c_j]
-            table_j = name_j[0]
-            if table_i != table_j:
-                yield (name_i, name_j), dataset_name, quantiles, intersection
+            table_name_j, table_guid_j, column_name_j, column_guid_j = columns[c_j]
+            if table_guid_i != table_guid_j:
+                yield (columns[c_i], columns[c_j]), dataset_name, quantiles, intersection
             c_j = c_j + 1
         c_i = c_i + 1
 
@@ -100,7 +99,6 @@ def process_emd(tup: tuple):
 
     c1 = read_from_cache(str((tn_i, cn_i)), dataset_name)
     c2 = read_from_cache(str((tn_j, cn_j)), dataset_name)
-
     if intersection:
         return k, intersection_emd(c1, c2, quantile)
     else:
@@ -194,8 +192,9 @@ def process_columns(tup: tuple):
     tup : tuple
         tuple containing the information of the column to be processed
     """
-    column_name, data, source_name, source_guid, dataset_name, quantiles = tup
-    column = CorrelationClusteringColumn(column_name, data, source_name, source_guid, dataset_name, quantiles)
+    column_name, column_uid, data, source_name, source_guid, dataset_name, quantiles = tup
+    column = CorrelationClusteringColumn(column_name, column_uid, data, source_name, source_guid,
+                                         dataset_name, quantiles)
     if column.size > 0:
         column.quantile_histogram = QuantileHistogram(column.long_name, column.ranks, column.size, quantiles)
     tn_i, _, cn_i, _ = column.long_name
@@ -222,16 +221,16 @@ def parallel_cutoff_threshold(tup: tuple):
     return Nc
 
 
-def ingestion_column_generator(columns: List[BaseColumn], table_name: str, table_guid: str,
+def ingestion_column_generator(columns: List[BaseColumn], table_name: str, table_guid: object,
                                dataset_name: str, quantiles: int):
     """
     Generator of incoming pandas dataframe columns
     """
     for column in columns:
-        yield column.name, column.data, table_name, table_guid, dataset_name, quantiles
+        yield column.name, column.unique_identifier, column.data, table_name, table_guid, dataset_name, quantiles
 
 
-def cuttoff_column_generator(A: dict, columns: list, dataset_name: str, threshold: float):
+def cuttoff_column_generator(A: dict, columns: List[Tuple[str, str, str, str]], dataset_name: str, threshold: float):
     """
     Generator of columns for the cutoff threshold computation
     """
@@ -321,9 +320,6 @@ def calc_chunksize(n_workers: int, len_iterable: int, factor: int = 4):
 
 def create_cache_dirs():
     """ Create the directories needed for the correlation clustering algorithm"""
-    if not os.path.exists('cache'):
-        os.makedirs('cache')
-    if not os.path.exists('cache/global_ranks'):
-        os.makedirs('cache/global_ranks')
-    if not os.path.exists('cache/sorts'):
-        os.makedirs('cache/sorts')
+    create_folder('cache')
+    create_folder('cache/global_ranks')
+    create_folder('cache/sorts')

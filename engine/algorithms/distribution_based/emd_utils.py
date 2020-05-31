@@ -71,7 +71,7 @@ def intersection_emd(column1: CorrelationClusteringColumn, column2: CorrelationC
                     if x in common_elements]  # The intersection of the two columns
 
     intersection_column = CorrelationClusteringColumn(
-        "Intersection of " + str(column1.long_name) + " " + str(column2.long_name), intersection, "", "",
+        "", "Intersection of " + str(column1.long_name) + " " + str(column2.long_name), intersection, "", "",
         column1.dataset_name, quantiles)
 
     e1 = quantile_emd(column1, intersection_column, quantiles)

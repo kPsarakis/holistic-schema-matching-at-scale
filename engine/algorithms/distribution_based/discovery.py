@@ -1,4 +1,6 @@
 from ast import literal_eval
+from typing import List, Tuple
+
 import numpy as np
 import networkx as nx
 import pulp as plp
@@ -9,8 +11,49 @@ from .clustering_utils import column_combinations, calc_chunksize, transform_dic
     parallel_cutoff_threshold, cuttoff_column_generator, compute_cutoff_threshold
 
 
-def compute_distribution_clusters(columns: list, dataset_name: str, threshold: float, pool: Pool,
-                                  chunk_size: int = None, quantiles: int = 256):
+def compute_distribution_clusters(columns: List[Tuple[str, str, str, str]], dataset_name: str, threshold: float,
+                                  quantiles: int = 256):
+    """
+    Algorithm 2 of the paper "Automatic Discovery of Attributes in Relational Databases" from M. Zhang et al. [1]. This
+    algorithm captures which columns contain data with similar distributions based on the EMD distance metric.
+
+    Parameters
+    ---------
+    columns : list(str)
+        The column names of the database
+    dataset_name : str
+        Other name of the dataset
+    threshold : float
+        The conservative global EMD cutoff threshold described in [1]
+    quantiles : int, optional
+        The number of quantiles that the histograms are split on (default is 256)
+
+    Returns
+    -------
+    list(list(str))
+        A list that contains the distribution clusters that contain the column names in the cluster
+    """
+    combinations = column_combinations(columns, dataset_name, quantiles, intersection=False)
+
+    A: dict = transform_dict({k: v for k, v in [process_emd(cmb) for cmb in combinations]})
+
+    # print("A: ", A)
+
+    ctf_clm_gnr = cuttoff_column_generator(A, columns, dataset_name, threshold)
+
+    edges_per_column: list = [parallel_cutoff_threshold(tup) for tup in ctf_clm_gnr]
+
+    graph = create_graph(columns, edges_per_column)
+
+    connected_components = list(nx.connected_components(graph))
+
+    # print("connected_components: ", connected_components)
+
+    return connected_components
+
+
+def compute_distribution_clusters_parallel(columns: list, dataset_name: str, threshold: float, pool: Pool,
+                                           chunk_size: int = None, quantiles: int = 256):
     """
     Algorithm 2 of the paper "Automatic Discovery of Attributes in Relational Databases" from M. Zhang et al. [1]. This
     algorithm captures which columns contain data with similar distributions based on the EMD distance metric.
@@ -55,8 +98,63 @@ def compute_distribution_clusters(columns: list, dataset_name: str, threshold: f
     return connected_components
 
 
-def compute_attributes(DC: list, dataset_name: str, threshold: float, pool: Pool, chunk_size: int = None,
-                       quantiles: int = 256):
+def compute_attributes(DC: list, dataset_name: str, threshold: float, quantiles: int = 256):
+    """
+    Algorithm 3 of the paper "Automatic Discovery of Attributes in Relational Databases" from M. Zhang et al.[1]
+    This algorithm creates the attribute graph of the distribution clusters computed in algorithm 2.
+
+    Parameters
+    ---------
+    DC : list(str)
+        The distribution clusters computed in algorithm 2
+    dataset_name : str
+        Other name of the dataset
+    threshold : float
+        The conservative global EMD cutoff threshold described in [1]
+    quantiles : int, optional
+        The number of quantiles that the histograms are split on (default is 256)
+
+    Returns
+    -------
+    dict
+        A dictionary that contains the attribute graph of the distribution clusters
+    """
+
+    combinations = column_combinations(DC, dataset_name, quantiles, intersection=True)
+
+    I: dict = transform_dict({k: v for k, v in [process_emd(cmb) for cmb in combinations]})
+
+    # print("I: ", I)
+
+    GA = dict()
+    E = np.zeros((len(DC), len(DC)))
+
+    for i in range(len(DC)):
+        name_i = DC[i]
+
+        cutoff_i = compute_cutoff_threshold(I[name_i], threshold)
+
+        Nc = [i['c'] for i in I[name_i] if i['e'] <= cutoff_i]
+
+        for Cj in Nc:
+            E[i][DC.index(Cj)] = 1
+        GA[DC[i]] = dict()
+
+    M = E + np.dot(E, E)
+    for i in range(len(DC)):
+        for j in range(len(DC)):
+            if M[i][j] == 0:
+                GA[DC[i]][DC[j]] = -1
+            else:
+                GA[DC[i]][DC[j]] = 1
+
+    # print("GA: ", GA)
+
+    return GA
+
+
+def compute_attributes_parallel(DC: list, dataset_name: str, threshold: float, pool: Pool, chunk_size: int = None,
+                                quantiles: int = 256):
     """
     Algorithm 3 of the paper "Automatic Discovery of Attributes in Relational Databases" from M. Zhang et al.[1]
     This algorithm creates the attribute graph of the distribution clusters computed in algorithm 2.

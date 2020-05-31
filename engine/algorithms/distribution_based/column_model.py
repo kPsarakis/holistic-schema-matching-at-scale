@@ -29,7 +29,8 @@ class CorrelationClusteringColumn(BaseColumn):
         Returns the original data instances
     """
 
-    def __init__(self, name: str, data: list, table_name: str, table_guid: str, dataset_name: str, quantiles: int):
+    def __init__(self, name: str, column_uid: str, data: list,
+                 table_name: str, table_guid: str, dataset_name: str, quantiles: int):
         """
         Parameters
         ----------
@@ -45,6 +46,7 @@ class CorrelationClusteringColumn(BaseColumn):
             The number of quantiles of the column's quantile histogram
         """
         self.__name = name
+        self.__uid = column_uid
         self.__data = data
         self.__table_name = table_name
         self.__table_guid = table_guid
@@ -55,7 +57,7 @@ class CorrelationClusteringColumn(BaseColumn):
 
     @property
     def unique_identifier(self) -> object:
-        return self.__name
+        return self.__uid
 
     @property
     def name(self) -> str:
