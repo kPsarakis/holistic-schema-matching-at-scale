@@ -1,4 +1,3 @@
-import shutil
 import subprocess
 import os
 import csv
@@ -10,7 +9,8 @@ from ..base_matcher import BaseMatcher
 from ..match import Match
 from ...data_sources.base_db import BaseDB
 from ...data_sources.base_table import BaseTable
-from ...utils.utils import create_folder, get_project_root
+from ...data_sources.minio.minio_utils import correct_file_ending
+from ...utils.utils import create_folder, get_project_root, delete_file
 
 
 class Coma(BaseMatcher):
@@ -20,12 +20,14 @@ class Coma(BaseMatcher):
         self.strategy = strategy
 
     def get_matches(self, source_input: BaseDB, target_input: BaseDB) -> List[Dict]:
-        tmp_folder_path: str = get_project_root() + '/algorithms/coma/tmp_data'
+        tmp_folder_path: str = get_project_root() + '/algorithms/coma/tmp_data/'
         create_folder(tmp_folder_path)
-        create_folder(get_project_root() + '/algorithms/coma/coma_output')
-        dataset_name = source_input.name + "____" + target_input.name
-        coma_output_path = get_project_root() + "/algorithms/coma/coma_output/" + dataset_name + str(self.max_n) + \
-                           self.strategy + ".txt"
+
+        coma_output_path: str = get_project_root() + '/algorithms/coma/coma_output/'
+        create_folder(coma_output_path)
+
+        dataset_name: str = source_input.name + "____" + target_input.name
+        coma_output_file: str = coma_output_path + '/' + dataset_name + str(self.max_n) + self.strategy + ".txt"
 
         matches = []
 
@@ -33,40 +35,39 @@ class Coma(BaseMatcher):
         target_tables = [table for table in target_input.get_tables().values()]
 
         for s_table, t_table in product(source_tables, target_tables):
-            s_fname, t_fname = self.write_schema_csv_files(s_table, t_table)
-            self.run_coma_jar(s_fname, t_fname, coma_output_path)
-            raw_output = self.read_coma_output(s_fname, t_fname, coma_output_path)
+            s_f_name, t_f_name = self.write_schema_csv_files(s_table, t_table)
+            self.run_coma_jar(s_f_name, t_f_name, coma_output_file)
+            raw_output = self.read_coma_output(s_f_name, t_f_name, coma_output_file)
             matches.extend(self.process_coma_output(raw_output, t_table, s_table))
+            delete_file(s_f_name)
+            delete_file(t_f_name)
 
-        if os.path.exists(coma_output_path):
-            os.remove(coma_output_path)
-
-        if os.path.exists(tmp_folder_path):
-            shutil.rmtree(tmp_folder_path)
+        delete_file(coma_output_file)
 
         return matches
 
-    def run_coma_jar(self, source_table_fname: str, target_table_fname: str, coma_output_path):
+    def run_coma_jar(self, source_table_f_name: str, target_table_f_name: str, coma_output_path):
         jar_path = get_project_root() + '/algorithms/coma/artifact/coma.jar'
         jar_path = os.path.relpath(jar_path, get_project_root())
-        source_data = os.path.relpath(source_table_fname, get_project_root())
-        target_data = os.path.relpath(target_table_fname, get_project_root())
+        source_data = os.path.relpath(source_table_f_name, get_project_root())
+        target_data = os.path.relpath(target_table_f_name, get_project_root())
         coma_output_path = os.path.relpath(coma_output_path, get_project_root())
-        # fh = open("NUL", "w")
-        subprocess.call(['java', '-Xmx2000m',  # YOU MIGHT NEED TO INCREASE THE MEMORY HERE WITH BIGGER TABLES
+        fh = open("NUL", "w")
+        subprocess.call(['java', '-Xmx4000m',  # YOU MIGHT NEED TO INCREASE THE MEMORY HERE WITH BIGGER TABLES
                          '-cp', jar_path,
                          '-DinputFile1=' + source_data,
                          '-DinputFile2=' + target_data,
                          '-DoutputFile=' + coma_output_path,
                          '-DmaxN=' + str(self.max_n),
                          '-Dstrategy=' + self.strategy,
-                         'Main'])#,
-                        # stdout=fh, stderr=fh)
+                         'Main'], stdout=fh, stderr=fh)
 
     def write_schema_csv_files(self, table1: BaseTable, table2: BaseTable):
-        fname1 = self.write_csv_file(table1.name, list(map(lambda x: x.name, table1.get_columns())))
-        fname2 = self.write_csv_file(table2.name, list(map(lambda x: x.name, table2.get_columns())))
-        return fname1, fname2
+        f_name1 = self.write_csv_file(table1.name,
+                                      list(map(lambda x: x.name, table1.get_columns())))
+        f_name2 = self.write_csv_file(table2.name,
+                                      list(map(lambda x: x.name, table2.get_columns())))
+        return f_name1, f_name2
 
     def process_coma_output(self, matches, t_table: BaseTable, s_table: BaseTable) -> List:
         if matches is None:
@@ -86,29 +87,30 @@ class Coma(BaseMatcher):
                                           float(similarity)).to_dict)
         return formatted_output
 
-    def read_coma_output(self, s_fname, t_fname, coma_output_path, retries=0):
+    def read_coma_output(self, s_f_name, t_f_name, coma_output_path, retries=0):
         try:
             with open(coma_output_path) as f:
                 matches = f.readlines()
             matches = [x.strip() for x in matches]
             matches.pop()
         except FileNotFoundError:
-            if 1 < retries < 3:
-                self.run_coma_jar(s_fname, t_fname, coma_output_path)
-            elif retries > 3:
+            if retries == 1:
+                self.run_coma_jar(s_f_name, t_f_name, coma_output_path)
+            elif retries == 3:
                 return []
-            time.sleep(1)
-            self.read_coma_output(s_fname, t_fname, coma_output_path, retries + 1)
+            else:
+                time.sleep(1)
+            self.read_coma_output(s_f_name, t_f_name, coma_output_path, retries + 1)
         else:
             return matches
 
     @staticmethod
     def write_csv_file(table_name: str, data: List[str]) -> str:
-        fname: str = get_project_root() + '/algorithms/coma/tmp_data/' + table_name + '.csv'
-        with open(fname, 'w', newline='') as out:
+        f_name: str = correct_file_ending(get_project_root() + '/algorithms/coma/tmp_data/' + table_name)
+        with open(f_name, 'w', newline='') as out:
             writer = csv.writer(out)
             writer.writerow(data)
-        return fname
+        return f_name
 
     @staticmethod
     def get_column(match) -> str:
