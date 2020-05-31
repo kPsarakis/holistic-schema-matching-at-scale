@@ -1,13 +1,13 @@
-import json
 import os
 
 from celery import Celery, chord
 from celery.result import AsyncResult
 from minio.error import NoSuchKey
 from flask import Flask, request, abort, Response
-from typing import Dict
-from redis import Redis
+from typing import Dict, List
 from itertools import product
+
+from pandas.errors import EmptyDataError
 
 from engine.data_sources.atlas.atlas_table import AtlasTable
 from engine.data_sources.base_source import GUIDMissing
@@ -17,25 +17,27 @@ from engine.data_sources.base_table import BaseTable
 from engine.data_sources.minio.minio_source import MinioSource
 from engine.data_sources.minio.minio_table import MinioTable
 from engine.utils.api_utils import AtlasPayload, get_atlas_payload, validate_matcher, get_atlas_source, \
-     get_holistic_matches, format_matches, get_matcher, MinioPayload, get_minio_payload
-from engine.utils.exceptions import check_if_table_has_columns, check_if_db_is_empty
-from engine.utils.utils import get_sha1_hash_of_string, get_timestamp
+     get_holistic_matches, get_matcher, MinioPayload, get_minio_payload
 
 app = Flask(__name__)
 app.config['CELERY_BROKER_URL'] = os.environ['CELERY_BROKER_URL']
 app.config['CELERY_RESULT_BACKEND_URL'] = os.environ['CELERY_RESULT_BACKEND_URL']
-app.config['CELERY_ACCEPT_CONTENT'] = ['pickle', 'json']
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'], backend=app.config['CELERY_RESULT_BACKEND_URL'])
 celery.conf.update(app.config)
+celery.conf.update(task_serializer='json',
+                   accept_content=['json'],
+                   result_serializer='json')
 
 
-# redis_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'])
-
-
-@celery.task(serializer='pickle')
-def get_matches(matching_algorithm: str, algorithm_params: dict, target_table, source_table):
+@celery.task
+def get_matches_minio(matching_algorithm: str, algorithm_params: dict, target_table: tuple, source_table: tuple):
     matcher = get_matcher(matching_algorithm, algorithm_params)
-    return matcher.get_matches(source_table, target_table)
+    minio_source: MinioSource = MinioSource()
+    target_db_name, target_table_name = target_table
+    source_db_name, source_table_name = source_table
+    target_minio_table: MinioTable = minio_source.get_db_table(target_table_name, target_db_name)
+    source_minio_table: MinioTable = minio_source.get_db_table(source_table_name, source_db_name)
+    return matcher.get_matches(source_minio_table, target_minio_table)
 
 
 @celery.task
@@ -138,17 +140,20 @@ def find_holistic_matches_of_table_minio():
     validate_matcher(payload.matching_algorithm, payload.matching_algorithm_params, "minio")
     minio_source: MinioSource = MinioSource()
     try:
-        table: MinioTable = minio_source.get_db_table(payload.table_name, payload.db_name)
-        check_if_table_has_columns(table)
-        dbs: Dict[object, BaseDB] = minio_source.get_all_dbs()
-    except NoSuchKey:
+        dbs_tables_guids: List[List[str]] = list(map(lambda x: x.get_table_str_guids(),
+                                                     minio_source.get_all_dbs().values()))
+        table: MinioTable = minio_source.get_db_table(payload.table_name, payload.db_name, load_data=False)
+    except (GUIDMissing, NoSuchKey):
         abort(400, "The table does not exist")
+    except EmptyDataError:
+        abort(400, "The table does not contain any columns")
     else:
-        matches = get_holistic_matches(dbs, table, payload)
-        matching_jobs_guid = get_sha1_hash_of_string(
-            get_timestamp() + '/minio/holistic/' + str(table.unique_identifier))
-        # redis_db.set(matching_jobs_guid, format_matches(matches, payload.max_number_matches))
-        return matching_jobs_guid
+        callback = merge_matches.s(payload.max_number_matches)
+        header = [get_matches_minio.s(payload.matching_algorithm, payload.matching_algorithm_params, *table_combination)
+                  for table_combination in
+                  product([item for sublist in dbs_tables_guids for item in sublist], [table.unique_identifier])]
+        task: AsyncResult = chord(header)(callback)
+        return Response("celery-task-meta-" + task.id, status=200)
 
 
 @app.route('/matches/minio/other_db/<db_name>', methods=['GET'])
@@ -156,23 +161,22 @@ def find_matches_other_db_minio(db_name: str):
     payload: MinioPayload = get_minio_payload(request.json)
     validate_matcher(payload.matching_algorithm, payload.matching_algorithm_params, "minio")
     minio_source: MinioSource = MinioSource()
+    if not minio_source.contains_db(payload.db_name):
+        abort(400, "The source does not contain the given database")
     try:
-        table: MinioTable = minio_source.get_db_table(payload.table_name, payload.db_name)
-        check_if_table_has_columns(table)
-        db: BaseDB = minio_source.get_db(db_name)
-    except NoSuchKey:
+        db: BaseDB = minio_source.get_db(db_name, load_data=False)
+        if db.is_empty:
+            abort(400, "The given db does not contain any tables")
+        table: MinioTable = minio_source.get_db_table(payload.table_name, payload.db_name, load_data=False)
+    except (GUIDMissing, NoSuchKey):
         abort(400, "The table does not exist")
+    except EmptyDataError:
+        abort(400, "The table does not contain any columns")
     else:
-        check_if_db_is_empty(db)
         callback = merge_matches.s(payload.max_number_matches)
-        header = [get_matches.s(payload.matching_algorithm, payload.matching_algorithm_params, *table_combination)
-                  for table_combination in product(db.get_tables().values(), table)]
+        header = [get_matches_minio.s(payload.matching_algorithm, payload.matching_algorithm_params, *table_combination)
+                  for table_combination in product(db.get_table_str_guids(), [table.unique_identifier])]
         task: AsyncResult = chord(header)(callback)
-        # matcher = get_matcher(payload.matching_algorithm, payload.matching_algorithm_params)
-        # matches: list = matcher.get_matches(db_schema, table)
-        # matching_jobs_guid = get_sha1_hash_of_string(
-        #     get_timestamp() + '/minio/other_db/' + db_name + str(table.unique_identifier))
-        # redis_db.set(matching_jobs_guid, format_matches(matches, payload.max_number_matches))
         return Response("celery-task-meta-" + task.id, status=200)
 
 
@@ -181,26 +185,25 @@ def find_matches_within_db_minio():
     payload: MinioPayload = get_minio_payload(request.json)
     validate_matcher(payload.matching_algorithm, payload.matching_algorithm_params, "minio")
     minio_source: MinioSource = MinioSource()
+    if not minio_source.contains_db(payload.db_name):
+        abort(400, "The source does not contain the given database")
     try:
-        table: MinioTable = minio_source.get_db_table(payload.table_name, payload.db_name)
-        check_if_table_has_columns(table)
-        db: BaseDB = minio_source.get_db(table.db_belongs_uid)
-    except NoSuchKey:
+        db: BaseDB = minio_source.get_db(payload.db_name, load_data=False)
+        if db.is_empty:
+            abort(400, "The given db does not contain any tables")
+        if db.number_of_tables == 1:
+            abort(400, "The given db only contains one table")
+        table: MinioTable = minio_source.get_db_table(payload.table_name, payload.db_name, load_data=False)
+    except (GUIDMissing, NoSuchKey):
         abort(400, "The table does not exist")
+    except EmptyDataError:
+        abort(400, "The table does not contain any columns")
     else:
         r_table: BaseTable = db.remove_table(payload.table_name)
-        check_if_db_is_empty(db)
         callback = merge_matches.s(payload.max_number_matches)
-        header = [get_matches.s(payload.matching_algorithm, payload.matching_algorithm_params, *table_combination)
-                  for table_combination in product(db.get_tables().values(), [table])]
+        header = [get_matches_minio.s(payload.matching_algorithm, payload.matching_algorithm_params, *table_combination)
+                  for table_combination in product(db.get_table_str_guids(), [table.unique_identifier])]
         task: AsyncResult = chord(header)(callback)
-        # matcher = get_matcher(payload.matching_algorithm, payload.matching_algorithm_params)
-        # matches: list = matcher.get_matches(db_schema, table)
-        # add the removed table back into the schema
-        db.add_table(r_table)
-        # matching_jobs_guid = get_sha1_hash_of_string(get_timestamp() +
-        #                                              '/minio/within_db/' + str(table.unique_identifier))
-        # redis_db.set(matching_jobs_guid, format_matches(matches, payload.max_number_matches))
         return Response("celery-task-meta-" + task.id, status=200)
 
 

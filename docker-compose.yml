@@ -34,6 +34,7 @@ services:
       - PYTHONUNBUFFERED=1
     env_file:
       - env_files/celery.env
+      - env_files/minio.env
     depends_on:
       - celery-rabbitmq
     command: celery worker -A app.celery --loglevel=info
