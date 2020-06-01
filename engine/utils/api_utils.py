@@ -1,16 +1,12 @@
 import json
-from itertools import product
-from typing import List, Optional, Dict, Union
+from typing import List, Optional, Dict
 from flask import abort
 from pydantic import ValidationError, BaseModel
 
 from ..algorithms.algorithms import schema_only_algorithms, instance_only_algorithms, schema_instance_algorithms
 from ..algorithms.base_matcher import BaseMatcher
 from ..data_sources.atlas.atlas_source import AtlasSource
-from ..data_sources.atlas.atlas_table import AtlasTable
-from ..data_sources.base_db import BaseDB
-from ..data_sources.base_table import BaseTable
-from ..data_sources.minio.minio_table import MinioTable
+
 
 from engine.algorithms import algorithms as module_algorithms
 
@@ -103,24 +99,3 @@ def get_atlas_source(payload: AtlasPayload) -> AtlasSource:
 
 def get_matcher(name, args) -> BaseMatcher:
     return getattr(module_algorithms, name)() if args is None else getattr(module_algorithms, name)(**dict(args))
-
-
-def format_matches(matches: list, max_number_matches: int = 1000):
-    matches = sorted(matches, key=lambda k: k['sim'], reverse=True)[:max_number_matches]
-    return json.dumps(matches)
-
-
-def get_holistic_matches(dbs: Dict[object, BaseDB], table: Union[AtlasTable, MinioTable],
-                         payload: Union[AtlasPayload, MinioPayload]):
-    r_table: BaseTable = dbs[table.db_belongs_uid].remove_table(payload.table_name)
-    matches = []
-    for db in dbs.values():
-        if db.number_of_columns == 0:
-            continue
-        matcher = get_matcher(payload.matching_algorithm, payload.matching_algorithm_params)
-        current_schema_matches = matcher.get_matches(db, table)
-        current_schema_matches = sorted(current_schema_matches, key=lambda k: k['sim'],
-                                        reverse=True)[:payload.max_number_matches // 2]
-        matches.extend(current_schema_matches)
-    dbs[table.db_belongs_uid].add_table(r_table)
-    return matches

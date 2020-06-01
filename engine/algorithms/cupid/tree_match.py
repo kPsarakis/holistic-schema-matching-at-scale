@@ -16,7 +16,6 @@ def tree_match(source_tree, target_tree, categories, leaf_w_struct, w_struct, th
                th_ns, parallelism):
     compatibility_table = compute_compatibility(categories)
     l_sims = comparison(source_tree, target_tree, compatibility_table, th_ns, parallelism)
-    print(l_sims)
     s_leaves = source_tree.get_leaves()
     t_leaves = target_tree.get_leaves()
     all_leaves = product(s_leaves, t_leaves)
