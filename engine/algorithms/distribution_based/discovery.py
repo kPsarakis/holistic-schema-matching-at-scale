@@ -5,7 +5,7 @@ import numpy as np
 import networkx as nx
 import pulp as plp
 from tqdm import tqdm
-from multiprocessing import Pool
+from multiprocessing import Pool, cpu_count
 
 from .clustering_utils import column_combinations, calc_chunksize, transform_dict, process_emd, \
     parallel_cutoff_threshold, cuttoff_column_generator, compute_cutoff_threshold
@@ -35,19 +35,15 @@ def compute_distribution_clusters(columns: List[Tuple[str, str, str, str]], data
     """
     combinations = column_combinations(columns, dataset_name, quantiles, intersection=False)
 
-    A: dict = transform_dict({k: v for k, v in [process_emd(cmb) for cmb in combinations]})
+    matrix_a: dict = transform_dict({k: v for k, v in [process_emd(cmb) for cmb in combinations]})
 
-    # print("A: ", A)
-
-    ctf_clm_gnr = cuttoff_column_generator(A, columns, dataset_name, threshold)
+    ctf_clm_gnr = cuttoff_column_generator(matrix_a, columns, dataset_name, threshold)
 
     edges_per_column: list = [parallel_cutoff_threshold(tup) for tup in ctf_clm_gnr]
 
     graph = create_graph(columns, edges_per_column)
 
     connected_components = list(nx.connected_components(graph))
-
-    # print("connected_components: ", connected_components)
 
     return connected_components
 
@@ -83,12 +79,13 @@ def compute_distribution_clusters_parallel(columns: list, dataset_name: str, thr
     total = len(combinations)
 
     if chunk_size is None:
-        chunk_size = int(calc_chunksize(pool._processes, total))
+        chunk_size = int(calc_chunksize(cpu_count(), total))
 
-    A: dict = transform_dict(dict(tqdm(pool.imap_unordered(process_emd, combinations, chunksize=chunk_size),
-                                       total=total)))
+    matrix_a: dict = transform_dict(dict(tqdm(pool.imap_unordered(process_emd, combinations, chunksize=chunk_size),
+                                         total=total)))
 
-    edges_per_column = list(pool.map(parallel_cutoff_threshold, list(cuttoff_column_generator(A, columns, dataset_name,
+    edges_per_column = list(pool.map(parallel_cutoff_threshold, list(cuttoff_column_generator(matrix_a, columns,
+                                                                                              dataset_name,
                                                                                               threshold))))
 
     graph = create_graph(columns, edges_per_column)
@@ -98,14 +95,14 @@ def compute_distribution_clusters_parallel(columns: list, dataset_name: str, thr
     return connected_components
 
 
-def compute_attributes(DC: list, dataset_name: str, threshold: float, quantiles: int = 256):
+def compute_attributes(distribution_clusters: list, dataset_name: str, threshold: float, quantiles: int = 256):
     """
     Algorithm 3 of the paper "Automatic Discovery of Attributes in Relational Databases" from M. Zhang et al.[1]
     This algorithm creates the attribute graph of the distribution clusters computed in algorithm 2.
 
     Parameters
     ---------
-    DC : list(str)
+    distribution_clusters : list(str)
         The distribution clusters computed in algorithm 2
     dataset_name : str
         Other name of the dataset
@@ -120,48 +117,22 @@ def compute_attributes(DC: list, dataset_name: str, threshold: float, quantiles:
         A dictionary that contains the attribute graph of the distribution clusters
     """
 
-    combinations = column_combinations(DC, dataset_name, quantiles, intersection=True)
+    combinations = column_combinations(distribution_clusters, dataset_name, quantiles, intersection=True)
 
-    I: dict = transform_dict({k: v for k, v in [process_emd(cmb) for cmb in combinations]})
+    matrix_i: dict = transform_dict({k: v for k, v in [process_emd(cmb) for cmb in combinations]})
 
-    # print("I: ", I)
-
-    GA = dict()
-    E = np.zeros((len(DC), len(DC)))
-
-    for i in range(len(DC)):
-        name_i = DC[i]
-
-        cutoff_i = compute_cutoff_threshold(I[name_i], threshold)
-
-        Nc = [i['c'] for i in I[name_i] if i['e'] <= cutoff_i]
-
-        for Cj in Nc:
-            E[i][DC.index(Cj)] = 1
-        GA[DC[i]] = dict()
-
-    M = E + np.dot(E, E)
-    for i in range(len(DC)):
-        for j in range(len(DC)):
-            if M[i][j] == 0:
-                GA[DC[i]][DC[j]] = -1
-            else:
-                GA[DC[i]][DC[j]] = 1
-
-    # print("GA: ", GA)
-
-    return GA
+    return get_attribute_graph(distribution_clusters, matrix_i, threshold)
 
 
-def compute_attributes_parallel(DC: list, dataset_name: str, threshold: float, pool: Pool, chunk_size: int = None,
-                                quantiles: int = 256):
+def compute_attributes_parallel(distribution_clusters: list, dataset_name: str, threshold: float, pool: Pool,
+                                chunk_size: int = None, quantiles: int = 256):
     """
     Algorithm 3 of the paper "Automatic Discovery of Attributes in Relational Databases" from M. Zhang et al.[1]
     This algorithm creates the attribute graph of the distribution clusters computed in algorithm 2.
 
     Parameters
     ---------
-    DC : list(str)
+    distribution_clusters : list(str)
         The distribution clusters computed in algorithm 2
     dataset_name : str
         Other name of the dataset
@@ -180,38 +151,42 @@ def compute_attributes_parallel(DC: list, dataset_name: str, threshold: float, p
         A dictionary that contains the attribute graph of the distribution clusters
     """
 
-    combinations = list(column_combinations(DC, dataset_name, quantiles, intersection=True))
+    combinations = list(column_combinations(distribution_clusters, dataset_name, quantiles, intersection=True))
 
     total = len(combinations)
 
     if chunk_size is None:
-        chunk_size = int(calc_chunksize(pool._processes, total))
+        chunk_size = int(calc_chunksize(cpu_count(), total))
 
-    I = transform_dict(dict(tqdm(pool.imap_unordered(process_emd, combinations, chunksize=chunk_size), total=total)))
+    matrix_i = transform_dict(dict(tqdm(pool.imap_unordered(process_emd, combinations, chunksize=chunk_size),
+                                        total=total)))
 
-    GA = dict()
-    E = np.zeros((len(DC), len(DC)))
+    return get_attribute_graph(distribution_clusters, matrix_i, threshold)
 
-    for i in range(len(DC)):
-        name_i = DC[i]
 
-        cutoff_i = compute_cutoff_threshold(I[name_i], threshold)
+def get_attribute_graph(distribution_clusters: list, matrix_i: dict, threshold: float):
+    g_a = dict()
+    matrix_e = np.zeros((len(distribution_clusters), len(distribution_clusters)))
 
-        Nc = [i['c'] for i in I[name_i] if i['e'] <= cutoff_i]
+    for i in range(len(distribution_clusters)):
+        name_i = distribution_clusters[i]
 
-        for Cj in Nc:
-            E[i][DC.index(Cj)] = 1
-        GA[DC[i]] = dict()
+        cutoff_i = compute_cutoff_threshold(matrix_i[name_i], threshold)
 
-    M = E + np.dot(E, E)
-    for i in range(len(DC)):
-        for j in range(len(DC)):
-            if M[i][j] == 0:
-                GA[DC[i]][DC[j]] = -1
+        n_c = [i['c'] for i in matrix_i[name_i] if i['e'] <= cutoff_i]
+
+        for c_j in n_c:
+            matrix_e[i][distribution_clusters.index(c_j)] = 1
+        g_a[distribution_clusters[i]] = dict()
+
+    matrix_m = matrix_e + np.dot(matrix_e, matrix_e)
+    for i in range(len(distribution_clusters)):
+        for j in range(len(distribution_clusters)):
+            if matrix_m[i][j] == 0:
+                g_a[distribution_clusters[i]][distribution_clusters[j]] = -1
             else:
-                GA[DC[i]][DC[j]] = 1
-
-    return GA
+                g_a[distribution_clusters[i]][distribution_clusters[j]] = 1
+    return g_a
 
 
 def correlation_clustering_pulp(vertexes: list, edges: dict):

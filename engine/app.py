@@ -199,7 +199,7 @@ def find_matches_within_db_minio():
     except EmptyDataError:
         abort(400, "The table does not contain any columns")
     else:
-        r_table: BaseTable = db.remove_table(payload.table_name)
+        db.remove_table(payload.table_name)
         callback = merge_matches.s(payload.max_number_matches)
         header = [get_matches_minio.s(payload.matching_algorithm, payload.matching_algorithm_params, *table_combination)
                   for table_combination in product(db.get_table_str_guids(), [table.unique_identifier])]

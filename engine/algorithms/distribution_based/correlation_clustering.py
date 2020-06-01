@@ -99,9 +99,6 @@ class CorrelationClustering(BaseMatcher):
         self.dataset_name = source.name + "___" + target.name
         all_tables: List[BaseTable] = list(source.get_tables().values()) + list(target.get_tables().values())
 
-        if len(all_tables) == 2 and all_tables[0].unique_identifier == all_tables[1].unique_identifier:
-            return []
-
         if self.clear_cache:
             data = []
             for table in all_tables:
