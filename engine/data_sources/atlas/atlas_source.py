@@ -26,7 +26,7 @@ class AtlasSource(BaseSource):
 
         self.__schemata = dict()
 
-    def get_db(self, guid) -> AtlasDatabase:
+    def get_db(self, guid, load_data: bool = True) -> AtlasDatabase:
         if guid not in self.__db_guids:
             raise GUIDMissing
 
@@ -38,14 +38,15 @@ class AtlasSource(BaseSource):
     def contains_db(self, guid: object) -> bool:
         pass
 
-    def get_all_dbs(self) -> Dict[object, AtlasDatabase]:
+    def get_all_dbs(self, load_data: bool = True) -> Dict[object, AtlasDatabase]:
         with ThreadPool(self.__parallelism) as process_pool:
             self.__schemata = dict(process_pool.starmap(self.parallel_source_initialization,
                                                         zip(self.__db_guids, repeat(self.__url), repeat(self.__auth),
                                                             repeat(self.__parallelism), repeat(self.__chunk_size))))
         return self.__schemata
 
-    def get_db_table(self, guid: object, db_guid: object = None) -> Union[AtlasDatabase, AtlasTable]:
+    def get_db_table(self, guid: object, db_guid: object = None,
+                     load_data: bool = True) -> Union[AtlasDatabase, AtlasTable]:
         atlas_table = get_entity_with_guid(self.__url, self.__auth, str(guid))['entity']
         if 'technologyPlatform' in atlas_table['attributes']:
             technology = atlas_table['attributes']['technologyPlatform']

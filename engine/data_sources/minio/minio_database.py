@@ -39,8 +39,6 @@ class MinioDatabase(BaseDB):
 
     def get_table_str_guids(self) -> List[tuple]:
         return list(map(lambda x: x.unique_identifier, self.__tables.values()))
-        # return list(map(lambda x: (self.__db_name, x.object_name),
-        #                 self.__minio_client.list_objects(self.__db_name, prefix=None, recursive=True)))
 
     @property
     def is_empty(self) -> bool:

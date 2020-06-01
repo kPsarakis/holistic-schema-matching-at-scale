@@ -28,8 +28,8 @@ class AtlasDatabase(BaseDB):
     def name(self):
         return self.__db_name
 
-    def get_tables(self) -> Dict[str, BaseTable]:
-        tables: Dict[str, BaseTable] = {val.name: val for val in self.__tables.values() if val.number_of_columns > 0}
+    def get_tables(self, load_data: bool = True) -> Dict[str, BaseTable]:
+        tables: Dict[str, BaseTable] = {val.name: val for val in self.__tables.values() if not val.is_empty}
         return tables
 
     def get_table_str_guids(self) -> List[str]:
@@ -37,7 +37,7 @@ class AtlasDatabase(BaseDB):
 
     @property
     def is_empty(self) -> bool:
-        pass
+        return len(self.get_tables()) == 0
 
     def remove_table(self, guid: object) -> BaseTable:
         table_to_be_removed = self.__tables[guid]

@@ -36,12 +36,12 @@ class AtlasTable(BaseTable, BaseDB):
     def get_columns(self) -> List[AtlasColumn]:
         return list(self.__columns.values())
 
-    def get_tables(self):
+    def get_tables(self, load_data: bool = True):
         return {self.name: self}
 
     @property
     def is_empty(self) -> bool:
-        pass
+        return len(self.__column_guids) == 0
 
     def get_table_str_guids(self) -> List[str]:
         pass
