@@ -26,7 +26,7 @@ class AtlasSource(BaseSource):
 
         self.__schemata = dict()
 
-    def get_db(self, guid, load_data: bool = True) -> AtlasDatabase:
+    def get_db(self, guid: str, load_data: bool = True) -> AtlasDatabase:
         if guid not in self.__db_guids:
             raise GUIDMissing
 

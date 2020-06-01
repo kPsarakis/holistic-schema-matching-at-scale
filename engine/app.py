@@ -41,15 +41,14 @@ def get_matches_minio(matching_algorithm: str, algorithm_params: dict, target_ta
 
 
 @celery.task
-def get_matches_atlas(matching_algorithm: str, algorithm_params: dict, target_table: tuple, source_table: tuple,
-                      payload):
+def get_matches_atlas(matching_algorithm: str, algorithm_params: dict, target_table_guid: str, source_table_guid: str,
+                      rj):
+    payload: AtlasPayload = get_atlas_payload(rj)
     matcher = get_matcher(matching_algorithm, algorithm_params)
     atlas_source: AtlasSource = get_atlas_source(payload)
-    target_db_name, target_table_name = target_table
-    source_db_name, source_table_name = source_table
-    target_minio_table: AtlasTable = atlas_source.get_db_table(target_table_name, target_db_name)
-    source_minio_table: AtlasTable = atlas_source.get_db_table(source_table_name, source_db_name)
-    return matcher.get_matches(source_minio_table, target_minio_table)
+    target_atlas_table: AtlasTable = atlas_source.get_db_table(target_table_guid)
+    source_atlas_table: AtlasTable = atlas_source.get_db_table(source_table_guid)
+    return matcher.get_matches(source_atlas_table, target_atlas_table)
 
 
 @celery.task
@@ -80,7 +79,8 @@ def find_holistic_matches_of_table_atlas(table_guid: str):
                    'Check if the given table types are correct or if there is a mistake in the guid')
     else:
         callback = merge_matches.s(payload.max_number_matches)
-        header = [get_matches_minio.s(payload.matching_algorithm, payload.matching_algorithm_params, *table_combination)
+        header = [get_matches_atlas.s(payload.matching_algorithm, payload.matching_algorithm_params, *table_combination,
+                                      request.json)
                   for table_combination in
                   product([item for sublist in dbs_tables_guids for item in sublist], [table.unique_identifier])]
         task: AsyncResult = chord(header)(callback)
@@ -108,7 +108,8 @@ def find_matches_other_db_atlas(table_guid: str, db_guid: str):
                    'Check if the given table types are correct or if there is a mistake in the guid')
     else:
         callback = merge_matches.s(payload.max_number_matches)
-        header = [get_matches_minio.s(payload.matching_algorithm, payload.matching_algorithm_params, *table_combination)
+        header = [get_matches_atlas.s(payload.matching_algorithm, payload.matching_algorithm_params, *table_combination,
+                                      request.json)
                   for table_combination in product(db.get_table_str_guids(), [table.unique_identifier])]
         task: AsyncResult = chord(header)(callback)
         return Response("celery-task-meta-" + task.id, status=200)
@@ -139,7 +140,8 @@ def find_matches_within_db_atlas(table_guid: str):
         # remove the table from the schema so that it doesn't compare against itself
         db.remove_table(table_guid)
         callback = merge_matches.s(payload.max_number_matches)
-        header = [get_matches_minio.s(payload.matching_algorithm, payload.matching_algorithm_params, *table_combination)
+        header = [get_matches_atlas.s(payload.matching_algorithm, payload.matching_algorithm_params, *table_combination,
+                                      request.json)
                   for table_combination in product(db.get_table_str_guids(), [table.unique_identifier])]
         task: AsyncResult = chord(header)(callback)
         return Response("celery-task-meta-" + task.id, status=200)

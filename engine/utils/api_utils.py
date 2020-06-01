@@ -23,7 +23,7 @@ class AtlasPayload(BaseModel):
     # values are low enough to work with a very slow internet connection.
     # request_parallelism is how many parallel requests the framework makes to atlas
     # request_chunk_size is how many entities the framework requests at once
-    request_parallelism: int = 4
+    request_parallelism: int = 8
     request_chunk_size: int = 10
     # if the algorithm params are left empty the defaults will be chosen
     matching_algorithm_params: Optional[Dict[str, object]]

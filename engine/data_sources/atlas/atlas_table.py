@@ -22,11 +22,11 @@ class AtlasTable(BaseTable, BaseDB):
         self.__get_columns_from_atlas()
 
     @property
-    def unique_identifier(self):
+    def unique_identifier(self) -> str:
         return self.__guid
 
     @property
-    def db_belongs_uid(self) -> object:
+    def db_belongs_uid(self) -> str:
         return self.__db_guid
 
     @property
@@ -44,7 +44,7 @@ class AtlasTable(BaseTable, BaseDB):
         return len(self.__column_guids) == 0
 
     def get_table_str_guids(self) -> List[str]:
-        pass
+        return [str(self.unique_identifier)]
 
     def remove_table(self, guid: object) -> None:
         pass

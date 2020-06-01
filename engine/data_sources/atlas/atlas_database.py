@@ -1,5 +1,5 @@
 from typing import Dict, List
-from multiprocessing import get_context
+from multiprocessing.pool import ThreadPool
 
 from .atlas_table import AtlasTable
 from .atlas_utils import get_entity_with_guid, get_bulk_entities
@@ -9,7 +9,7 @@ from ..base_table import BaseTable
 
 class AtlasDatabase(BaseDB):
 
-    def __init__(self, url: str, auth: tuple, guid: object, parallelism: int, chunk_size: int):
+    def __init__(self, url: str, auth: tuple, guid: str, parallelism: int, chunk_size: int):
         self.guid = guid
         self.__url = url
         self.__auth = auth
@@ -21,11 +21,11 @@ class AtlasDatabase(BaseDB):
         self.__get_tables_from_atlas()
 
     @property
-    def unique_identifier(self):
+    def unique_identifier(self) -> str:
         return self.guid
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self.__db_name
 
     def get_tables(self, load_data: bool = True) -> Dict[str, BaseTable]:
@@ -33,7 +33,7 @@ class AtlasDatabase(BaseDB):
         return tables
 
     def get_table_str_guids(self) -> List[str]:
-        pass
+        return list(map(lambda x: str(x.unique_identifier), self.__tables.values()))
 
     @property
     def is_empty(self) -> bool:
@@ -67,10 +67,10 @@ class AtlasDatabase(BaseDB):
 
         column_guids = dict()
 
-        with get_context("spawn").Pool(self.__parallelism) as process_pool:
+        with ThreadPool(self.__parallelism) as thread_pool:
 
-            responses = list(process_pool.map(self.parallel_bulk_requests,
-                                              list(self.entity_table_guid_chunk_generator(guids, self.__chunk_size))))
+            responses = list(thread_pool.map(self.parallel_bulk_requests,
+                                             list(self.entity_table_guid_chunk_generator(guids, self.__chunk_size))))
 
             for entities in responses:
                 for e in entities['entities']:
@@ -84,10 +84,10 @@ class AtlasDatabase(BaseDB):
                         tmp.append(column['guid'])
                     column_guids[e['guid']] = tmp
 
-            self.__tables = dict(process_pool.map(self.get_table_atlas,
-                                                  list(self.parallel_http_request_input_generator(atlas_tables,
-                                                                                                  column_guids,
-                                                                                                  self.__technology))))
+            self.__tables = dict(thread_pool.map(self.get_table_atlas,
+                                                 list(self.parallel_http_request_input_generator(atlas_tables,
+                                                                                                 column_guids,
+                                                                                                 self.__technology))))
 
     def parallel_bulk_requests(self, chunk: list):
         return get_bulk_entities(self.__url, self.__auth, chunk)
