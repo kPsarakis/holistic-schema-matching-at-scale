@@ -33,6 +33,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
     env_file:
+      - env_files/redis.env
       - env_files/celery.env
       - env_files/minio.env
     depends_on:
@@ -44,6 +45,12 @@ services:
     image: redis:latest
     env_file:
       - env_files/redis.env
+
+  # Redis as the celery results backend
+  redis-celery-results-backend:
+    image: redis:latest
+    env_file:
+      - env_files/redis-celery-results-backend.env
 
   # Message queue required by Celery
   celery-rabbitmq:

@@ -1,14 +1,16 @@
 import json
 import os
+import uuid
 
+import redis
 from celery import Celery, chord
-from celery.result import AsyncResult
 from minio.error import NoSuchKey
 from flask import Flask, request, abort, Response
 from typing import List
 from itertools import product
 
 from pandas.errors import EmptyDataError
+from redis import Redis
 
 from engine.data_sources.atlas.atlas_table import AtlasTable
 from engine.data_sources.base_source import GUIDMissing
@@ -16,8 +18,8 @@ from engine.data_sources.atlas.atlas_source import AtlasSource
 from engine.data_sources.base_db import BaseDB
 from engine.data_sources.minio.minio_source import MinioSource
 from engine.data_sources.minio.minio_table import MinioTable
-from engine.utils.api_utils import AtlasPayload, get_atlas_payload, validate_matcher, get_atlas_source, \
-    get_matcher, MinioPayload, get_minio_payload
+from engine.utils.api_utils import AtlasPayload, get_atlas_payload, validate_matcher, get_atlas_source, get_matcher, \
+    MinioPayload, get_minio_payload
 
 app = Flask(__name__)
 app.config['CELERY_BROKER_URL'] = os.environ['CELERY_BROKER_URL']
@@ -27,6 +29,8 @@ celery.conf.update(app.config)
 celery.conf.update(task_serializer='json',
                    accept_content=['json'],
                    result_serializer='json')
+
+match_result_db: Redis = redis.Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'])
 
 
 @celery.task
@@ -52,9 +56,11 @@ def get_matches_atlas(matching_algorithm: str, algorithm_params: dict, target_ta
 
 
 @celery.task
-def merge_matches(individual_matches: list, max_number_of_matches: int = 1000):
+def merge_matches(individual_matches: list, job_uuid: str, max_number_of_matches: int = 1000):
     merged_matches = [item for sublist in individual_matches for item in sublist]
-    return sorted(merged_matches, key=lambda k: k['sim'], reverse=True)[:max_number_of_matches]
+    sorted_matches = sorted(merged_matches, key=lambda k: k['sim'], reverse=True)[:max_number_of_matches]
+    match_result_db.set(job_uuid, json.dumps(sorted_matches))
+    return sorted_matches
 
 
 @app.route("/matches/atlas/holistic/<table_guid>", methods=['GET'])
@@ -78,13 +84,14 @@ def find_holistic_matches_of_table_atlas(table_guid: str):
         abort(400, 'This guid does not correspond to any table in atlas! '
                    'Check if the given table types are correct or if there is a mistake in the guid')
     else:
-        callback = merge_matches.s(payload.max_number_matches)
+        job_uuid: str = str(uuid.uuid4())
+        callback = merge_matches.s(job_uuid, payload.max_number_matches)
         header = [get_matches_atlas.s(payload.matching_algorithm, payload.matching_algorithm_params, *table_combination,
                                       request.json)
                   for table_combination in
                   product([item for sublist in dbs_tables_guids for item in sublist], [table.unique_identifier])]
-        task: AsyncResult = chord(header)(callback)
-        return Response("celery-task-meta-" + task.id, status=200)
+        chord(header)(callback)
+        return Response(job_uuid, status=200)
 
 
 @app.route('/matches/atlas/other_db/<table_guid>/<db_guid>', methods=['GET'])
@@ -107,12 +114,13 @@ def find_matches_other_db_atlas(table_guid: str, db_guid: str):
         abort(400, 'This guid does not correspond to any table in atlas! '
                    'Check if the given table types are correct or if there is a mistake in the guid')
     else:
-        callback = merge_matches.s(payload.max_number_matches)
+        job_uuid: str = str(uuid.uuid4())
+        callback = merge_matches.s(job_uuid, payload.max_number_matches)
         header = [get_matches_atlas.s(payload.matching_algorithm, payload.matching_algorithm_params, *table_combination,
                                       request.json)
                   for table_combination in product(db.get_table_str_guids(), [table.unique_identifier])]
-        task: AsyncResult = chord(header)(callback)
-        return Response("celery-task-meta-" + task.id, status=200)
+        chord(header)(callback)
+        return Response(job_uuid, status=200)
 
 
 @app.route('/matches/atlas/within_db/<table_guid>', methods=['GET'])
@@ -139,12 +147,13 @@ def find_matches_within_db_atlas(table_guid: str):
     else:
         # remove the table from the schema so that it doesn't compare against itself
         db.remove_table(table_guid)
-        callback = merge_matches.s(payload.max_number_matches)
+        job_uuid: str = str(uuid.uuid4())
+        callback = merge_matches.s(job_uuid, payload.max_number_matches)
         header = [get_matches_atlas.s(payload.matching_algorithm, payload.matching_algorithm_params, *table_combination,
                                       request.json)
                   for table_combination in product(db.get_table_str_guids(), [table.unique_identifier])]
-        task: AsyncResult = chord(header)(callback)
-        return Response("celery-task-meta-" + task.id, status=200)
+        chord(header)(callback)
+        return Response(job_uuid, status=200)
 
 
 @app.route("/matches/minio/holistic", methods=['GET'])
@@ -161,12 +170,13 @@ def find_holistic_matches_of_table_minio():
     except EmptyDataError:
         abort(400, "The table does not contain any columns")
     else:
-        callback = merge_matches.s(payload.max_number_matches)
+        job_uuid: str = str(uuid.uuid4())
+        callback = merge_matches.s(job_uuid, payload.max_number_matches)
         header = [get_matches_minio.s(payload.matching_algorithm, payload.matching_algorithm_params, *table_combination)
                   for table_combination in
                   product([item for sublist in dbs_tables_guids for item in sublist], [table.unique_identifier])]
-        task: AsyncResult = chord(header)(callback)
-        return Response("celery-task-meta-" + task.id, status=200)
+        chord(header)(callback)
+        return Response(job_uuid, status=200)
 
 
 @app.route('/matches/minio/other_db/<db_name>', methods=['GET'])
@@ -186,11 +196,12 @@ def find_matches_other_db_minio(db_name: str):
     except EmptyDataError:
         abort(400, "The table does not contain any columns")
     else:
-        callback = merge_matches.s(payload.max_number_matches)
+        job_uuid: str = str(uuid.uuid4())
+        callback = merge_matches.s(job_uuid, payload.max_number_matches)
         header = [get_matches_minio.s(payload.matching_algorithm, payload.matching_algorithm_params, *table_combination)
                   for table_combination in product(db.get_table_str_guids(), [table.unique_identifier])]
-        task: AsyncResult = chord(header)(callback)
-        return Response("celery-task-meta-" + task.id, status=200)
+        chord(header)(callback)
+        return Response(job_uuid, status=200)
 
 
 @app.route('/matches/minio/within_db', methods=['GET'])
@@ -213,11 +224,12 @@ def find_matches_within_db_minio():
         abort(400, "The table does not contain any columns")
     else:
         db.remove_table(payload.table_name)
-        callback = merge_matches.s(payload.max_number_matches)
+        job_uuid: str = str(uuid.uuid4())
+        callback = merge_matches.s(job_uuid, payload.max_number_matches)
         header = [get_matches_minio.s(payload.matching_algorithm, payload.matching_algorithm_params, *table_combination)
                   for table_combination in product(db.get_table_str_guids(), [table.unique_identifier])]
-        task: AsyncResult = chord(header)(callback)
-        return Response("celery-task-meta-" + task.id, status=200)
+        chord(header)(callback)
+        return Response(job_uuid, status=200)
 
 
 if __name__ == '__main__':
