@@ -22,8 +22,12 @@ from engine.utils.api_utils import AtlasPayload, get_atlas_payload, validate_mat
     MinioPayload, get_minio_payload
 
 app = Flask(__name__)
-app.config['CELERY_BROKER_URL'] = os.environ['CELERY_BROKER_URL']
-app.config['CELERY_RESULT_BACKEND_URL'] = os.environ['CELERY_RESULT_BACKEND_URL']
+app.config['CELERY_BROKER_URL'] = 'amqp://{user}:{pwd}@{host}:{port}/'.format(user=os.environ['RABBITMQ_DEFAULT_USER'],
+                                                                              pwd=os.environ['RABBITMQ_DEFAULT_PASS'],
+                                                                              host=os.environ['RABBITMQ_HOST'],
+                                                                              port=os.environ['RABBITMQ_PORT'])
+app.config['CELERY_RESULT_BACKEND_URL'] = 'redis://{host}:{port}/'.format(host=os.environ['CELERY_RESULTS_REDIS_HOST'],
+                                                                          port=os.environ['CELERY_RESULTS_REDIS_PORT'])
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'], backend=app.config['CELERY_RESULT_BACKEND_URL'])
 celery.conf.update(app.config)
 celery.conf.update(task_serializer='json',

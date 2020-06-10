@@ -10,7 +10,8 @@ services:
     env_file:
       - env_files/redis.env
       - env_files/minio.env
-      - env_files/celery.env
+      - env_files/rabbitmq.env
+      - env_files/redis-celery-results-backend.env
     restart: always
     command: gunicorn -b 0.0.0.0:5000 app:app -t 60 -w 1 --threads 1
 
@@ -34,7 +35,8 @@ services:
       - PYTHONUNBUFFERED=1
     env_file:
       - env_files/redis.env
-      - env_files/celery.env
+      - env_files/rabbitmq.env
+      - env_files/redis-celery-results-backend.env
       - env_files/minio.env
     depends_on:
       - celery-rabbitmq
@@ -43,14 +45,10 @@ services:
   # Redis db that holds the schema matching results
   redis-db-matches:
     image: redis:latest
-    env_file:
-      - env_files/redis.env
 
   # Redis as the celery results backend
   redis-celery-results-backend:
     image: redis:latest
-    env_file:
-      - env_files/redis-celery-results-backend.env
 
   # Message queue required by Celery
   celery-rabbitmq:
@@ -65,10 +63,10 @@ services:
   celery-flower:
     image: mher/flower
     restart: always
-    env_file:
-      - env_files/celery.env
     environment:
       - FLOWER_PORT=5555
+      - CELERY_BROKER_URL=amqp://rabbitmq:rabbitmq@celery-rabbitmq:5672/
+      - CELERY_RESULT_BACKEND_URL=redis://redis-celery-results-backend:6379/"
     ports:
       - 5555:5555
     depends_on:
