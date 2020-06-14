@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis-cluster-ip-service
+  name: celery-results-backend-cluster-ip-service
 spec:
   type: ClusterIP
   selector:
-    component: redis-matches
+    component: redis-celery
   ports:
     - port: 6379
       targetPort: 6379
@@ -13,16 +13,16 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: redis-matches-deployment
+  name: redis-celery-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: redis-matches
+      component: redis-celery
   template:
     metadata:
       labels:
-        component: redis-matches
+        component: redis-celery
     spec:
       containers:
         - name: redis

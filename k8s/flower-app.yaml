@@ -1,36 +1,35 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: server-cluster-ip-service
+  name: flower-service
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
-    component: server
+    component: flower
   ports:
-    - port: 5000
-      targetPort: 5000
+    - port: 5555
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: server-deployment
+  name: flower-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: server
+      component: flower
   template:
     metadata:
       labels:
-        component: server
+        component: flower
     spec:
       containers:
-        - name: server
+        - name: flower
           image: kpsarakis/schema-matching-engine:latest
-          command: ["gunicorn"] # Need to configure threads, w and t
-          args: ["-b", "0.0.0.0:5000", "app:app", "-t", "60", "-w", "1", "--threads", "1"]
+          command: ['celery']
+          args: ['flower', '-A', 'app.celery', 'flower']
           ports:
-            - containerPort: 5000
+            - containerPort: 5555
           env:
             - name: REDIS_HOST
               value: redis-cluster-ip-service
@@ -48,11 +47,3 @@ spec:
               value: celery-results-backend-cluster-ip-service
             - name: CELERY_RESULTS_REDIS_PORT
               value: '6379'
-            - name: MINIO_HOST
-              value: minio-service
-            - name: MINIO_PORT
-              value: '9000'
-            - name: MINIO_ACCESS_KEY
-              value: "minio"
-            - name: MINIO_SECRET_KEY
-              value: "minio123"
