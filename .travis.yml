@@ -1,0 +1,8 @@
+sudo: required
+services:
+  - docker
+
+script:
+  - docker build -t kpsarakis/schema-matching-engine ./engine
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  - docker push kpsarakis/schema-matching-engine
