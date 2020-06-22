@@ -12,6 +12,7 @@ from itertools import product
 from pandas.errors import EmptyDataError
 from redis import Redis
 
+from engine.algorithms.algorithms import schema_only_algorithms
 from engine.data_sources.atlas.atlas_table import AtlasTable
 from engine.data_sources.base_source import GUIDMissing
 from engine.data_sources.atlas.atlas_source import AtlasSource
@@ -43,8 +44,9 @@ def get_matches_minio(matching_algorithm: str, algorithm_params: dict, target_ta
     minio_source: MinioSource = MinioSource()
     target_db_name, target_table_name = target_table
     source_db_name, source_table_name = source_table
-    target_minio_table: MinioTable = minio_source.get_db_table(target_table_name, target_db_name)
-    source_minio_table: MinioTable = minio_source.get_db_table(source_table_name, source_db_name)
+    load_data = False if matching_algorithm in schema_only_algorithms else True
+    target_minio_table: MinioTable = minio_source.get_db_table(target_table_name, target_db_name, load_data=load_data)
+    source_minio_table: MinioTable = minio_source.get_db_table(source_table_name, source_db_name, load_data=load_data)
     return matcher.get_matches(source_minio_table, target_minio_table)
 
 
