@@ -44,6 +44,11 @@ spec:
             - name: data
               mountPath: "/data"
           image: minio/minio:latest
+          resources:
+            limits:
+              memory: 2Gi
+            requests:
+              memory: 2Gi
           args:
             - server
             - /data
