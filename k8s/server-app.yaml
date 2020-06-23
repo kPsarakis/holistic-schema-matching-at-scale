@@ -49,7 +49,7 @@ spec:
             - name: CELERY_RESULTS_REDIS_PORT
               value: '6379'
             - name: MINIO_HOST
-              value: minio-service
+              value: minio
             - name: MINIO_PORT
               value: '9000'
             - name: MINIO_ACCESS_KEY

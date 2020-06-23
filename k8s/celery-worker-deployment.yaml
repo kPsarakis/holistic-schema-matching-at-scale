@@ -17,13 +17,13 @@ spec:
           image: kpsarakis/schema-matching-engine:latest
           resources:
             limits:
-              memory: 4Gi
+              memory: 1Gi
               cpu: 2
             requests:
-              memory: 4Gi
+              memory: 1Gi
               cpu: 2
           command: ["celery"]
-          args: ["worker", "-A", "app.celery", "--loglevel=info"]
+          args: ["worker", "-A", "app.celery", "--concurrency=2", "--loglevel=info"]
           ports:
             - containerPort: 5000
           env:
@@ -44,7 +44,7 @@ spec:
             - name: CELERY_RESULTS_REDIS_PORT
               value: '6379'
             - name: MINIO_HOST
-              value: minio-service
+              value: minio
             - name: MINIO_PORT
               value: '9000'
             - name: MINIO_ACCESS_KEY
