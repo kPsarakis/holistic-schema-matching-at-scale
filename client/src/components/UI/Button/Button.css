@@ -1,0 +1,26 @@
+.Button {
+    background-color: whitesmoke;
+    box-shadow: 0 2px 3px gray;
+    border: 1px solid lightgray;
+    box-sizing: border-box;
+    color: white;
+    outline: none;
+    cursor: pointer;
+    font: inherit;
+    padding: 10px;
+    margin: 10px;
+    font-weight: bold;
+}
+
+/*.Button:first-of-type {*/
+/*    margin-left: 0;*/
+/*    padding-left: 0;*/
+/*}*/
+
+.Success {
+    color: darkgreen;
+}
+
+.Danger {
+    color: darkred;
+}
