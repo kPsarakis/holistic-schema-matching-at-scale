@@ -1,11 +1,16 @@
 .JobRequest {
     margin: 80px auto;
-    width: 80%;
+    width: 85%;
     text-align: center;
     box-shadow: 0 2px 3px gray;
     border: 1px solid lightgray;
     padding: 10px;
     box-sizing: border-box;
+}
+
+.Button {
+    margin-top: 25px;
+    margin-bottom: 20px;
 }
 
 @media (min-width: 600px) {

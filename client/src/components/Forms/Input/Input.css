@@ -10,6 +10,16 @@
     margin-bottom: 8px;
 }
 
+.Slider {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: 50%;
+}
+
+.Select {
+    width: 50%;
+}
+
 .InputElement {
     outline: none;
     border: 1px solid gray;

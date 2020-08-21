@@ -1,7 +1,6 @@
 import React from 'react'
 
 import classes from './Input.css'
-import Aux from '../../../hoc/Aux'
 import TextField from '@material-ui/core/TextField';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -9,22 +8,12 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import { makeStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import Slider from '@material-ui/core/Slider';
 
 const input = (props) => {
+
     let inputElement;
-
-    const useStyles = makeStyles((theme) => ({
-  formControl: {
-    margin: theme.spacing(1),
-    minWidth: 200,
-  },
-  selectEmpty: {
-    marginTop: theme.spacing(2),
-  },
-}));
-    const mat_classes = useStyles();
-
 
     switch (props.elementType){
         case('input'):
@@ -37,7 +26,7 @@ const input = (props) => {
             break;
         case('select'):
             inputElement =
-                <FormControl className={mat_classes.formControl}>
+                <FormControl className={classes.Select}>
                     <InputLabel>{props.name}</InputLabel>
                     <Select
                             value={props.value}
@@ -56,11 +45,17 @@ const input = (props) => {
             break;
         case('range'):
             inputElement =
-                <Aux>
-                    <label>{props.name}</label>
-                    <input type="range" {...props.config} onChange={props.changed}/>
-                    <label>Value: {props.value}</label>
-                </Aux>
+                <div className={classes.Slider}>
+                    <Typography id={props.name} gutterBottom>
+                        {props.name}
+                    </Typography>
+                    <Slider
+                        aria-labelledby={props.name}
+                        valueLabelDisplay="auto"
+                        marks={false}
+                        {...props.config}
+                        onChange={props.changed} />
+                </div>
             break;
         default:
             inputElement = null
@@ -68,7 +63,6 @@ const input = (props) => {
     }
     return(
         <div className={classes.Input}>
-            <label className={classes.Label}>{props.label}</label>
             {inputElement}
         </div>
     );

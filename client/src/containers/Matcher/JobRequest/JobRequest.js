@@ -3,8 +3,7 @@ import React, { Component } from 'react'
 import classes from './JobRequest.css'
 // import axios from '../../../../axios-schema-matching-job'
 import Input from '../../../components/Forms/Input/Input'
-import Button from '../../../components/UI/Button/Button'
-
+import Button from '@material-ui/core/Button';
 
 class JobRequest extends Component {
 
@@ -60,125 +59,148 @@ class JobRequest extends Component {
             // START OF PARAMS
             // COMA params
             coma_strategy: {
+                name: 'Strategy',
                 elementType: 'select',
                 elementConfig: {
                     options: [
-                        {value: 'COMA_OPT', displayValue: 'COMA_OPT'},
-                        {value: 'COMA_OPT_INST', displayValue: 'COMA_OPT_INST'}
+                        {value: 'COMA_OPT', displayValue: 'Schema'},
+                        {value: 'COMA_OPT_INST', displayValue: 'Schema + Instances'}
                         ]
                 },
-                value: '',
+                value: 'COMA_OPT',
                 show: false
             },
             coma_max_n: {
                 name: 'max_n',
-                elementType: 'input',
-                elementConfig: {
-                    type: 'number',
-                    placeholder: 'max_n'
+                elementType: 'range',
+                elementConfig : {
+                    min: 0,
+                    max: 10,
+                    step: 1,
+                    defaultValue: 0
                 },
                 value: 0,
                 show: false
             },
             // CUPID params
             cupid_leaf_w_struct: {
+                name: 'leaf_w_struct',
                 elementType: 'range',
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
-                    step: 0.05
+                    step: 0.01,
+                    defaultValue: 0.2
                 },
                 value: 0.2,
                 show: false
             },
             cupid_w_struct: {
+                name: 'w_struct',
                 elementType: 'range',
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
-                    step: 0.05
+                    step: 0.01,
+                    defaultValue: 0.2
                 },
                 value: 0.2,
                 show: false
             },
             cupid_th_accept: {
+                name: 'th_accept',
                 elementType: 'range',
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
-                    step: 0.05
+                    step: 0.01,
+                    defaultValue: 0.7
                 },
                 value: 0.7,
                 show: false
             },
             cupid_th_high: {
+                name: 'th_high',
                 elementType: 'range',
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
-                    step: 0.05
+                    step: 0.01,
+                    defaultValue: 0.6
                 },
                 value: 0.6,
                 show: false
             },
             cupid_th_low: {
+                name: 'th_low',
                 elementType: 'range',
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
-                    step: 0.05
+                    step: 0.01,
+                    defaultValue: 0.35
                 },
                 value: 0.35,
                 show: false
             },
             cupid_th_ns: {
+                name: 'th_ns',
                 elementType: 'range',
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
-                    step: 0.05
+                    step: 0.01,
+                    defaultValue: 0.7
                 },
                 value: 0.7,
                 show: false
             },
             // Distribution Based params
             distributionBased_th1: {
+                name: 'Phase 1 threshold',
                 elementType: 'range',
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
-                    step: 0.05
+                    step: 0.01,
+                    defaultValue: 0.15
                 },
                 value: 0.15,
                 show: false
             },
             distributionBased_th2: {
+                name: 'Phase 2 threshold',
                 elementType: 'range',
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
-                    step: 0.05
+                    step: 0.01,
+                    defaultValue: 0.15
                 },
                 value: 0.15,
                 show: false
             },
             distributionBased_quantiles: {
+                name: 'quantiles',
                 elementType: 'range',
                 elementConfig : {
                     min: 1,
                     max: 1024,
-                    step: 1
+                    step: 1,
+                    defaultValue: 256
                 },
                 value: 256,
                 show: false
             },
             // Jaccard Leven params
             jaccardLeven_th_leven: {
+                name: 'th_leven',
                 elementType: 'range',
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
-                    step: 0.05
+                    step: 0.01,
+                    defaultValue: 0.8
                 },
                 value: 0.8,
                 show: false
@@ -272,7 +294,7 @@ class JobRequest extends Component {
         }
         return (
            <div className={classes.JobRequest}>
-               <h4>Create a Schema matching job</h4>
+               <h2>Create a Schema matching job</h2>
                 <form>
                     {formElementsArray.map(formElement => (
                         <Input
@@ -283,7 +305,10 @@ class JobRequest extends Component {
                             value={formElement.config.value}
                             changed={(event) => this.inputChangedHandler(event, formElement.id)}/>
                     ))}
-                    <Button btnType={"Success"} clicked={this.jobRequestHandler} >Submit</Button>
+                    <div className={classes.Button}>
+                        <Button variant="contained" color="primary" clicked={this.jobRequestHandler} >SUBMIT JOB</Button>
+                    </div>
+
                 </form>
            </div>
         );
