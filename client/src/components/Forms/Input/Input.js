@@ -17,8 +17,8 @@ const input = (props) => {
 
     switch (props.elementType){
         case('input'):
-            inputElement = <TextField  label={props.name} variant="outlined" {...props.config} value={props.value}
-                                       onChange={props.changed} />;
+            inputElement = <TextField label={props.name} variant="outlined" {...props.config} value={props.value}
+                                      onChange={props.changed} />;
             break;
         case('textarea'):
             inputElement = <textarea className={classes.InputElement} {...props.config} value={props.value}
@@ -54,7 +54,7 @@ const input = (props) => {
                         valueLabelDisplay="auto"
                         marks={false}
                         {...props.config}
-                        onChange={props.changed} />
+                        onChangeCommitted={props.changed}/>
                 </div>
             break;
         default:

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import classes from './JobRequest.css'
-// import axios from '../../../../axios-schema-matching-job'
+// import axios from '../../../axios-schema-matching-job'
 import Input from '../../../components/Forms/Input/Input'
 import Button from '@material-ui/core/Button';
 
@@ -156,7 +156,7 @@ class JobRequest extends Component {
                 show: false
             },
             // Distribution Based params
-            distributionBased_th1: {
+            distributionBased_threshold1: {
                 name: 'Phase 1 threshold',
                 elementType: 'range',
                 elementConfig : {
@@ -168,7 +168,7 @@ class JobRequest extends Component {
                 value: 0.15,
                 show: false
             },
-            distributionBased_th2: {
+            distributionBased_threshold2: {
                 name: 'Phase 2 threshold',
                 elementType: 'range',
                 elementConfig : {
@@ -193,7 +193,7 @@ class JobRequest extends Component {
                 show: false
             },
             // Jaccard Leven params
-            jaccardLeven_th_leven: {
+            jaccardLeven_threshold_leven: {
                 name: 'th_leven',
                 elementType: 'range',
                 elementConfig : {
@@ -213,7 +213,7 @@ class JobRequest extends Component {
                     type: 'number',
                     placeholder: 'Max number of matches'
                 },
-                value: '',
+                value: 1000,
                 show: true
             },
             mode: {
@@ -261,11 +261,15 @@ class JobRequest extends Component {
             }
             updatedJobElement.value = event.target.value;
         }else{
-            updatedJobElement.value = event.target.value;
-            if(inputIdentifier === 'mode' && event.target.value === 'specifyDB'){
-                updatedJobForm['otherDB'].show = true
-            } else if (inputIdentifier === 'mode' && event.target.value !== 'specifyDB'){
-                updatedJobForm['otherDB'].show = false
+            if (event.target.textContent){
+                updatedJobElement.value = parseFloat(event.target.textContent);
+            } else {
+                 updatedJobElement.value = event.target.value;
+                if(inputIdentifier === 'mode' && event.target.value === 'specifyDB'){
+                    updatedJobForm['otherDB'].show = true
+                } else if (inputIdentifier === 'mode' && event.target.value !== 'specifyDB'){
+                    updatedJobForm['otherDB'].show = false
+                }
             }
         }
         updatedJobForm[inputIdentifier] = updatedJobElement;
@@ -282,6 +286,61 @@ class JobRequest extends Component {
         }
     }
 
+    jobRequestHandler = ( event ) => {
+        event.preventDefault();
+        this.setState( {loading: true} )
+        const formData = {};
+        for (let formElementId in this.state.jobForm){
+            formData[formElementId] = this.state.jobForm[formElementId].value;
+        }
+        if (formData['dbName'] === ''){
+            alert('You must specify the name of the database!');
+            return;
+        }
+        if (formData['tableName'] === ''){
+            alert('You must specify the name of the table!');
+            return;
+        }
+        let serverPath = '';
+        switch (formData['mode']){
+            case 'holistic':
+                serverPath = '/matches/minio/holistic';
+                break;
+            case 'internal':
+                serverPath = '/matches/minio/within_db';
+                break
+            case 'specifyDB':
+                const otherDB = formData['otherDB']
+                if(otherDB === ''){
+                    alert('You must specify the name of the database!');
+                    return;
+                }
+                serverPath = '/matches/minio/other_db/' + otherDB
+                break;
+            default:
+                break;
+        }
+        const requestBody = {
+            'table_name': formData['tableName'],
+            'db_name': formData['dbName'],
+            'matching_algorithm': formData['algorithm'],
+            'max_number_matches': formData['maxNumberOfMatches']
+        };
+        const algoParams = {}
+        if (!formData['defaultAlgoParams']){
+            for (let key in formData) {
+                if (formData.hasOwnProperty(key)){
+                    if (key.startsWith(formData['algorithm'])) {
+                        algoParams[key.substr(formData['algorithm'].length + 1)] = formData[key]
+                    }
+                }
+            }
+            requestBody['matching_algorithm_params'] = {...algoParams}
+        }
+        console.log(serverPath)
+        console.log(requestBody)
+    }
+
     render () {
         const formElementsArray = [];
         for (let key in this.state.jobForm){
@@ -295,7 +354,7 @@ class JobRequest extends Component {
         return (
            <div className={classes.JobRequest}>
                <h2>Create a Schema matching job</h2>
-                <form>
+                <form onSubmit={this.jobRequestHandler}>
                     {formElementsArray.map(formElement => (
                         <Input
                             key={formElement.id}
@@ -306,9 +365,8 @@ class JobRequest extends Component {
                             changed={(event) => this.inputChangedHandler(event, formElement.id)}/>
                     ))}
                     <div className={classes.Button}>
-                        <Button variant="contained" color="primary" clicked={this.jobRequestHandler} >SUBMIT JOB</Button>
+                        <Button variant="contained" color="primary" type="submit">SUBMIT JOB</Button>
                     </div>
-
                 </form>
            </div>
         );
