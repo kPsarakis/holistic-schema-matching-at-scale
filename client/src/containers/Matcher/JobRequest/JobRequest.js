@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 
-import classes from './JobRequest.css'
-// import axios from '../../../axios-schema-matching-job'
-import Input from '../../../components/Forms/Input/Input'
+import classes from './JobRequest.css';
+import axios from 'axios';
+import Input from '../../../components/Forms/Input/Input';
 import Button from '@material-ui/core/Button';
 
 class JobRequest extends Component {
@@ -304,10 +304,10 @@ class JobRequest extends Component {
         let serverPath = '';
         switch (formData['mode']){
             case 'holistic':
-                serverPath = '/matches/minio/holistic';
+                serverPath = '/api/matches/minio/holistic';
                 break;
             case 'internal':
-                serverPath = '/matches/minio/within_db';
+                serverPath = '/api/matches/minio/within_db';
                 break
             case 'specifyDB':
                 const otherDB = formData['otherDB']
@@ -315,7 +315,7 @@ class JobRequest extends Component {
                     alert('You must specify the name of the database!');
                     return;
                 }
-                serverPath = '/matches/minio/other_db/' + otherDB
+                serverPath = '/api/matches/minio/other_db/' + otherDB
                 break;
             default:
                 break;
@@ -337,8 +337,11 @@ class JobRequest extends Component {
             }
             requestBody['matching_algorithm_params'] = {...algoParams}
         }
+        const response = axios.get(serverPath, {data:requestBody})
         console.log(serverPath)
         console.log(requestBody)
+        console.log(response)
+        window.location.reload(false);
     }
 
     render () {
