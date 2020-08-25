@@ -4,6 +4,9 @@ import classes from './JobRequest.css';
 import axios from 'axios';
 import Input from '../../../components/Forms/Input/Input';
 import Button from '@material-ui/core/Button';
+import Modal from '../../../components/UI/Modal/Modal';
+import Aux from '../../../hoc/Aux'
+import Spinner from '../../../components/UI/Spinner/Spinner'
 
 class JobRequest extends Component {
 
@@ -337,11 +340,13 @@ class JobRequest extends Component {
             }
             requestBody['matching_algorithm_params'] = {...algoParams}
         }
-        const response = axios.get(serverPath, {data:requestBody})
-        console.log(serverPath)
-        console.log(requestBody)
-        console.log(response)
-        window.location.reload(false);
+       axios.get(serverPath, {data:requestBody})
+           .then(response => {this.setState( {loading: true} ); console.log(response)})
+           .catch(error => {this.setState( {loading: true} ); console.log(error)})
+
+        // console.log(serverPath)
+        // console.log(requestBody)
+        // window.location.reload(false);
     }
 
     render () {
@@ -355,23 +360,29 @@ class JobRequest extends Component {
             }
         }
         return (
-           <div className={classes.JobRequest}>
-               <h2>Create a Schema matching job</h2>
-                <form onSubmit={this.jobRequestHandler}>
-                    {formElementsArray.map(formElement => (
-                        <Input
-                            key={formElement.id}
-                            elementType={formElement.config.elementType}
-                            config={formElement.config.elementConfig}
-                            name={formElement.config.name}
-                            value={formElement.config.value}
-                            changed={(event) => this.inputChangedHandler(event, formElement.id)}/>
-                    ))}
-                    <div className={classes.Button}>
-                        <Button variant="contained" color="primary" type="submit">SUBMIT JOB</Button>
-                    </div>
-                </form>
-           </div>
+            <Aux>
+                <Modal show={this.state.loading}>
+                    <Spinner />
+                </Modal>
+                <div className={classes.JobRequest}>
+                   <h2>Create a Schema matching job</h2>
+                    <form onSubmit={this.jobRequestHandler}>
+                        {formElementsArray.map(formElement => (
+                            <Input
+                                key={formElement.id}
+                                elementType={formElement.config.elementType}
+                                config={formElement.config.elementConfig}
+                                name={formElement.config.name}
+                                value={formElement.config.value}
+                                changed={(event) => this.inputChangedHandler(event, formElement.id)}/>
+                                ))
+                        }
+                        <div className={classes.Button}>
+                            <Button variant="contained" color="primary" type="submit">SUBMIT JOB</Button>
+                        </div>
+                    </form>
+               </div>
+            </Aux>
         );
     }
 
