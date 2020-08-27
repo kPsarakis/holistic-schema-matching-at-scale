@@ -38,14 +38,14 @@ class JobRequest extends Component {
                 elementType: 'select',
                 elementConfig: {
                     options: [
-                        {value: 'coma', displayValue: 'COMA', server_value: 'Coma'},
-                        {value: 'cupid', displayValue: 'CUPID', server_value: 'Cupid'},
-                        {value: 'distributionBased', displayValue: 'Distribution Based', server_value: 'CorrelationClustering'},
-                        {value: 'jaccardLeven', displayValue: 'Jaccard Levenshtein', server_value: 'JaccardLevenMatcher'},
-                        {value: 'similarityFlooding', displayValue: 'Similarity Flooding', server_value: 'SimilarityFlooding'}
+                        {value: 'Coma', displayValue: 'COMA'},
+                        {value: 'Cupid', displayValue: 'CUPID'},
+                        {value: 'CorrelationClustering', displayValue: 'Distribution Based'},
+                        {value: 'JaccardLevenMatcher', displayValue: 'Jaccard Levenshtein'},
+                        {value: 'SimilarityFlooding', displayValue: 'Similarity Flooding'}
                         ]
                 },
-                value: 'coma',
+                value: 'Coma',
                 show: true
             },
             defaultAlgoParams: {
@@ -61,7 +61,7 @@ class JobRequest extends Component {
             },
             // START OF PARAMS
             // COMA params
-            coma_strategy: {
+            Coma_strategy: {
                 name: 'Strategy',
                 elementType: 'select',
                 elementConfig: {
@@ -73,7 +73,7 @@ class JobRequest extends Component {
                 value: 'COMA_OPT',
                 show: false
             },
-            coma_max_n: {
+            Coma_max_n: {
                 name: 'max_n',
                 elementType: 'range',
                 elementConfig : {
@@ -86,7 +86,7 @@ class JobRequest extends Component {
                 show: false
             },
             // CUPID params
-            cupid_leaf_w_struct: {
+            Cupid_leaf_w_struct: {
                 name: 'leaf_w_struct',
                 elementType: 'range',
                 elementConfig : {
@@ -98,7 +98,7 @@ class JobRequest extends Component {
                 value: 0.2,
                 show: false
             },
-            cupid_w_struct: {
+            Cupid_w_struct: {
                 name: 'w_struct',
                 elementType: 'range',
                 elementConfig : {
@@ -110,7 +110,7 @@ class JobRequest extends Component {
                 value: 0.2,
                 show: false
             },
-            cupid_th_accept: {
+            Cupid_th_accept: {
                 name: 'th_accept',
                 elementType: 'range',
                 elementConfig : {
@@ -122,7 +122,7 @@ class JobRequest extends Component {
                 value: 0.7,
                 show: false
             },
-            cupid_th_high: {
+            Cupid_th_high: {
                 name: 'th_high',
                 elementType: 'range',
                 elementConfig : {
@@ -134,7 +134,7 @@ class JobRequest extends Component {
                 value: 0.6,
                 show: false
             },
-            cupid_th_low: {
+            Cupid_th_low: {
                 name: 'th_low',
                 elementType: 'range',
                 elementConfig : {
@@ -146,7 +146,7 @@ class JobRequest extends Component {
                 value: 0.35,
                 show: false
             },
-            cupid_th_ns: {
+            Cupid_th_ns: {
                 name: 'th_ns',
                 elementType: 'range',
                 elementConfig : {
@@ -159,7 +159,7 @@ class JobRequest extends Component {
                 show: false
             },
             // Distribution Based params
-            distributionBased_threshold1: {
+            CorrelationClustering_threshold1: {
                 name: 'Phase 1 threshold',
                 elementType: 'range',
                 elementConfig : {
@@ -171,7 +171,7 @@ class JobRequest extends Component {
                 value: 0.15,
                 show: false
             },
-            distributionBased_threshold2: {
+            CorrelationClustering_threshold2: {
                 name: 'Phase 2 threshold',
                 elementType: 'range',
                 elementConfig : {
@@ -183,7 +183,7 @@ class JobRequest extends Component {
                 value: 0.15,
                 show: false
             },
-            distributionBased_quantiles: {
+            CorrelationClustering_quantiles: {
                 name: 'quantiles',
                 elementType: 'range',
                 elementConfig : {
@@ -196,7 +196,7 @@ class JobRequest extends Component {
                 show: false
             },
             // Jaccard Leven params
-            jaccardLeven_threshold_leven: {
+            JaccardLevenMatcher_threshold_leven: {
                 name: 'th_leven',
                 elementType: 'range',
                 elementConfig : {
@@ -294,11 +294,7 @@ class JobRequest extends Component {
         this.setState( {loading: true} )
         const formData = {};
         for (let formElementId in this.state.jobForm){
-            if (formElementId !== 'algorithm'){
-                formData[formElementId] = this.state.jobForm[formElementId].value;
-            }else {
-                formData[formElementId] = this.state.jobForm[formElementId].server_value;
-            }
+            formData[formElementId] = this.state.jobForm[formElementId].value;
         }
         if (formData['dbName'] === ''){
             alert('You must specify the name of the database!');
@@ -354,7 +350,7 @@ class JobRequest extends Component {
             .catch(error => {this.setState( {loading: false} ); console.log(error)})
 
         // console.log(serverPath)
-        // console.log(requestBody)
+        console.log(requestBody)
         // window.location.reload(false);
     }
 
