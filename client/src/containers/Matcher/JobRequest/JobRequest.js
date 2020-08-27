@@ -38,11 +38,11 @@ class JobRequest extends Component {
                 elementType: 'select',
                 elementConfig: {
                     options: [
-                        {value: 'coma', displayValue: 'COMA'},
-                        {value: 'cupid', displayValue: 'CUPID'},
-                        {value: 'distributionBased', displayValue: 'Distribution Based'},
-                        {value: 'jaccardLeven', displayValue: 'Jaccard Levenshtein'},
-                        {value: 'similarityFlooding', displayValue: 'Similarity Flooding'}
+                        {value: 'coma', displayValue: 'COMA', server_value: 'Coma'},
+                        {value: 'cupid', displayValue: 'CUPID', server_value: 'Cupid'},
+                        {value: 'distributionBased', displayValue: 'Distribution Based', server_value: 'CorrelationClustering'},
+                        {value: 'jaccardLeven', displayValue: 'Jaccard Levenshtein', server_value: 'JaccardLevenMatcher'},
+                        {value: 'similarityFlooding', displayValue: 'Similarity Flooding', server_value: 'SimilarityFlooding'}
                         ]
                 },
                 value: 'coma',
@@ -294,7 +294,11 @@ class JobRequest extends Component {
         this.setState( {loading: true} )
         const formData = {};
         for (let formElementId in this.state.jobForm){
-            formData[formElementId] = this.state.jobForm[formElementId].value;
+            if (formElementId !== 'algorithm'){
+                formData[formElementId] = this.state.jobForm[formElementId].value;
+            }else {
+                formData[formElementId] = this.state.jobForm[formElementId].server_value;
+            }
         }
         if (formData['dbName'] === ''){
             alert('You must specify the name of the database!');
