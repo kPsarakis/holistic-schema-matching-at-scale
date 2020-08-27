@@ -324,10 +324,10 @@ class JobRequest extends Component {
                 break;
         }
         const requestBody = {
-            'table_name': formData['tableName'],
-            'db_name': formData['dbName'],
-            'matching_algorithm': formData['algorithm'],
-            'max_number_matches': formData['maxNumberOfMatches']
+            "table_name": formData['tableName'],
+            "db_name": formData['dbName'],
+            "matching_algorithm": formData['algorithm'],
+            "max_number_matches": formData['maxNumberOfMatches']
         };
         const algoParams = {}
         if (!formData['defaultAlgoParams']){
@@ -340,9 +340,14 @@ class JobRequest extends Component {
             }
             requestBody['matching_algorithm_params'] = {...algoParams}
         }
-       axios.get(serverPath, {data:requestBody})
-           .then(response => {this.setState( {loading: true} ); console.log(response)})
-           .catch(error => {this.setState( {loading: true} ); console.log(error)})
+
+        axios({
+          method: 'post',
+          url: serverPath,
+          headers: {},
+          data: requestBody})
+            .then(response => {this.setState( {loading: false} ); console.log(response)})
+            .catch(error => {this.setState( {loading: false} ); console.log(error)})
 
         // console.log(serverPath)
         // console.log(requestBody)

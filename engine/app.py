@@ -69,7 +69,7 @@ def merge_matches(individual_matches: list, job_uuid: str, max_number_of_matches
     return sorted_matches
 
 
-@app.route("/matches/atlas/holistic/<table_guid>", methods=['GET'])
+@app.route("/matches/atlas/holistic/<table_guid>", methods=['POST'])
 def find_holistic_matches_of_table_atlas(table_guid: str):
     payload: AtlasPayload = get_atlas_payload(request.json)
     validate_matcher(payload.matching_algorithm, payload.matching_algorithm_params, "atlas")
@@ -100,7 +100,7 @@ def find_holistic_matches_of_table_atlas(table_guid: str):
         return Response(job_uuid, status=200)
 
 
-@app.route('/matches/atlas/other_db/<table_guid>/<db_guid>', methods=['GET'])
+@app.route('/matches/atlas/other_db/<table_guid>/<db_guid>', methods=['POST'])
 def find_matches_other_db_atlas(table_guid: str, db_guid: str):
     payload: AtlasPayload = get_atlas_payload(request.json)
     validate_matcher(payload.matching_algorithm, payload.matching_algorithm_params, "atlas")
@@ -129,7 +129,7 @@ def find_matches_other_db_atlas(table_guid: str, db_guid: str):
         return Response(job_uuid, status=200)
 
 
-@app.route('/matches/atlas/within_db/<table_guid>', methods=['GET'])
+@app.route('/matches/atlas/within_db/<table_guid>', methods=['POST'])
 def find_matches_within_db_atlas(table_guid: str):
     payload: AtlasPayload = get_atlas_payload(request.json)
     validate_matcher(payload.matching_algorithm, payload.matching_algorithm_params, "atlas")
@@ -162,7 +162,7 @@ def find_matches_within_db_atlas(table_guid: str):
         return Response(job_uuid, status=200)
 
 
-@app.route("/matches/minio/holistic", methods=['GET'])
+@app.route("/matches/minio/holistic", methods=['POST'])
 def find_holistic_matches_of_table_minio():
     payload: MinioPayload = get_minio_payload(request.json)
     validate_matcher(payload.matching_algorithm, payload.matching_algorithm_params, "minio")
@@ -185,7 +185,7 @@ def find_holistic_matches_of_table_minio():
         return Response(job_uuid, status=200)
 
 
-@app.route('/matches/minio/other_db/<db_name>', methods=['GET'])
+@app.route('/matches/minio/other_db/<db_name>', methods=['POST'])
 def find_matches_other_db_minio(db_name: str):
     payload: MinioPayload = get_minio_payload(request.json)
     validate_matcher(payload.matching_algorithm, payload.matching_algorithm_params, "minio")
@@ -210,7 +210,7 @@ def find_matches_other_db_minio(db_name: str):
         return Response(job_uuid, status=200)
 
 
-@app.route('/matches/minio/within_db', methods=['GET'])
+@app.route('/matches/minio/within_db', methods=['POST'])
 def find_matches_within_db_minio():
     payload: MinioPayload = get_minio_payload(request.json)
     validate_matcher(payload.matching_algorithm, payload.matching_algorithm_params, "minio")
