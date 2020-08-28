@@ -352,12 +352,16 @@ class JobRequest extends Component {
             .then(response => {this.setState({loading: false});
                                console.log(response);
                                this.setState({responseReceived: true});
-                               this.setState({latestResponse: response});})
+                               this.setState({latestResponse: response.data.toString});})
             .catch(error => {this.setState( {loading: false} ); console.log(error)})
 
         // console.log(serverPath)
-        console.log(requestBody)
+        // console.log(requestBody)
         // window.location.reload(false);
+    }
+
+    closeResponseHandler = () => {
+        this.setState({responseReceived: false})
     }
 
     render () {
@@ -375,7 +379,7 @@ class JobRequest extends Component {
                 <Modal show={this.state.loading}>
                     <Spinner />
                 </Modal>
-                <Modal show={this.state.responseReceived}>
+                <Modal show={this.state.responseReceived} modalClosed={this.closeResponseHandler}>
                     <Response response={this.state.latestResponse}/>
                 </Modal>
                 <div className={classes.JobRequest}>
