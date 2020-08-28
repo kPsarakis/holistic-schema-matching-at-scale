@@ -25,6 +25,6 @@ spec:
     spec:
       containers:
         - name: client
-          image: kpsarakis/schema-matching-client
+          image: kpsarakis/schema-matching-client:latest
           ports:
             - containerPort: 3000
