@@ -7,6 +7,7 @@ import Button from '@material-ui/core/Button';
 import Modal from '../../../components/UI/Modal/Modal';
 import Aux from '../../../hoc/Aux'
 import Spinner from '../../../components/UI/Spinner/Spinner'
+import Response from '../../../components/Forms/Response/Response'
 
 class JobRequest extends Component {
 
@@ -243,7 +244,9 @@ class JobRequest extends Component {
                 show: false
             }
         },
-        loading: false
+        loading: false,
+        responseReceived: false,
+        latestResponse: ''
     }
 
 
@@ -346,7 +349,10 @@ class JobRequest extends Component {
           url: serverPath,
           headers: {},
           data: requestBody})
-            .then(response => {this.setState( {loading: false} ); console.log(response)})
+            .then(response => {this.setState({loading: false});
+                               console.log(response);
+                               this.setState({responseReceived: true});
+                               this.setState({latestResponse: response});})
             .catch(error => {this.setState( {loading: false} ); console.log(error)})
 
         // console.log(serverPath)
@@ -368,6 +374,9 @@ class JobRequest extends Component {
             <Aux>
                 <Modal show={this.state.loading}>
                     <Spinner />
+                </Modal>
+                <Modal show={this.state.responseReceived}>
+                    <Response response={this.state.latestResponse}/>
                 </Modal>
                 <div className={classes.JobRequest}>
                    <h2>Create a Schema matching job</h2>
