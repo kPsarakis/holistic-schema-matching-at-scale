@@ -349,10 +349,8 @@ class JobRequest extends Component {
           url: serverPath,
           headers: {},
           data: requestBody})
-            .then(response => {this.setState({loading: false});
-                               console.log(response);
-                               this.setState({responseReceived: true});
-                               this.setState({latestResponse: response.data});})
+            .then(response => {this.setState({loading: false, responseReceived: true, latestResponse: response.data});
+                               console.log(response);})
             .catch(error => {this.setState( {loading: false} ); console.log(error)})
 
         // console.log(serverPath)
