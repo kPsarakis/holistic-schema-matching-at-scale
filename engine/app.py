@@ -241,7 +241,7 @@ def find_matches_within_db_minio():
 @app.route('/results/finished_jobs', methods=['GET'])
 def get_finished_jobs():
     example = ["abc", "def", "ghi"]
-    return Response(jsonify(example), status=200)
+    return jsonify(example)
 
 
 @app.route('/results/job_results/<job_id>', methods=['GET'])
