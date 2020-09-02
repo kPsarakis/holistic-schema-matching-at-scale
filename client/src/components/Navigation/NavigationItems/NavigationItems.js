@@ -5,10 +5,10 @@ import NavigationItem from "./NavgationItem/NavigationItem"
 
 const navigationItems = () => (
     <ul className={classes.NavigationItems}>
-        <NavigationItem link={"/"} active>
+        <NavigationItem link={"/"} exact>
             Matcher
         </NavigationItem>
-        <NavigationItem link={"/"}>
+        <NavigationItem link={"/results"}>
             Results
         </NavigationItem>
     </ul>

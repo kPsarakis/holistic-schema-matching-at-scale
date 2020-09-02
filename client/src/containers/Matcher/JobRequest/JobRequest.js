@@ -12,7 +12,6 @@ import Response from '../../../components/Forms/Response/Response'
 class JobRequest extends Component {
 
     state = {
-
         jobForm: {
             dbName: {
                 name:'Database Name',
