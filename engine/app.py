@@ -260,7 +260,7 @@ def get_job_results(job_id: str):
                 "trg_db": "target_db1",
                 "sim": 0.9
             }]
-    return Response(jsonify(example), status=200)
+    return jsonify(example)
 
 
 @app.route('/results/save_verified_match', methods=['POST'])
