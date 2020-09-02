@@ -5,7 +5,7 @@ import uuid
 import redis
 from celery import Celery, chord
 from minio.error import NoSuchKey
-from flask import Flask, request, abort, Response
+from flask import Flask, request, abort, Response, jsonify
 from typing import List
 from itertools import product
 
@@ -236,6 +236,36 @@ def find_matches_within_db_minio():
                   for table_combination in product(db.get_table_str_guids(), [table.unique_identifier])]
         chord(header)(callback)
         return Response(job_uuid, status=200)
+
+
+@app.route('/results/finished_jobs', methods=['GET'])
+def get_finished_jobs():
+    example = ["abc", "def", "ghi"]
+    return Response(jsonify(example), status=200)
+
+
+@app.route('/results/job_results/<job_id>', methods=['GET'])
+def get_job_results(job_id: str):
+    example = [{
+                "src_tbl": "source_table1",
+                "trg_tbl": "target_table1",
+                "src_db": "source_db1",
+                "trg_db": "target_db1",
+                "sim": 0.9
+            },
+            {
+                "src_tbl": "source_table1",
+                "trg_tbl": "target_table1",
+                "src_db": "source_db1",
+                "trg_db": "target_db1",
+                "sim": 0.9
+            }]
+    return Response(jsonify(example), status=200)
+
+
+@app.route('/results/save_verified_match', methods=['POST'])
+def save_verified_match():
+    pass
 
 
 if __name__ == '__main__':
