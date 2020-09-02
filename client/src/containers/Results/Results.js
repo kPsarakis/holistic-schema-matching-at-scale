@@ -17,7 +17,8 @@ class Results extends Component {
              method: 'get',
              url: '/api/results/finished_jobs'
         }).then(res => {
-            this.setState({loading: false, jobs: res.data})
+            console.log(res.data)
+            this.setState({loading: false, jobs: ['1']})
         }).catch(err => {
             this.setState({loading: false})
             console.log(err)
