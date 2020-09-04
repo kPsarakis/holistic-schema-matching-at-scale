@@ -5,7 +5,7 @@ import uuid
 import redis
 from celery import Celery, chord
 from minio.error import NoSuchKey
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, abort, jsonify, Response
 from typing import List
 from itertools import product
 
@@ -245,17 +245,22 @@ def get_finished_jobs():
 
 @app.route('/results/job_results/<job_id>', methods=['GET'])
 def get_job_results(job_id: str):
-    return jsonify(match_result_db.get(job_id))
+    return jsonify(json.loads(match_result_db.get(job_id)))
 
 
 @app.route('/results/save_verified_match/<job_id>/<index>', methods=['POST'])
 def save_verified_match(job_id: str, index: int):
-    pass
+    # TODO: Save match in another DB!!!
+    discard_match(job_id, index)
+    return Response("Matched saved successfully", status=200)
 
 
 @app.route('/results/discard_match/<job_id>/<index>', methods=['POST'])
 def discard_match(job_id: str, index: int):
-    pass
+    ranked_list: list = json.loads(match_result_db.get(job_id))
+    ranked_list.pop(index)
+    match_result_db.set(job_id, json.dumps(ranked_list))
+    return Response("Matched discarded successfully", status=200)
 
 
 if __name__ == '__main__':

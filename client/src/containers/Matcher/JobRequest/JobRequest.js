@@ -309,10 +309,10 @@ class JobRequest extends Component {
         let serverPath = '';
         switch (formData['mode']){
             case 'holistic':
-                serverPath = 'http://127.0.0.1:5000/matches/minio/holistic';
+                serverPath = '/api/matches/minio/holistic';
                 break;
             case 'internal':
-                serverPath = 'http://127.0.0.1:5000/matches/minio/within_db';
+                serverPath = '/api/matches/minio/within_db';
                 break
             case 'specifyDB':
                 const otherDB = formData['otherDB']
@@ -320,7 +320,7 @@ class JobRequest extends Component {
                     alert('You must specify the name of the database!');
                     return;
                 }
-                serverPath = 'http://127.0.0.1:5000/matches/minio/other_db/' + otherDB
+                serverPath = '/api/matches/minio/other_db/' + otherDB
                 break;
             default:
                 break;
@@ -350,9 +350,6 @@ class JobRequest extends Component {
           data: requestBody})
             .then(response => {this.setState({loading: false, responseReceived: true, latestResponse: response.data});})
             .catch(error => {this.setState( {loading: false} ); console.log(error)})
-
-        // console.log(serverPath)
-        // console.log(requestBody)
         // window.location.reload(false);
     }
 
