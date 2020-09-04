@@ -5,7 +5,7 @@ import uuid
 import redis
 from celery import Celery, chord
 from minio.error import NoSuchKey
-from flask import Flask, request, abort, Response, jsonify
+from flask import Flask, request, abort, jsonify
 from typing import List
 from itertools import product
 
@@ -97,7 +97,7 @@ def find_holistic_matches_of_table_atlas(table_guid: str):
                   for table_combination in
                   product([item for sublist in dbs_tables_guids for item in sublist], [table.unique_identifier])]
         chord(header)(callback)
-        return Response(job_uuid, status=200)
+        return jsonify(job_uuid)
 
 
 @app.route('/matches/atlas/other_db/<table_guid>/<db_guid>', methods=['POST'])
@@ -126,7 +126,7 @@ def find_matches_other_db_atlas(table_guid: str, db_guid: str):
                                       request.json)
                   for table_combination in product(db.get_table_str_guids(), [table.unique_identifier])]
         chord(header)(callback)
-        return Response(job_uuid, status=200)
+        return jsonify(job_uuid)
 
 
 @app.route('/matches/atlas/within_db/<table_guid>', methods=['POST'])
@@ -159,7 +159,7 @@ def find_matches_within_db_atlas(table_guid: str):
                                       request.json)
                   for table_combination in product(db.get_table_str_guids(), [table.unique_identifier])]
         chord(header)(callback)
-        return Response(job_uuid, status=200)
+        return jsonify(job_uuid)
 
 
 @app.route("/matches/minio/holistic", methods=['POST'])
@@ -182,7 +182,7 @@ def find_holistic_matches_of_table_minio():
                   for table_combination in
                   product([item for sublist in dbs_tables_guids for item in sublist], [table.unique_identifier])]
         chord(header)(callback)
-        return Response(job_uuid, status=200)
+        return jsonify(job_uuid)
 
 
 @app.route('/matches/minio/other_db/<db_name>', methods=['POST'])
@@ -207,7 +207,7 @@ def find_matches_other_db_minio(db_name: str):
         header = [get_matches_minio.s(payload.matching_algorithm, payload.matching_algorithm_params, *table_combination)
                   for table_combination in product(db.get_table_str_guids(), [table.unique_identifier])]
         chord(header)(callback)
-        return Response(job_uuid, status=200)
+        return jsonify(job_uuid)
 
 
 @app.route('/matches/minio/within_db', methods=['POST'])
@@ -235,36 +235,26 @@ def find_matches_within_db_minio():
         header = [get_matches_minio.s(payload.matching_algorithm, payload.matching_algorithm_params, *table_combination)
                   for table_combination in product(db.get_table_str_guids(), [table.unique_identifier])]
         chord(header)(callback)
-        return Response(job_uuid, status=200)
+        return jsonify(job_uuid)
 
 
 @app.route('/results/finished_jobs', methods=['GET'])
 def get_finished_jobs():
-    example = ["abc", "def", "ghi"]
-    return jsonify(example)
+    return jsonify(match_result_db.keys())
 
 
 @app.route('/results/job_results/<job_id>', methods=['GET'])
 def get_job_results(job_id: str):
-    example = [{
-                "src_tbl": "source_table1",
-                "trg_tbl": "target_table1",
-                "src_db": "source_db1",
-                "trg_db": "target_db1",
-                "sim": 0.9
-            },
-            {
-                "src_tbl": "source_table1",
-                "trg_tbl": "target_table1",
-                "src_db": "source_db1",
-                "trg_db": "target_db1",
-                "sim": 0.9
-            }]
-    return jsonify(example)
+    return jsonify(match_result_db.get(job_id))
 
 
-@app.route('/results/save_verified_match', methods=['POST'])
-def save_verified_match():
+@app.route('/results/save_verified_match/<job_id>/<index>', methods=['POST'])
+def save_verified_match(job_id: str, index: int):
+    pass
+
+
+@app.route('/results/discard_match/<job_id>/<index>', methods=['POST'])
+def discard_match(job_id: str, index: int):
     pass
 
 

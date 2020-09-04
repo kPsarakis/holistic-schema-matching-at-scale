@@ -293,7 +293,6 @@ class JobRequest extends Component {
 
     jobRequestHandler = ( event ) => {
         event.preventDefault();
-        this.setState( {loading: true} )
         const formData = {};
         for (let formElementId in this.state.jobForm){
             formData[formElementId] = this.state.jobForm[formElementId].value;
@@ -306,13 +305,14 @@ class JobRequest extends Component {
             alert('You must specify the name of the table!');
             return;
         }
+        this.setState( {loading: true} )
         let serverPath = '';
         switch (formData['mode']){
             case 'holistic':
-                serverPath = '/api/matches/minio/holistic';
+                serverPath = 'http://127.0.0.1:5000/matches/minio/holistic';
                 break;
             case 'internal':
-                serverPath = '/api/matches/minio/within_db';
+                serverPath = 'http://127.0.0.1:5000/matches/minio/within_db';
                 break
             case 'specifyDB':
                 const otherDB = formData['otherDB']
@@ -320,7 +320,7 @@ class JobRequest extends Component {
                     alert('You must specify the name of the database!');
                     return;
                 }
-                serverPath = '/api/matches/minio/other_db/' + otherDB
+                serverPath = 'http://127.0.0.1:5000/matches/minio/other_db/' + otherDB
                 break;
             default:
                 break;
@@ -348,8 +348,7 @@ class JobRequest extends Component {
           url: serverPath,
           headers: {},
           data: requestBody})
-            .then(response => {this.setState({loading: false, responseReceived: true, latestResponse: response.data});
-                               console.log(response);})
+            .then(response => {this.setState({loading: false, responseReceived: true, latestResponse: response.data});})
             .catch(error => {this.setState( {loading: false} ); console.log(error)})
 
         // console.log(serverPath)
