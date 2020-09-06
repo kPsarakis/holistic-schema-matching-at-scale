@@ -69,6 +69,7 @@ def get_matches_atlas(matching_algorithm: str, algorithm_params: dict, target_ta
 def merge_matches(individual_matches: list, job_uuid: str, max_number_of_matches: int = 1000):
     merged_matches = [item for sublist in individual_matches for item in sublist]
     sorted_matches = sorted(merged_matches, key=lambda k: k['sim'], reverse=True)[:max_number_of_matches]
+    insertion_order_db.rpush('insertion_ordered_ids', job_uuid)
     match_result_db.set(job_uuid, json.dumps(sorted_matches))
     return sorted_matches
 
