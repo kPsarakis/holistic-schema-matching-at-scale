@@ -26,7 +26,7 @@ class Result extends Component{
             this.setState({loading: true})
             axios({
                  method: 'get',
-                 url: 'http://127.0.0.1:5000/results/job_results/' + this.props.job_id
+                 url: '/api/results/job_results/' + this.props.job_id
             }).then(res => {
                 this.setState({loading: false, rankedList: res.data, showRankedList: true})
             }).catch(err => {
@@ -40,7 +40,7 @@ class Result extends Component{
         this.setState({loading: true})
         axios({
              method: 'post',
-             url: 'http://127.0.0.1:5000/results/delete_job/' + this.props.job_id
+             url: '/api/results/delete_job/' + this.props.job_id
         }).then(() => {
             this.setState({loading: false, rankedList: []})
         }).catch(err => {

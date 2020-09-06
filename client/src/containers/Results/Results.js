@@ -17,7 +17,7 @@ class Results extends Component {
     componentDidMount() {
         axios({
              method: 'get',
-             url: 'http://127.0.0.1:5000/results/finished_jobs'
+             url: '/api/results/finished_jobs'
         }).then(res => {
             this.setState({loading: false, jobs: res.data})
         }).catch(err => {

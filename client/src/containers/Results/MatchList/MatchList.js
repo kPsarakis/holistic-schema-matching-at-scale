@@ -27,7 +27,7 @@ class MatchList extends Component {
         if(save){
             axios({
                  method: 'post',
-                 url: 'http://127.0.0.1:5000/results/save_verified_match/' + this.state.jobId + '/' + matchIndex
+                 url: '/api/results/save_verified_match/' + this.state.jobId + '/' + matchIndex
             }).then(() => {
                 this.setState({loading: false})
             }).catch(err => {
@@ -37,7 +37,7 @@ class MatchList extends Component {
         }else{
             axios({
                  method: 'post',
-                 url: 'http://127.0.0.1:5000/results/discard_match/' + this.state.jobId + '/' + matchIndex
+                 url: '/api/results/discard_match/' + this.state.jobId + '/' + matchIndex
             }).then(() => {
                 this.setState({loading: false})
             }).catch(err => {

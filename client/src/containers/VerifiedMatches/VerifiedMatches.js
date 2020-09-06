@@ -44,7 +44,7 @@ class VerifiedMatches extends Component {
         this.setState({loading: true})
         axios({
                  method: 'get',
-                 url: 'http://127.0.0.1:5000/results/verified_matches'
+                 url: '/api/results/verified_matches'
             }).then(res => {
                 this.setState({loading: false, verifiedMatches: res.data})
             }).catch(err => {
@@ -72,9 +72,6 @@ class VerifiedMatches extends Component {
                 <TableBody>
                   {this.state.verifiedMatches.map((row) => (
                     <StyledTableRow key={row.name}>
-                      {/*<StyledTableCell component="th" scope="row">*/}
-                      {/*  {row.name}*/}
-                      {/*</StyledTableCell>*/}
                       <StyledTableCell align="center">{row['source']['tbl_nm']}</StyledTableCell>
                       <StyledTableCell align="center">{row['source']['tbl_guid']}</StyledTableCell>
                       <StyledTableCell align="center">{row['source']['clm_nm']}</StyledTableCell>
