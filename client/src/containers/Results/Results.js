@@ -25,6 +25,22 @@ class Results extends Component {
             console.log(err)
         })
     }
+
+    deleteJob = (job_id, index) => {
+        const jobs = [...this.state.jobs];
+        jobs.splice(index, 1);
+        this.setState({jobs: jobs, loading: true})
+        axios({
+             method: 'post',
+             url: '/api/results/delete_job/' + job_id
+        }).then(() => {
+            this.setState({loading: false, rankedList: []})
+        }).catch(err => {
+            this.setState({loading: false})
+            console.log(err)
+        })
+    }
+
     render() {
         return (
             <Aux>
@@ -32,7 +48,8 @@ class Results extends Component {
                     <Spinner />
                 </Modal>
                 <div className={classes.Results}>
-                    {this.state.jobs.map(job_id => (<Result key={job_id} job_id={job_id} />))}
+                    {this.state.jobs.map((job_id, index) =>
+                        (<Result key={job_id} job_id={job_id} deleteJob={() => this.deleteJob(job_id, index)}/>))}
                 </div>
             </Aux>
         );
