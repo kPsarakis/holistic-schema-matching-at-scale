@@ -9,7 +9,10 @@ const navigationItems = () => (
             Matcher
         </NavigationItem>
         <NavigationItem link={"/results"}>
-            Results
+            Finished Jobs
+        </NavigationItem>
+        <NavigationItem link={"/verified_matches"}>
+            Verified Matches
         </NavigationItem>
     </ul>
 );

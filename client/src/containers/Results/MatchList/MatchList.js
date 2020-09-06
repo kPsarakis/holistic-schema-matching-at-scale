@@ -28,7 +28,7 @@ class MatchList extends Component {
             axios({
                  method: 'post',
                  url: '/api/results/save_verified_match/' + this.state.jobId + '/' + matchIndex
-            }).then(_ => {
+            }).then(() => {
                 this.setState({loading: false})
             }).catch(err => {
                 this.setState({loading: false})
@@ -38,7 +38,7 @@ class MatchList extends Component {
             axios({
                  method: 'post',
                  url: '/api/results/discard_match/' + this.state.jobId + '/' + matchIndex
-            }).then(_ => {
+            }).then(() => {
                 this.setState({loading: false})
             }).catch(err => {
                 this.setState({loading: false})

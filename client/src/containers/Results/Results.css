@@ -1,3 +1,20 @@
-.Results {
+.List {
     margin: 80px auto;
+    padding: 10px;
+    text-align: center;
+    width: 80%;
+}
+
+.Row {
+    border-bottom: 1px solid #ebeced;
+    text-align: left;
+    margin: 5px 0;
+    display: flex;
+    align-items: center;
+}
+
+.Content {
+    text-align: center;
+    display: flex;
+    padding: 20px;
 }

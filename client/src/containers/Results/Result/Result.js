@@ -36,6 +36,19 @@ class Result extends Component{
         }
     }
 
+    deleteJob = () => {
+        this.setState({loading: true})
+        axios({
+             method: 'post',
+             url: '/api/results/delete_job/' + this.props.job_id
+        }).then(() => {
+            this.setState({loading: false, rankedList: []})
+        }).catch(err => {
+            this.setState({loading: false})
+            console.log(err)
+        })
+    }
+
     render() {
         const renderedList = this.state.showRankedList ? <MatchList rankedList={this.state.rankedList} jobId={this.props.job_id}/> : null;
         return (
@@ -45,7 +58,8 @@ class Result extends Component{
                 </Modal>
                 <div className={classes.Result}>
                     <p>Job with id {this.props.job_id}</p>
-                    <Button variant="outlined" color="primary" onClick={this.toggleRankedList}>Toggle show matches</Button>
+                    <Button variant="outlined" color="primary" onClick={this.toggleRankedList}>Show/hide matches</Button>
+                    <Button variant="outlined" color="secondary" onClick={this.deleteJob}>Delete job</Button>
                     {renderedList}
                 </div>
             </Aux>
