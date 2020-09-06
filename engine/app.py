@@ -2,7 +2,6 @@ import json
 import os
 import uuid
 
-import redis
 from celery import Celery, chord
 from minio.error import NoSuchKey
 from flask import Flask, request, abort, jsonify, Response
@@ -35,7 +34,12 @@ celery.conf.update(task_serializer='json',
                    accept_content=['json'],
                    result_serializer='json')
 
-match_result_db: Redis = redis.Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'])
+match_result_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], charset="utf-8",
+                               decode_responses=True, db=0)
+insertion_order_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], charset="utf-8",
+                                  decode_responses=True, db=1)
+verified_match_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], charset="utf-8",
+                                 decode_responses=True, db=2)
 
 
 @celery.task
@@ -240,27 +244,56 @@ def find_matches_within_db_minio():
 
 @app.route('/results/finished_jobs', methods=['GET'])
 def get_finished_jobs():
-    return jsonify(list(match_result_db.keys()))
+    return jsonify(insertion_order_db.lrange('insertion_ordered_ids', 0, -1))
 
 
 @app.route('/results/job_results/<job_id>', methods=['GET'])
 def get_job_results(job_id: str):
-    return jsonify(json.loads(match_result_db.get(job_id)))
+    results = match_result_db.get(job_id)
+    if results is None:
+        return Response("Job does not exist", status=400)
+    return jsonify(json.loads(results))
 
 
 @app.route('/results/save_verified_match/<job_id>/<index>', methods=['POST'])
 def save_verified_match(job_id: str, index: int):
-    # TODO: Save match in another DB!!!
-    discard_match(job_id, index)
+    results = match_result_db.get(job_id)
+    if results is None:
+        return Response("Job does not exist", status=400)
+    ranked_list: list = json.loads(results)
+    try:
+        to_save = ranked_list.pop(int(index))
+    except IndexError:
+        return Response("Match does not exist", status=400)
+    verified_match_db.rpush('verified_matches', json.dumps(to_save))
+    match_result_db.set(job_id, json.dumps(ranked_list))
     return Response("Matched saved successfully", status=200)
 
 
 @app.route('/results/discard_match/<job_id>/<index>', methods=['POST'])
 def discard_match(job_id: str, index: int):
-    ranked_list: list = json.loads(match_result_db.get(job_id))
-    ranked_list.pop(index)
+    results = match_result_db.get(job_id)
+    if results is None:
+        return Response("Job does not exist", status=400)
+    ranked_list: list = json.loads(results)
+    try:
+        ranked_list.pop(int(index))
+    except IndexError:
+        return Response("Match does not exist", status=400)
     match_result_db.set(job_id, json.dumps(ranked_list))
     return Response("Matched discarded successfully", status=200)
+
+
+@app.route('/results/delete_job/<job_id>', methods=['POST'])
+def delete_job(job_id: str):
+    match_result_db.delete(job_id)
+    insertion_order_db.lrem('insertion_ordered_ids', 1, job_id)
+    return Response("Job discarded successfully", status=200)
+
+
+@app.route('/results/verified_matches', methods=['GET'])
+def get_verified_matches():
+    return jsonify(list(map(lambda x: json.loads(x), verified_match_db.lrange('verified_matches', 0, -1))))
 
 
 if __name__ == '__main__':
