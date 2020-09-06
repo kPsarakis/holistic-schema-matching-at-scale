@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -10,7 +11,29 @@ import Paper from '@material-ui/core/Paper';
 import classes from './VerifiedMatches.css'
 import axios from "axios";
 
+
+const StyledTableCell = withStyles((theme) => ({
+  head: {
+    backgroundColor: theme.palette.common.black,
+    color: theme.palette.common.white,
+  },
+  body: {
+    fontSize: 14,
+  },
+}))(TableCell);
+
+
+const StyledTableRow = withStyles((theme) => ({
+  root: {
+    '&:nth-of-type(odd)': {
+      backgroundColor: theme.palette.action.hover,
+    },
+  },
+}))(TableRow);
+
+
 class VerifiedMatches extends Component {
+
 
     state = {
         loading: false,
@@ -21,7 +44,7 @@ class VerifiedMatches extends Component {
         this.setState({loading: true})
         axios({
                  method: 'get',
-                 url: '/api/results/verified_matches'
+                 url: 'http://127.0.0.1:5000/results/verified_matches'
             }).then(res => {
                 this.setState({loading: false, verifiedMatches: res.data})
             }).catch(err => {
@@ -33,34 +56,34 @@ class VerifiedMatches extends Component {
     render() {
         return (
              <TableContainer component={Paper}>
-              <Table className={classes.VerifiedMatches} size="small" aria-label="a dense table">
+              <Table className={classes.VerifiedMatches} size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell align="right">Source table name</TableCell>
-                    <TableCell align="right">Source table guid</TableCell>
-                    <TableCell align="right">Source column name</TableCell>
-                    <TableCell align="right">Source column guid</TableCell>
-                    <TableCell align="right">Target table name</TableCell>
-                    <TableCell align="right">Target table guid</TableCell>
-                    <TableCell align="right">Target column name</TableCell>
-                    <TableCell align="right">Target column guid</TableCell>
+                    <StyledTableCell align="center">Source table name</StyledTableCell>
+                    <StyledTableCell align="center">Source table guid</StyledTableCell>
+                    <StyledTableCell align="center">Source column name</StyledTableCell>
+                    <StyledTableCell align="center">Source column guid</StyledTableCell>
+                    <StyledTableCell align="center">Target table name</StyledTableCell>
+                    <StyledTableCell align="center">Target table guid</StyledTableCell>
+                    <StyledTableCell align="center">Target column name</StyledTableCell>
+                    <StyledTableCell align="center">Target column guid</StyledTableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {this.state.verifiedMatches.map((row) => (
-                    <TableRow key={row.name}>
-                      <TableCell component="th" scope="row">
-                        {row.name}
-                      </TableCell>
-                      <TableCell align="right">{row['source']['tbl_nm']}</TableCell>
-                      <TableCell align="right">{row['source']['tbl_guid']}</TableCell>
-                      <TableCell align="right">{row['source']['clm_nm']}</TableCell>
-                      <TableCell align="right">{row['source']['clm_guid']}</TableCell>
-                      <TableCell align="right">{row['target']['tbl_nm']}</TableCell>
-                      <TableCell align="right">{row['target']['tbl_guid']}</TableCell>
-                      <TableCell align="right">{row['target']['clm_nm']}</TableCell>
-                      <TableCell align="right">{row['target']['clm_guid']}</TableCell>
-                    </TableRow>
+                    <StyledTableRow key={row.name}>
+                      {/*<StyledTableCell component="th" scope="row">*/}
+                      {/*  {row.name}*/}
+                      {/*</StyledTableCell>*/}
+                      <StyledTableCell align="center">{row['source']['tbl_nm']}</StyledTableCell>
+                      <StyledTableCell align="center">{row['source']['tbl_guid']}</StyledTableCell>
+                      <StyledTableCell align="center">{row['source']['clm_nm']}</StyledTableCell>
+                      <StyledTableCell align="center">{row['source']['clm_guid']}</StyledTableCell>
+                      <StyledTableCell align="center">{row['target']['tbl_nm']}</StyledTableCell>
+                      <StyledTableCell align="center">{row['target']['tbl_guid']}</StyledTableCell>
+                      <StyledTableCell align="center">{row['target']['clm_nm']}</StyledTableCell>
+                      <StyledTableCell align="center">{row['target']['clm_guid']}</StyledTableCell>
+                    </StyledTableRow>
                   ))}
                 </TableBody>
               </Table>
