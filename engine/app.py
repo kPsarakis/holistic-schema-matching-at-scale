@@ -267,10 +267,10 @@ def save_verified_match(job_id: str, index: int):
     except IndexError:
         return Response("Match does not exist", status=400)
     verified_matches = list(map(lambda x: json.loads(x), verified_match_db.lrange('verified_matches', 0, -1)))
+    match_result_db.set(job_id, json.dumps(ranked_list))
     if to_save in verified_matches:
         return Response("Match already verified", status=200)
     verified_match_db.rpush('verified_matches', json.dumps(to_save))
-    match_result_db.set(job_id, json.dumps(ranked_list))
     return Response("Matched saved successfully", status=200)
 
 
