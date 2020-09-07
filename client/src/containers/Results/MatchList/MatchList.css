@@ -1,7 +1,20 @@
 .List {
     padding: 10px;
     text-align: center;
-    width: 80%;
+    width: 85%;
+    font-size: small;
+}
+
+.Table {
+    margin-top: 30px;
+}
+
+.Cell {
+    font-size: small;
+}
+
+.Container {
+    max-height: 500px;
 }
 
 .Row {

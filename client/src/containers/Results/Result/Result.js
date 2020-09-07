@@ -26,7 +26,7 @@ class Result extends Component{
             this.setState({loading: true})
             axios({
                  method: 'get',
-                 url: '/api/results/job_results/' + this.props.job_id
+                 url: 'http://127.0.0.1:5000/results/job_results/' + this.props.job_id
             }).then(res => {
                 this.setState({loading: false, rankedList: res.data, showRankedList: true})
             }).catch(err => {
@@ -45,8 +45,8 @@ class Result extends Component{
                 </Modal>
                 <div className={classes.Result}>
                     <p>Job: {this.props.job_id}</p>
-                    <Button variant="outlined" color="primary" onClick={this.toggleRankedList}>Show/hide matches</Button>
-                    <Button variant="outlined" color="secondary" onClick={this.props.deleteJob}>Delete job</Button>
+                    <Button variant="contained" color="primary" onClick={this.toggleRankedList}>Show/hide matches</Button>
+                    <Button color="secondary" onClick={this.props.deleteJob}>Delete job</Button>
                     {renderedList}
                 </div>
             </Aux>

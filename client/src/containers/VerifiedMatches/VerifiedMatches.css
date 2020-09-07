@@ -1,5 +1,13 @@
 .VerifiedMatches {
-    margin: 80px auto;
-    width: 85%;
+    margin-top: 80px;
+    width: 100%;
     text-align: center;
+}
+
+.Root {
+    width: 100%;
+}
+
+.Container {
+    max-height: 800px;
 }
