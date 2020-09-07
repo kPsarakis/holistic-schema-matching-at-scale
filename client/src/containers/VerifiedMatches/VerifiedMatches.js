@@ -48,7 +48,7 @@ class VerifiedMatches extends Component {
         this.setState({loading: true})
         axios({
                  method: 'get',
-                 url: 'http://127.0.0.1:5000/results/verified_matches'
+                 url: '/api/results/verified_matches'
             }).then(res => {
                 this.setState({loading: false, verifiedMatches: res.data})
             }).catch(err => {
