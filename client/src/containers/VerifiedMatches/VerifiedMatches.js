@@ -15,9 +15,12 @@ import TablePagination from "@material-ui/core/TablePagination";
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
-    backgroundColor: theme.palette.common.black,
-    color: theme.palette.common.white,
-
+      backgroundColor: '#534bae',
+      border: 1,
+      borderRadius: 0,
+      boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 1)',
+      color: theme.palette.common.white,
+      fontWeight: 'bold',
   },
   body: {
     fontSize: 14,
@@ -74,14 +77,32 @@ class VerifiedMatches extends Component {
               <Table className={classes.VerifiedMatches} size="small">
                 <TableHead>
                   <TableRow>
-                    <StyledTableCell align="center">Source table name</StyledTableCell>
-                    <StyledTableCell align="center">Source table guid</StyledTableCell>
-                    <StyledTableCell align="center">Source column name</StyledTableCell>
-                    <StyledTableCell align="center">Source column guid</StyledTableCell>
-                    <StyledTableCell align="center">Target table name</StyledTableCell>
-                    <StyledTableCell align="center">Target table guid</StyledTableCell>
-                    <StyledTableCell align="center">Target column name</StyledTableCell>
-                    <StyledTableCell align="center">Target column guid</StyledTableCell>
+                      <StyledTableCell align="center" colSpan={4}>Source</StyledTableCell>
+                      <StyledTableCell align="center" colSpan={4}>Target</StyledTableCell>
+                  </TableRow>
+                  <TableRow>
+                      <StyledTableCell align="center" colSpan={2}>
+                          Table
+                      </StyledTableCell>
+                      <StyledTableCell align="center" colSpan={2}>
+                          Column
+                      </StyledTableCell>
+                      <StyledTableCell align="center" colSpan={2}>
+                          Table
+                      </StyledTableCell>
+                      <StyledTableCell align="center" colSpan={2}>
+                          Column
+                      </StyledTableCell>
+                  </TableRow>
+                  <TableRow>
+                      <StyledTableCell align="center">Name</StyledTableCell>
+                      <StyledTableCell align="center">Guid</StyledTableCell>
+                      <StyledTableCell align="center">Name</StyledTableCell>
+                      <StyledTableCell align="center">Guid</StyledTableCell>
+                      <StyledTableCell align="center">Name</StyledTableCell>
+                      <StyledTableCell align="center">Guid</StyledTableCell>
+                      <StyledTableCell align="center">Name</StyledTableCell>
+                      <StyledTableCell align="center">Guid</StyledTableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

@@ -19,9 +19,12 @@ import {withStyles} from "@material-ui/core/styles";
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
-    backgroundColor: theme.palette.common.black,
-    color: theme.palette.common.white,
-      fontSize: 10,
+      backgroundColor: '#534bae',
+      border: 1,
+      borderRadius: 0,
+      boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 1)',
+      color: theme.palette.common.white,
+      fontWeight: 'bold',
   },
   body: {
     fontSize: 14,
@@ -98,17 +101,45 @@ class MatchList extends Component {
                     <TableContainer className={classes.Container}>
                         <Table className={classes.List} size="small">
                             <TableHead>
+                                <TableRow>
+                                    <StyledTableCell align="center" colSpan={4}>
+                                      Source
+                                    </StyledTableCell>
+                                    <StyledTableCell align="center" colSpan={4}>
+                                      Target
+                                    </StyledTableCell>
+                                    {/*<StyledTableCell align="center" colSpan={4}>*/}
+
+                                    {/*</StyledTableCell>*/}
+                              </TableRow>
                               <TableRow>
-                                <StyledTableCell className={classes.Cell} align="center">Source table name</StyledTableCell>
-                                <StyledTableCell className={classes.Cell} align="center">Source table guid</StyledTableCell>
-                                <StyledTableCell className={classes.Cell} align="center">Source column name</StyledTableCell>
-                                <StyledTableCell className={classes.Cell} align="center">Source column guid</StyledTableCell>
-                                <StyledTableCell className={classes.Cell} align="center">Target table name</StyledTableCell>
-                                <StyledTableCell className={classes.Cell} align="center">Target table guid</StyledTableCell>
-                                <StyledTableCell className={classes.Cell} align="center">Target column name</StyledTableCell>
-                                <StyledTableCell className={classes.Cell} align="center">Target column guid</StyledTableCell>
-                                <StyledTableCell className={classes.Cell} align="center">Similarity</StyledTableCell>
-                                <StyledTableCell className={classes.Cell} align="center"> </StyledTableCell>
+                                  <StyledTableCell align="center" colSpan={2}>
+                                      Table
+                                  </StyledTableCell>
+                                  <StyledTableCell align="center" colSpan={2}>
+                                      Column
+                                  </StyledTableCell>
+                                  <StyledTableCell align="center" colSpan={2}>
+                                      Table
+                                  </StyledTableCell>
+                                  <StyledTableCell align="center" colSpan={2}>
+                                      Column
+                                  </StyledTableCell>
+                                  {/*<StyledTableCell align="center" colSpan={2}>*/}
+
+                                  {/*</StyledTableCell>*/}
+                              </TableRow>
+                              <TableRow>
+                                  <StyledTableCell align="center">Name</StyledTableCell>
+                                  <StyledTableCell align="center">Guid</StyledTableCell>
+                                  <StyledTableCell align="center">Name</StyledTableCell>
+                                  <StyledTableCell align="center">Guid</StyledTableCell>
+                                  <StyledTableCell align="center">Name</StyledTableCell>
+                                  <StyledTableCell align="center">Guid</StyledTableCell>
+                                  <StyledTableCell align="center">Name</StyledTableCell>
+                                  <StyledTableCell align="center">Guid</StyledTableCell>
+                                  <StyledTableCell className={classes.Cell} align="center">Similarity</StyledTableCell>
+                                  {/*<StyledTableCell className={classes.Cell} align="center"> </StyledTableCell>*/}
                               </TableRow>
                             </TableHead>
                             <TableBody>
