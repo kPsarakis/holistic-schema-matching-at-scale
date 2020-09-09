@@ -169,8 +169,9 @@ class MatchList extends Component {
                             {this.state.rankedList
                                 .slice(this.state.page * this.state.rowsPerPage, this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
                                 .map((item, index) => (
-                                    <StyledTableRow key={index} onClick={() =>
-                                        this.showData(item.source['db_guid'], item.source['tbl_nm'], item.source['clm_nm'], item.target['db_guid'], item.target['tbl_nm'], item.target['clm_nm'])}>
+                                    <StyledTableRow key={index}
+                                                    // onClick={() =>this.showData(item.source['db_guid'], item.source['tbl_nm'], item.source['clm_nm'], item.target['db_guid'], item.target['tbl_nm'], item.target['clm_nm'])}
+                                    >
                                         <StyledTableCell className={classes.Cell} align="center">{item.source['tbl_nm']}</StyledTableCell>
                                         <StyledTableCell className={classes.Cell} align="center">{item.source['clm_nm']}</StyledTableCell>
                                         <StyledTableCell className={classes.Cell} align="center">{item.target['tbl_nm']}</StyledTableCell>
