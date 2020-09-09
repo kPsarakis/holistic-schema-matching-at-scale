@@ -42,8 +42,10 @@ class JaccardLevenMatcher(BaseMatcher):
             for source_column, target_column in product(source_table.get_columns(), target_table.get_columns()):
                 sim = self.jaccard_leven(source_column.data, target_column.data, self.threshold_leven)
                 if sim > 0.0:
-                    matches.append(Match(target_table.name, target_table.unique_identifier,
+                    matches.append(Match(target_table.db_belongs_uid,
+                                         target_table.name, target_table.unique_identifier,
                                          target_column.name, target_column.unique_identifier,
+                                         source_table.db_belongs_uid,
                                          source_table.name, source_table.unique_identifier,
                                          source_column.name, source_column.unique_identifier,
                                          sim).to_dict)

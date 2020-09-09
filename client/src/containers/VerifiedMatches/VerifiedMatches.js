@@ -51,7 +51,7 @@ class VerifiedMatches extends Component {
         this.setState({loading: true})
         axios({
                  method: 'get',
-                 url: '/api/results/verified_matches'
+                 url: 'http://127.0.0.1:5000/results/verified_matches'
             }).then(res => {
                 this.setState({loading: false, verifiedMatches: res.data})
             }).catch(err => {
@@ -96,13 +96,13 @@ class VerifiedMatches extends Component {
                   </TableRow>
                   <TableRow>
                       <StyledTableCell align="center">Name</StyledTableCell>
-                      <StyledTableCell align="center">Guid</StyledTableCell>
+                      <StyledTableCell align="center">GUID</StyledTableCell>
                       <StyledTableCell align="center">Name</StyledTableCell>
-                      <StyledTableCell align="center">Guid</StyledTableCell>
+                      <StyledTableCell align="center">GUID</StyledTableCell>
                       <StyledTableCell align="center">Name</StyledTableCell>
-                      <StyledTableCell align="center">Guid</StyledTableCell>
+                      <StyledTableCell align="center">GUID</StyledTableCell>
                       <StyledTableCell align="center">Name</StyledTableCell>
-                      <StyledTableCell align="center">Guid</StyledTableCell>
+                      <StyledTableCell align="center">GUID</StyledTableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

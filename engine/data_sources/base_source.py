@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Union
+from typing import Dict, Union, List
 
 from .base_db import BaseDB
 from .base_table import BaseTable
@@ -32,4 +32,8 @@ class BaseSource(ABC):
 
     @abstractmethod
     def get_db_table(self, guid: object, db_guid: object = None, load_data: bool = True) -> Union[BaseDB, BaseTable]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_column_sample(self, db_name: str, table_name: str, column_name: str, n: int = 10) -> List:
         raise NotImplementedError

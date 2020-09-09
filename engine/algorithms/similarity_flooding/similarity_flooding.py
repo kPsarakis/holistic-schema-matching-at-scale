@@ -18,12 +18,15 @@ class SimilarityFlooding(BaseMatcher):
         self.graph2 = None
         self.propagation_graph = None
         self.initial_map = None
+        self.source_guid = None
+        self.target_guid = None
 
     def get_matches(self, source_schema: BaseDB, target_schema: BaseDB):
         self.graph1 = Graph(source_schema).graph
         self.graph2 = Graph(target_schema).graph
         self.calculate_initial_mapping()
-
+        self.source_guid = source_schema.unique_identifier
+        self.target_guid = target_schema.unique_identifier
         matches = self.fixpoint_computation(100, 0.001)
 
         filtered_matches = self.filter_map(matches)
@@ -376,8 +379,8 @@ class SimilarityFlooding(BaseMatcher):
             similarity = sorted_maps[key]
             s_t_name, s_t_guid, s_c_name, s_c_guid = s_long_name
             t_t_name, t_t_guid, t_c_name, t_c_guid = t_long_name
-            match = Match(t_t_name, t_t_guid, t_c_name, t_c_guid,
-                          s_t_name, s_t_guid, s_c_name, s_c_guid,
+            match = Match(self.target_guid, t_t_name, t_t_guid, t_c_name, t_c_guid,
+                          self.source_guid, s_t_name, s_t_guid, s_c_name, s_c_guid,
                           float(similarity))
             output.append(match.to_dict)
         return output

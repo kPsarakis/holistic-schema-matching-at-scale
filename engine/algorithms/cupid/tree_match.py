@@ -100,20 +100,21 @@ def recompute_wsim(source_tree, target_tree, sims, w_struct=0.6, th_accept=0.14)
     return sims
 
 
-def mapping_generation_leaves(source_tree, target_tree, sims, th_accept):
+def mapping_generation_leaves(source_guid, target_guid, source_tree, target_tree, sims, th_accept):
     s_leaves = source_tree.get_leaf_names()
     t_leaves = target_tree.get_leaf_names()
     leave_combinations = list(product(s_leaves, t_leaves))
-    return [create_output_dict(k, v['wsim']) for k, v in sorted(sims.items(), key=lambda item: -item[1]['wsim'])
+    return [create_output_dict(k, v['wsim'], source_guid, target_guid)
+            for k, v in sorted(sims.items(), key=lambda item: -item[1]['wsim'])
             if th_accept <= v['wsim'] and k in leave_combinations]
 
 
-def create_output_dict(match: tuple, similarity) -> dict:
+def create_output_dict(match: tuple, similarity, source_guid, target_guid) -> dict:
     s, t = match
     s_t_name, s_t_guid, s_c_name, s_c_guid = s
     t_t_name, t_t_guid, t_c_name, t_c_guid = t
-    return Match(t_t_name, t_t_guid, t_c_name, t_c_guid,
-                 s_t_name, s_t_guid, s_c_name, s_c_guid,
+    return Match(target_guid, t_t_name, t_t_guid, t_c_name, t_c_guid,
+                 source_guid, s_t_name, s_t_guid, s_c_name, s_c_guid,
                  float(similarity)).to_dict
 
 

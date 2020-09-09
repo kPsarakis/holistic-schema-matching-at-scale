@@ -243,6 +243,12 @@ def find_matches_within_db_minio():
         return jsonify(job_uuid)
 
 
+@app.route('/matches/minio/column_sample/<db_name>/<table_name>/<column_name>', methods=['GET'])
+def get_column_sample_minio(db_name: str, table_name: str, column_name: str):
+    minio_source: MinioSource = MinioSource()
+    return jsonify(minio_source.get_column_sample(db_name, table_name, column_name))
+
+
 @app.route('/results/finished_jobs', methods=['GET'])
 def get_finished_jobs():
     return jsonify(insertion_order_db.lrange('insertion_ordered_ids', 0, -1))

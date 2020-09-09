@@ -1,5 +1,5 @@
 from itertools import repeat
-from typing import Dict, Union
+from typing import Dict, Union, List
 from multiprocessing.pool import ThreadPool
 
 import requests
@@ -66,6 +66,9 @@ class AtlasSource(BaseSource):
             column_guids.append(column['guid'])
         return AtlasTable(self.__url, self.__auth, atlas_table['attributes']['name'], str(guid), column_guids,
                           technology, db_guid, self.__chunk_size)
+
+    def get_column_sample(self, db_name: str, table_name: str, column_name: str, n: int = 10) -> List:
+        return ["Schema only source"] * n
 
     def __get_atlas_db_guids(self):
         for db_type in self.__db_types:

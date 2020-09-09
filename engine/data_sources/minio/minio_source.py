@@ -1,11 +1,11 @@
 import os
-from typing import Union, Dict
+from typing import Union, Dict, List
 
 from minio import Minio, ResponseError
 
 from .minio_database import MinioDatabase
 from .minio_table import MinioTable
-from .minio_utils import correct_file_ending
+from .minio_utils import correct_file_ending, get_column_sample_from_minio_csv_file
 from ..base_db import BaseDB
 from ..base_source import BaseSource, GUIDMissing
 
@@ -48,3 +48,6 @@ class MinioSource(BaseSource):
             raise GUIDMissing
         else:
             return table
+
+    def get_column_sample(self, db_name: str, table_name: str, column_name: str, n: int = 10) -> List:
+        return get_column_sample_from_minio_csv_file(self.__minio_client, db_name, table_name, column_name, n)

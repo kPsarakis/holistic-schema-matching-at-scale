@@ -75,6 +75,8 @@ class CorrelationClustering(BaseMatcher):
         self.clear_cache = clear_cache
         self.column_names = []
         self.dataset_name = None
+        self.target_guid = None
+        self.source_guid = None
         self.target_name = None
         create_cache_dirs()
 
@@ -96,6 +98,8 @@ class CorrelationClustering(BaseMatcher):
             A dictionary with matches and their similarity
         """
         self.target_name = target.name
+        self.target_guid = target.unique_identifier
+        self.source_guid = source.unique_identifier
         self.dataset_name = source.name + "___" + target.name
         all_tables: List[BaseTable] = list(source.get_tables().values()) + list(target.get_tables().values())
 
@@ -245,9 +249,17 @@ class CorrelationClustering(BaseMatcher):
                         tn_i, tguid_i, cn_i, cguid_i = k[0]
                         tn_j, tguid_j, cn_j, cguid_j = k[1]
                         if self.target_name == tn_i:
-                            matches.append(Match(tn_i, tguid_i, cn_i, cguid_i, tn_j, tguid_j, cn_j, cguid_j, sim)
+                            matches.append(Match(self.target_guid,
+                                                 tn_i, tguid_i, cn_i, cguid_i,
+                                                 self.source_guid,
+                                                 tn_j, tguid_j, cn_j, cguid_j,
+                                                 sim)
                                            .to_dict)
                         else:
-                            matches.append(Match(tn_j, tguid_j, cn_j, cguid_j, tn_i, tguid_i, cn_i, cguid_i, sim)
+                            matches.append(Match(self.target_guid,
+                                                 tn_j, tguid_j, cn_j, cguid_j,
+                                                 self.source_guid,
+                                                 tn_i, tguid_i, cn_i, cguid_i,
+                                                 sim)
                                            .to_dict)
         return matches

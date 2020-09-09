@@ -31,7 +31,8 @@ class Cupid(BaseMatcher):
         sims = tree_match(source_tree, target_tree, self.categories, self.leaf_w_struct, self.w_struct, self.th_accept,
                           self.th_high, self.th_low, self.c_inc, self.c_dec, self.th_ns, self.parallelism)
         new_sims = recompute_wsim(source_tree, target_tree, sims)
-        matches = mapping_generation_leaves(source_tree, target_tree, new_sims, self.th_accept)
+        matches = mapping_generation_leaves(source_input.unique_identifier, target_input.unique_identifier,
+                                            source_tree, target_tree, new_sims, self.th_accept)
         return matches
 
     def add_data(self, schema_name: str, table: BaseTable):

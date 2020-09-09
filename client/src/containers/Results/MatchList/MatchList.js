@@ -15,6 +15,7 @@ import TableRow from "@material-ui/core/TableRow";
 import TableHead from "@material-ui/core/TableHead";
 import TableCell from "@material-ui/core/TableCell";
 import {withStyles} from "@material-ui/core/styles";
+import ColumnPreview from "./ColumnPreview/ColumnPreview";
 
 
 const StyledTableCell = withStyles((theme) => ({
@@ -27,7 +28,7 @@ const StyledTableCell = withStyles((theme) => ({
       fontWeight: 'bold',
   },
   body: {
-    fontSize: 14,
+    fontSize: 15,
   },
 }))(TableCell);
 
@@ -48,7 +49,12 @@ class MatchList extends Component {
         rowsPerPage: 10,
         rankedList: [],
         jobId: "",
-        loading: false
+        loading: false,
+        showData: false,
+        targetColumn: "",
+        sourceColumn: "",
+        sourceData:[],
+        targetData: []
     }
 
     componentDidMount() {
@@ -62,7 +68,7 @@ class MatchList extends Component {
         if(save){
             axios({
                  method: 'post',
-                 url: '/api/results/save_verified_match/' + this.state.jobId + '/' + matchIndex
+                 url: 'http://127.0.0.1:5000/results/save_verified_match/' + this.state.jobId + '/' + matchIndex
             }).then(() => {
                 this.setState({loading: false})
             }).catch(err => {
@@ -72,7 +78,7 @@ class MatchList extends Component {
         }else{
             axios({
                  method: 'post',
-                 url: '/api/results/discard_match/' + this.state.jobId + '/' + matchIndex
+                 url: 'http://127.0.0.1:5000/results/discard_match/' + this.state.jobId + '/' + matchIndex
             }).then(() => {
                 this.setState({loading: false})
             }).catch(err => {
@@ -91,71 +97,86 @@ class MatchList extends Component {
         this.setState({page: 0});
     };
 
+    closeShowDataHandler = () => {
+        this.setState({showData: false})
+    }
+
+    showData = (sourceDbName, sourceTableName, sourceColumnName, targetDbName, targetTableName, targetColumnName) => {
+        this.setState({loading: true})
+        axios({
+                 method: 'get',
+                 url: 'http://127.0.0.1:5000/matches/minio/column_sample/' + sourceDbName + '/' + sourceTableName + '/' + sourceColumnName
+            }).then(res => {
+                this.setState({loading: false, sourceData: res.data})
+            }).catch(err => {
+                this.setState({loading: false})
+                console.log(err)
+            })
+        this.setState({loading: true})
+        axios({
+                 method: 'get',
+                 url: 'http://127.0.0.1:5000/matches/minio/column_sample/' + targetDbName + '/' + targetTableName + '/' + targetColumnName
+            }).then(res => {
+                this.setState({loading: false, targetData: res.data})
+            }).catch(err => {
+                this.setState({loading: false})
+                console.log(err)
+            })
+        this.setState({showData: true, targetColumn: targetColumnName, sourceColumn: sourceColumnName})
+    }
+
     render() {
         return (
             <Aux>
                 <Modal show={this.state.loading}>
                     <Spinner />
                 </Modal>
+                <Modal show={this.state.showData} modalClosed={this.closeShowDataHandler}>
+                    <ColumnPreview sourceName={this.state.sourceColumn} targetName={this.state.targetColumn}
+                                   sourceData={this.state.sourceData} targetData={this.state.targetData}/>
+                </Modal>
                 <Paper>
                     <TableContainer className={classes.Container}>
                         <Table className={classes.List} size="small">
                             <TableHead>
                                 <TableRow>
-                                    <StyledTableCell align="center" colSpan={4}>
+                                    <StyledTableCell align="center" colSpan={2}>
                                       Source
                                     </StyledTableCell>
-                                    <StyledTableCell align="center" colSpan={4}>
+                                    <StyledTableCell align="center" colSpan={2}>
                                       Target
                                     </StyledTableCell>
-                                    {/*<StyledTableCell align="center" colSpan={4}>*/}
-
-                                    {/*</StyledTableCell>*/}
                               </TableRow>
                               <TableRow>
-                                  <StyledTableCell align="center" colSpan={2}>
-                                      Table
+                                  <StyledTableCell align="center" colSpan={1}>
+                                      Table Name
                                   </StyledTableCell>
-                                  <StyledTableCell align="center" colSpan={2}>
-                                      Column
+                                  <StyledTableCell align="center" colSpan={1}>
+                                      Column Name
                                   </StyledTableCell>
-                                  <StyledTableCell align="center" colSpan={2}>
-                                      Table
+                                  <StyledTableCell align="center" colSpan={1}>
+                                      Table Name
                                   </StyledTableCell>
-                                  <StyledTableCell align="center" colSpan={2}>
-                                      Column
+                                  <StyledTableCell align="center" colSpan={1}>
+                                      Column Name
                                   </StyledTableCell>
-                                  {/*<StyledTableCell align="center" colSpan={2}>*/}
-
-                                  {/*</StyledTableCell>*/}
-                              </TableRow>
-                              <TableRow>
-                                  <StyledTableCell align="center">Name</StyledTableCell>
-                                  <StyledTableCell align="center">Guid</StyledTableCell>
-                                  <StyledTableCell align="center">Name</StyledTableCell>
-                                  <StyledTableCell align="center">Guid</StyledTableCell>
-                                  <StyledTableCell align="center">Name</StyledTableCell>
-                                  <StyledTableCell align="center">Guid</StyledTableCell>
-                                  <StyledTableCell align="center">Name</StyledTableCell>
-                                  <StyledTableCell align="center">Guid</StyledTableCell>
-                                  <StyledTableCell className={classes.Cell} align="center">Similarity</StyledTableCell>
-                                  {/*<StyledTableCell className={classes.Cell} align="center"> </StyledTableCell>*/}
+                                  <StyledTableCell align="center" colSpan={1}>
+                                      Similarity
+                                  </StyledTableCell>
                               </TableRow>
                             </TableHead>
                             <TableBody>
-                            {this.state.rankedList.slice(this.state.page * this.state.rowsPerPage, this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
+                            {this.state.rankedList
+                                .slice(this.state.page * this.state.rowsPerPage, this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
                                 .map((item, index) => (
-                                    <StyledTableRow key={index}>
+                                    <StyledTableRow key={index} onClick={() =>
+                                        this.showData(item.source['db_guid'], item.source['tbl_nm'], item.source['clm_nm'], item.target['db_guid'], item.target['tbl_nm'], item.target['clm_nm'])}>
                                         <StyledTableCell className={classes.Cell} align="center">{item.source['tbl_nm']}</StyledTableCell>
-                                        <StyledTableCell className={classes.Cell} align="center">{item.source['tbl_guid']}</StyledTableCell>
                                         <StyledTableCell className={classes.Cell} align="center">{item.source['clm_nm']}</StyledTableCell>
-                                        <StyledTableCell className={classes.Cell} align="center">{item.source['clm_guid']}</StyledTableCell>
                                         <StyledTableCell className={classes.Cell} align="center">{item.target['tbl_nm']}</StyledTableCell>
-                                        <StyledTableCell className={classes.Cell} align="center">{item.target['tbl_guid']}</StyledTableCell>
                                         <StyledTableCell className={classes.Cell} align="center">{item.target['clm_nm']}</StyledTableCell>
-                                        <StyledTableCell className={classes.Cell} align="center">{item.target['clm_guid']}</StyledTableCell>
                                         <StyledTableCell className={classes.Cell} align="center">{item['sim']}</StyledTableCell>
-                                        <StyledTableCell className={classes.Cell} align="center">
+                                        <StyledTableCell className={classes.Cell} align="left">
                                             <Button variant="contained" color="primary" onClick={() => this.deleteMatchHandler(index, true)}>Verify</Button>
                                             <Button color="secondary" onClick={() => this.deleteMatchHandler(index, false)}>Discard</Button>
                                         </StyledTableCell>

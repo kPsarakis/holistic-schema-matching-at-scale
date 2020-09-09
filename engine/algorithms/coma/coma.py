@@ -82,7 +82,9 @@ class Coma(BaseMatcher):
             column2 = self.get_column(m1)
             if column1 == "" or column2 == "":
                 continue
-            formatted_output.append(Match(t_table.name, t_table.unique_identifier, column1, t_lookup[column1],
+            formatted_output.append(Match(t_table.db_belongs_uid,
+                                          t_table.name, t_table.unique_identifier, column1, t_lookup[column1],
+                                          s_table.db_belongs_uid,
                                           s_table.name, s_table.unique_identifier, column2, s_lookup[column2],
                                           float(similarity)).to_dict)
         return formatted_output
