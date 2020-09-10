@@ -32,8 +32,9 @@ def get_pandas_df_from_minio_csv_file(minio_client: Minio, bucket_name: str, obj
 
 def get_column_sample_from_minio_csv_file(minio_client: Minio, bucket_name: str, table_name: str, column_name: str,
                                           n: int):
-    obj_size = minio_client.stat_object(bucket_name, table_name).size
-    data = list(minio_client.get_object(bucket_name, table_name).stream(obj_size))[0]
+    object_name = correct_file_ending(table_name)
+    obj_size = minio_client.stat_object(bucket_name, object_name).size
+    data = list(minio_client.get_object(bucket_name, object_name).stream(obj_size))[0]
     df = pd.read_csv(BytesIO(data),
                      usecols=[column_name],
                      nrows=n,
