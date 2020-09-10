@@ -16,6 +16,7 @@ import TableHead from "@material-ui/core/TableHead";
 import TableCell from "@material-ui/core/TableCell";
 import {withStyles} from "@material-ui/core/styles";
 import ColumnPreview from "./ColumnPreview/ColumnPreview";
+import GradientProgressBar from "../../../components/UI/ProgressBar/GradientProgressBar";
 
 
 const StyledTableCell = withStyles((theme) => ({
@@ -140,43 +141,31 @@ class MatchList extends Component {
                         <Table className={classes.List} size="small">
                             <TableHead>
                                 <TableRow>
-                                    <StyledTableCell align="center" colSpan={2}>
-                                      Source
+                                    <StyledTableCell align="center">
+                                      Source Column
                                     </StyledTableCell>
-                                    <StyledTableCell align="center" colSpan={2}>
-                                      Target
+                                    <StyledTableCell align="center">
+                                      Target Column
                                     </StyledTableCell>
-                              </TableRow>
-                              <TableRow>
-                                  <StyledTableCell align="center" colSpan={1}>
-                                      Table Name
-                                  </StyledTableCell>
-                                  <StyledTableCell align="center" colSpan={1}>
-                                      Column Name
-                                  </StyledTableCell>
-                                  <StyledTableCell align="center" colSpan={1}>
-                                      Table Name
-                                  </StyledTableCell>
-                                  <StyledTableCell align="center" colSpan={1}>
-                                      Column Name
-                                  </StyledTableCell>
-                                  <StyledTableCell align="center" colSpan={1}>
+                                    <StyledTableCell align="center">
                                       Similarity
-                                  </StyledTableCell>
+                                    </StyledTableCell>
                               </TableRow>
                             </TableHead>
                             <TableBody>
                             {this.state.rankedList
                                 .slice(this.state.page * this.state.rowsPerPage, this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
                                 .map((item, index) => (
-                                    <StyledTableRow key={index}
-                                                    // onClick={() =>this.showData(item.source['db_guid'], item.source['tbl_nm'], item.source['clm_nm'], item.target['db_guid'], item.target['tbl_nm'], item.target['clm_nm'])}
-                                    >
-                                        <StyledTableCell className={classes.Cell} align="center">{item.source['tbl_nm']}</StyledTableCell>
-                                        <StyledTableCell className={classes.Cell} align="center">{item.source['clm_nm']}</StyledTableCell>
-                                        <StyledTableCell className={classes.Cell} align="center">{item.target['tbl_nm']}</StyledTableCell>
-                                        <StyledTableCell className={classes.Cell} align="center">{item.target['clm_nm']}</StyledTableCell>
-                                        <StyledTableCell className={classes.Cell} align="center">{item['sim']}</StyledTableCell>
+                                    <StyledTableRow key={index}>
+                                        <StyledTableCell className={classes.Cell} align="center" onClick={() =>this.showData(item.source['db_guid'], item.source['tbl_nm'], item.source['clm_nm'], item.target['db_guid'], item.target['tbl_nm'], item.target['clm_nm'])}>
+                                            {item.source['tbl_nm']}.{item.source['clm_nm']}
+                                        </StyledTableCell>
+                                        <StyledTableCell className={classes.Cell} align="center" onClick={() =>this.showData(item.source['db_guid'], item.source['tbl_nm'], item.source['clm_nm'], item.target['db_guid'], item.target['tbl_nm'], item.target['clm_nm'])}>
+                                            {item.target['tbl_nm']}.{item.target['clm_nm']}
+                                        </StyledTableCell>
+                                        <TableCell align="center" onClick={() =>this.showData(item.source['db_guid'], item.source['tbl_nm'], item.source['clm_nm'], item.target['db_guid'], item.target['tbl_nm'], item.target['clm_nm'])}>
+                                            <GradientProgressBar similarity={item['sim']} />
+                                        </TableCell>
                                         <StyledTableCell className={classes.Cell} align="left">
                                             <Button variant="contained" color="primary" onClick={() => this.deleteMatchHandler(index, true)}>Verify</Button>
                                             <Button color="secondary" onClick={() => this.deleteMatchHandler(index, false)}>Discard</Button>
