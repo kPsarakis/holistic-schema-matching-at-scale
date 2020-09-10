@@ -42,7 +42,7 @@ def get_column_sample_from_minio_csv_file(minio_client: Minio, bucket_name: str,
                      encoding=get_in_memory_encoding(data[:16 * 1024]),
                      sep=get_in_memory_delimiter(data[:16 * 1024]),
                      error_bad_lines=False).fillna('')
-    sample = list(filter(lambda x: x == '', df[column_name].tolist()))[:n]
+    sample = list(filter(lambda x: x != '', df[column_name].tolist()))[:n]
     if len(sample) < n:
         sample = sample + [''] * (n - len(sample))
     return sample
