@@ -1,3 +1,5 @@
+from typing import Union
+
 from .schema_tree import SchemaTree
 from .tree_match import tree_match, recompute_wsim, mapping_generation_leaves
 from ..base_matcher import BaseMatcher
@@ -21,7 +23,7 @@ class Cupid(BaseMatcher):
         self.categories = set()
         self.schemata = dict()  # schema name:str, schema_tree
 
-    def get_matches(self, source_input: BaseDB, target_input: BaseDB):
+    def get_matches(self, source_input: Union[BaseDB, BaseTable], target_input: Union[BaseDB, BaseTable]):
         for table in source_input.get_tables().values():
             self.add_data("DB__"+source_input.name, table)
         for table in target_input.get_tables().values():
@@ -31,8 +33,11 @@ class Cupid(BaseMatcher):
         sims = tree_match(source_tree, target_tree, self.categories, self.leaf_w_struct, self.w_struct, self.th_accept,
                           self.th_high, self.th_low, self.c_inc, self.c_dec, self.th_ns, self.parallelism)
         new_sims = recompute_wsim(source_tree, target_tree, sims)
-        matches = mapping_generation_leaves(source_input.unique_identifier, target_input.unique_identifier,
-                                            source_tree, target_tree, new_sims, self.th_accept)
+        source_id = source_input.db_belongs_uid if isinstance(source_input, BaseTable) \
+            else source_input.unique_identifier
+        target_id = target_input.db_belongs_uid if isinstance(target_input, BaseTable) \
+            else target_input.unique_identifier
+        matches = mapping_generation_leaves(source_id, target_id, source_tree, target_tree, new_sims, self.th_accept)
         return matches
 
     def add_data(self, schema_name: str, table: BaseTable):

@@ -1,7 +1,7 @@
 import json
 from multiprocessing import Pool, get_context
 from itertools import combinations
-from typing import List
+from typing import List, Union
 
 from . import discovery
 from .clustering_utils import create_cache_dirs, generate_global_ranks, process_columns, ingestion_column_generator, \
@@ -80,28 +80,24 @@ class CorrelationClustering(BaseMatcher):
         self.target_name = None
         create_cache_dirs()
 
-    def get_matches(self, source: BaseDB, target: BaseDB):
+    def get_matches(self, source_input: Union[BaseDB, BaseTable], target_input: Union[BaseDB, BaseTable]):
         """
         Overridden function of the BaseMatcher tha gets the source, the target data loaders and the dataset name.
         Next it gives as an output a ranked list of column pair matches.
-
-        Parameters
-        ----------
-        source: InstanceLoader
-            The source dataset
-        target: InstanceLoader
-            The target dataset
 
         Returns
         -------
         dict
             A dictionary with matches and their similarity
         """
-        self.target_name = target.name
-        self.target_guid = target.unique_identifier
-        self.source_guid = source.unique_identifier
-        self.dataset_name = source.name + "___" + target.name
-        all_tables: List[BaseTable] = list(source.get_tables().values()) + list(target.get_tables().values())
+        self.target_name = target_input.name
+        self.source_guid = source_input.db_belongs_uid if isinstance(source_input, BaseTable) \
+            else source_input.unique_identifier
+        self.target_guid = target_input.db_belongs_uid if isinstance(target_input, BaseTable) \
+            else target_input.unique_identifier
+        self.dataset_name = source_input.name + "___" + target_input.name
+        all_tables: List[BaseTable] = \
+            list(source_input.get_tables().values()) + list(target_input.get_tables().values())
 
         if self.clear_cache:
             data = []

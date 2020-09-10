@@ -1,3 +1,5 @@
+from typing import Union
+
 import Levenshtein as lv
 import math
 
@@ -7,6 +9,7 @@ from .propagation_graph import PropagationGraph
 from ..match import Match
 from ..base_matcher import BaseMatcher
 from ...data_sources.base_db import BaseDB
+from ...data_sources.base_table import BaseTable
 
 
 class SimilarityFlooding(BaseMatcher):
@@ -21,12 +24,14 @@ class SimilarityFlooding(BaseMatcher):
         self.source_guid = None
         self.target_guid = None
 
-    def get_matches(self, source_schema: BaseDB, target_schema: BaseDB):
-        self.graph1 = Graph(source_schema).graph
-        self.graph2 = Graph(target_schema).graph
+    def get_matches(self, source_input: Union[BaseDB, BaseTable], target_input: Union[BaseDB, BaseTable]):
+        self.graph1 = Graph(source_input).graph
+        self.graph2 = Graph(target_input).graph
         self.calculate_initial_mapping()
-        self.source_guid = source_schema.unique_identifier
-        self.target_guid = target_schema.unique_identifier
+        self.source_guid = source_input.db_belongs_uid if isinstance(source_input, BaseTable) \
+            else source_input.unique_identifier
+        self.target_guid = target_input.db_belongs_uid if isinstance(target_input, BaseTable) \
+            else target_input.unique_identifier
         matches = self.fixpoint_computation(100, 0.001)
 
         filtered_matches = self.filter_map(matches)

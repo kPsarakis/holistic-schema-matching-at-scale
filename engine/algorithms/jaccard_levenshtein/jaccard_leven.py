@@ -1,5 +1,7 @@
 from itertools import product
 from multiprocessing import get_context
+from typing import Union
+
 import Levenshtein as Lv
 
 from ..base_matcher import BaseMatcher
@@ -32,20 +34,25 @@ class JaccardLevenMatcher(BaseMatcher):
         self.threshold_leven = threshold_leven
         self.process_num = process_num
 
-    def get_matches(self, source: BaseDB, target: BaseDB):
+    def get_matches(self, source_input: Union[BaseDB, BaseTable], target_input: Union[BaseDB, BaseTable]):
         matches = []
         source_table: BaseTable
         target_table: BaseTable
         source_column: BaseColumn
         target_column: BaseColumn
-        for (source_table, target_table) in product(source.get_tables().values(), target.get_tables().values()):
+        source_id = source_input.db_belongs_uid if isinstance(source_input, BaseTable) \
+            else source_input.unique_identifier
+        target_id = target_input.db_belongs_uid if isinstance(target_input, BaseTable) \
+            else target_input.unique_identifier
+        for (source_table, target_table) in \
+                product(source_input.get_tables().values(), target_input.get_tables().values()):
             for source_column, target_column in product(source_table.get_columns(), target_table.get_columns()):
                 sim = self.jaccard_leven(source_column.data, target_column.data, self.threshold_leven)
                 if sim > 0.0:
-                    matches.append(Match(target_table.db_belongs_uid,
+                    matches.append(Match(target_id,
                                          target_table.name, target_table.unique_identifier,
                                          target_column.name, target_column.unique_identifier,
-                                         source_table.db_belongs_uid,
+                                         source_id,
                                          source_table.name, source_table.unique_identifier,
                                          source_column.name, source_column.unique_identifier,
                                          sim).to_dict)

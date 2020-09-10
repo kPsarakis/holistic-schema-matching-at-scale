@@ -18,6 +18,8 @@ class Coma(BaseMatcher):
     def __init__(self, max_n: int = 0, strategy: str = "COMA_OPT"):
         self.max_n = max_n
         self.strategy = strategy
+        self.source_guid = None
+        self.target_guid = None
 
     def get_matches(self, source_input: BaseDB, target_input: BaseDB) -> List[Dict]:
         tmp_folder_path: str = get_project_root() + '/algorithms/coma/tmp_data/'
@@ -33,6 +35,11 @@ class Coma(BaseMatcher):
 
         source_tables = [table for table in source_input.get_tables().values()]
         target_tables = [table for table in target_input.get_tables().values()]
+
+        self.source_guid = source_input.db_belongs_uid if isinstance(source_input, BaseTable) \
+            else source_input.unique_identifier
+        self.target_guid = target_input.db_belongs_uid if isinstance(target_input, BaseTable) \
+            else target_input.unique_identifier
 
         for s_table, t_table in product(source_tables, target_tables):
             s_f_name, t_f_name = self.write_schema_csv_files(s_table, t_table)
@@ -82,9 +89,9 @@ class Coma(BaseMatcher):
             column2 = self.get_column(m1)
             if column1 == "" or column2 == "":
                 continue
-            formatted_output.append(Match(t_table.db_belongs_uid,
+            formatted_output.append(Match(self.target_guid,
                                           t_table.name, t_table.unique_identifier, column1, t_lookup[column1],
-                                          s_table.db_belongs_uid,
+                                          self.source_guid,
                                           s_table.name, s_table.unique_identifier, column2, s_lookup[column2],
                                           float(similarity)).to_dict)
         return formatted_output

@@ -49,7 +49,6 @@ def get_matches_minio(matching_algorithm: str, algorithm_params: dict, target_ta
     target_db_name, target_table_name = target_table
     source_db_name, source_table_name = source_table
     load_data = False if matching_algorithm in schema_only_algorithms else True
-    print("@celery.task get_matches_minio", target_table_name, target_db_name)
     target_minio_table: MinioTable = minio_source.get_db_table(target_table_name, target_db_name, load_data=load_data)
     source_minio_table: MinioTable = minio_source.get_db_table(source_table_name, source_db_name, load_data=load_data)
     return matcher.get_matches(source_minio_table, target_minio_table)
@@ -246,7 +245,6 @@ def find_matches_within_db_minio():
 
 @app.route('/matches/minio/column_sample/<db_name>/<table_name>/<column_name>', methods=['GET'])
 def get_column_sample_minio(db_name: str, table_name: str, column_name: str):
-    print("get_column_sample_minio", db_name, table_name)
     minio_source: MinioSource = MinioSource()
     return jsonify(minio_source.get_column_sample(db_name, table_name, column_name))
 
