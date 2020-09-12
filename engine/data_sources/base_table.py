@@ -37,9 +37,3 @@ class BaseTable(ABC):
     @cached_property
     def get_guid_column_lookup(self) -> Dict[str, object]:
         return {column.name:  column.unique_identifier for column in self.get_columns()}
-
-    def __str__(self):
-        __str: str = "\tTable: " + self.name + "  |  " + str(self.unique_identifier) + "\n"
-        for column in self.get_columns():
-            __str = __str + str(column.__str__())
-        return __str

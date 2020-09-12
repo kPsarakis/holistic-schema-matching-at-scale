@@ -21,6 +21,12 @@ class AtlasTable(BaseTable, BaseDB):
         self.__columns = dict()
         self.__get_columns_from_atlas()
 
+    def __str__(self):
+        __str: str = "\tTable: " + self.name + "  |  " + str(self.unique_identifier) + "\n"
+        for column in self.get_columns():
+            __str = __str + str(column.__str__())
+        return __str
+
     @property
     def unique_identifier(self) -> str:
         return self.__guid
