@@ -8,6 +8,7 @@ import snakecase as snakecase
 from anytree import LevelOrderIter
 from nltk.corpus import stopwords
 from nltk.corpus import wordnet as wn
+import Levenshtein as Lv
 from similarity.ngram import NGram
 
 from .schema_element import SchemaElement, Token, TokenTypes
@@ -162,14 +163,14 @@ def name_similarity_tokens(token_set1, token_set2):
     return (sum1 + sum2) / (len(token_set1) + len(token_set2))
 
 
-def get_partial_similarity(token_set1, token_set2, n=2):
+def get_partial_similarity(token_set1, token_set2):
     total_sum = 0
     for t1 in token_set1:
         max_sim = -math.inf
         for t2 in token_set2:
             sim = compute_similarity_wordnet(t1.data, t2.data)
             if math.isnan(sim):
-                sim = 1 - compute_similarity_ngram(t1.data, t2.data, n)
+                sim = compute_similarity_leven(t1.data, t2.data)
 
             if sim > max_sim:
                 max_sim = sim
@@ -194,6 +195,11 @@ def compute_similarity_ngram(word1, word2, n):
     ngram = NGram(n)
     sim = ngram.distance(word1, word2)
     return sim
+
+
+# Higher the better
+def compute_similarity_leven(word1, word2):
+    return Lv.ratio(word1, word2)
 
 
 # max is 0.5
