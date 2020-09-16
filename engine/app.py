@@ -3,6 +3,7 @@ import os
 import uuid
 
 from celery import Celery, chord
+from minio import Minio
 from minio.error import NoSuchKey
 from flask import Flask, request, abort, jsonify, Response
 from typing import List
@@ -241,6 +242,18 @@ def find_matches_within_db_minio():
                   for table_combination in product(db.get_table_str_guids(), [table.unique_identifier])]
         chord(header)(callback)
         return jsonify(job_uuid)
+
+
+@app.route('/matches/minio/ls', methods=['GET'])
+def get_minio_dir_tree():
+    minio_client = Minio('{host}:{port}'.format(host=os.environ['MINIO_HOST'],
+                                                port=os.environ['MINIO_PORT']),
+                         access_key=os.environ['MINIO_ACCESS_KEY'],
+                         secret_key=os.environ['MINIO_SECRET_KEY'],
+                         secure=False)
+    return jsonify([{"db_name": bucket.name, "tables": list(map(lambda obj: obj.object_name,
+                                                                minio_client.list_objects(bucket.name)))}
+                    for bucket in minio_client.list_buckets()])
 
 
 @app.route('/matches/minio/column_sample/<db_name>/<table_name>/<column_name>', methods=['GET'])

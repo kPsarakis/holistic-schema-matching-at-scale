@@ -4,6 +4,8 @@
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.56",
     "autoprefixer": "7.1.2",
     "axios": "^0.19.2",
     "babel-core": "6.25.0",

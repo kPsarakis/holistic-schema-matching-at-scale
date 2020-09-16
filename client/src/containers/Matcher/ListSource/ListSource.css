@@ -1,0 +1,22 @@
+.ListSource {
+    margin-top: 80px;
+    box-shadow: 0 2px 3px gray;
+    border: 1px solid lightgray;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.labelRoot {
+    display: flex;
+    align-items: center;
+    padding: 2px 0;
+}
+
+.labelIcon {
+    margin-right: 4px;
+}
+
+.labelText {
+    font-weight: inherit;
+    flex-grow: 1;
+}

@@ -275,5 +275,12 @@ def get_column_sample_minio(db_name: str, table_name: str, column_name: str):
     return jsonify(example)
 
 
+@app.route('/matches/minio/ls', methods=['GET'])
+def get_minio_dir_tree():
+    ls = [{"db_name": "db1", "tables": ["t1", "t2", "t3"]}, {"db_name": "db2", "tables": ["t4", "t5"]},
+          {"db_name": "db3", "tables": []}]
+    return jsonify(ls)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
