@@ -6,7 +6,7 @@
 }
 
 .NavigationItem a {
-    color: #ad0000;
+    color: #85c1e9 ;
     text-decoration: none;
     width: 100%;
     box-sizing: border-box;
@@ -16,7 +16,7 @@
 .NavigationItem a:hover,
 .NavigationItem a:active,
 .NavigationItem a.active {
-    color: #40A4C8;
+    color: #1f618d;
 }
 
 @media (min-width: 500px) {
@@ -38,8 +38,8 @@
     .NavigationItem a:hover,
     .NavigationItem a:active,
     .NavigationItem a.active {
-        background-color: #ad0000;
-        border-bottom: 4px solid #40A4C8;
-        color: white;
+        background-color: #85c1e9;
+        border-bottom: 4px solid #c0392b;
+        color: black;
     }
 }
