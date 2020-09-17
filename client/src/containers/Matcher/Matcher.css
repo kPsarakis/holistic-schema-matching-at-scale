@@ -2,4 +2,12 @@
     float:left;
     display:inline;
     width: 20%;
+    margin-top: 80px;
+}
+
+.AlgorithmSelection{
+    float:left;
+    display:inline;
+    width: 60%;
+    margin-top: 80px;
 }

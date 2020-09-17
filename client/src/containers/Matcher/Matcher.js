@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 
 import Aux from '../../hoc/Aux';
-import JobRequest from './JobRequest/JobRequest'
 import ListSource from './ListSource/ListSource'
+import AlgorithmSelection from './AlgorithmSelection/AlgorithmSelection'
 import classes from './Matcher.css'
 
 class Matcher extends Component {
@@ -15,8 +15,8 @@ class Matcher extends Component {
                 <div className={classes.DbList}>
                     <ListSource header={"Select Target Tables"}/>
                 </div>
-                <div>
-                    <JobRequest/>
+                <div className={classes.AlgorithmSelection}>
+                    <AlgorithmSelection />
                 </div>
             </Aux>
         );
