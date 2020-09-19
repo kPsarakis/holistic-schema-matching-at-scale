@@ -5,13 +5,20 @@ import ListSource from './ListSource/ListSource'
 import AlgorithmSelection from './AlgorithmSelection/AlgorithmSelection'
 import classes from './Matcher.css'
 import {Button} from "@material-ui/core";
+import axios from "axios";
+import Modal from "../../components/UI/Modal/Modal";
+import Spinner from "../../components/UI/Spinner/Spinner";
+import Response from "../../components/Forms/Response/Response";
 
 class Matcher extends Component {
 
     state = {
         sourceSelectedTables: [],
         targetSelectedTables: [],
-        selectedAlgorithms: []
+        selectedAlgorithms: [],
+        loading: false,
+        responseReceived: false,
+        latestResponse: ""
     }
 
     getSelectedTables(val, mode){
@@ -29,11 +36,46 @@ class Matcher extends Component {
         console.log("Source", this.state.sourceSelectedTables)
         console.log("Target", this.state.targetSelectedTables)
         console.log("Algorithms", this.state.selectedAlgorithms)
+        if(this.state.sourceSelectedTables.length === 0){
+            alert('No selected tables for source!');
+            return;
+        }
+        if(this.state.targetSelectedTables.length === 0){
+            alert('No selected tables for target!');
+            return;
+        }
+        if(this.state.selectedAlgorithms.length === 0){
+            alert('No selected algorithms!');
+            return;
+        }
+        this.setState( {loading: true} )
+        const requestBody = {
+            "source_tables": this.state.sourceSelectedTables,
+            "target_tables": this.state.targetSelectedTables,
+            "algorithms": this.state.selectedAlgorithms
+        };
+        axios({
+          method: 'post',
+          url: 'http://127.0.0.1:5000/matches/minio/submit_batch_job',
+          headers: {},
+          data: requestBody})
+            .then(response => {this.setState({loading: false, responseReceived: true, latestResponse: response.data});})
+            .catch(error => {this.setState( {loading: false} ); console.log(error)})
+    }
+
+    closeResponseHandler = () => {
+        this.setState({responseReceived: false})
     }
 
     render() {
         return(
             <Aux>
+                <Modal show={this.state.loading}>
+                    <Spinner />
+                </Modal>
+                <Modal show={this.state.responseReceived} modalClosed={this.closeResponseHandler}>
+                    <Response response={this.state.latestResponse}/>
+                </Modal>
                 <div className={classes.DbList}>
                     <ListSource
                         header={"Select Source Tables"}

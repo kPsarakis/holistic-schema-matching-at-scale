@@ -73,8 +73,7 @@ class ListSource extends Component {
         dbToUpdate.selected = !dbToUpdate.selected
         dbToUpdate.tables.map(table => table.selected = dbToUpdate.selected)
         updatedDBTree[dbIdx] = dbToUpdate
-        this.setState({dbTree: updatedDBTree})
-        this.sendSelectedToParent();
+        this.setState({dbTree: updatedDBTree},() => this.sendSelectedToParent());
     }
 
     handleCheckTbl = (dbIdx, tblIdx) => {
@@ -82,8 +81,7 @@ class ListSource extends Component {
         const dbToUpdate = updatedDBTree.slice(dbIdx, dbIdx+1)[0];
         dbToUpdate.tables[tblIdx].selected = !dbToUpdate.tables[tblIdx].selected
         updatedDBTree[dbIdx] = dbToUpdate
-        this.setState({dbTree: updatedDBTree})
-        this.sendSelectedToParent();
+        this.setState({dbTree: updatedDBTree}, () => this.sendSelectedToParent());
     }
 
     renderTree = (dbInfo, index) => {

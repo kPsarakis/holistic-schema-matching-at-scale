@@ -27,8 +27,12 @@ class Algorithm extends Component{
     }
 
     sendSelectedToParent = () => {
-        const algorithm = {...this.state.params};
-        this.props.sendSelected(algorithm);
+        const paramsToPropagate = (this.state.params.hasOwnProperty('defaultAlgoParams') &&
+                                   this.state.params['defaultAlgoParams'].value) ? {} : {...this.state.params};
+        if(this.state.selected){
+            this.props.sendSelected(paramsToPropagate);
+        }
+        this.props.toggleAlgorithm(this.state.selected);
     }
 
     inputChangedHandler = (event, inputIdentifier) => {
@@ -49,18 +53,11 @@ class Algorithm extends Component{
             }
         }
         updatedJobForm[inputIdentifier] = updatedJobElement;
-        this.setState({params: updatedJobForm});
-        if(this.state.selected) {
-            this.sendSelectedToParent();
-        }
+        this.setState({params: updatedJobForm}, () => this.sendSelectedToParent());
     }
 
     toggleSelected = () => {
-        this.props.toggleAlgorithm(!this.state.selected);
-        if(!this.state.selected){
-            this.sendSelectedToParent();
-        }
-        this.setState({selected: !this.state.selected})
+        this.setState({selected: !this.state.selected}, () => this.sendSelectedToParent());
     }
 
     render() {

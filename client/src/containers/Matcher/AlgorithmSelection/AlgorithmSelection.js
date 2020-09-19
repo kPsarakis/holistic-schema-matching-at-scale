@@ -219,7 +219,6 @@ class AlgorithmSelection extends Component {
     }
 
     getSelectedAlgorithms(val, algorithmName){
-        console.log("Sel", val)
         const algoParams = {}
         if(val.hasOwnProperty('defaultAlgoParams') && !val['defaultAlgoParams'].value) {
             for (let key in val) {
@@ -232,8 +231,7 @@ class AlgorithmSelection extends Component {
         }
         const localAlgorithmParams = {...this.state.algorithmParams};
         localAlgorithmParams[algorithmName] = algoParams;
-        this.setState({algorithmParams: localAlgorithmParams});
-        this.sendSelectedToParent();
+        this.setState({algorithmParams: localAlgorithmParams}, () => this.sendSelectedToParent());
     }
 
     sendSelectedToParent = () => {
@@ -249,12 +247,10 @@ class AlgorithmSelection extends Component {
     toggleAlgorithmSelection = (selected, algorithmName) => {
         const localIsSelected = {...this.state.isSelected};
         localIsSelected[algorithmName] = selected;
-        this.setState({isSelected: localIsSelected})
+        this.setState({isSelected: localIsSelected}, () => this.sendSelectedToParent());
     }
 
     render() {
-        console.log(this.state.isSelected)
-        console.log(this.state.algorithmParams)
         return(
             <div className={classes.Algorithms}>
                 <h5>Select algorithms to run</h5>

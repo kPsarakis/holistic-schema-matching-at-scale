@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, Response
+from flask import Flask, jsonify, Response, request
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -280,6 +280,12 @@ def get_minio_dir_tree():
     ls = [{"db_name": "db1", "tables": ["t1", "t2", "t3"]}, {"db_name": "db2", "tables": ["t4", "t5"]},
           {"db_name": "db3", "tables": []}]
     return jsonify(ls)
+
+
+@app.route('/matches/minio/submit_batch_job', methods=['POST'])
+def submit_batch_job():
+    print(request.json)
+    return jsonify("job_guid")
 
 
 if __name__ == '__main__':
