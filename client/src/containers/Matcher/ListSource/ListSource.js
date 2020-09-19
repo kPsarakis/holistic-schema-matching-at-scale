@@ -44,6 +44,7 @@ class ListSource extends Component {
     }
 
     componentDidMount() {
+        this.setState({loading: true})
         axios({
             method: 'get',
             url: "http://127.0.0.1:5000/matches/minio/ls"
@@ -58,6 +59,14 @@ class ListSource extends Component {
         })
     }
 
+    sendSelectedToParent = () => {
+        const selectedTables = [];
+        this.state.dbTree.map(db =>
+            db.tables.map(table =>
+                (table.selected) ? selectedTables.push({"db_name": db.name, "table_name": table.name}) : null))
+        this.props.sendSelected(selectedTables);
+    }
+
     handleCheckDB = (dbIdx) => {
         const updatedDBTree = [...this.state.dbTree];
         const dbToUpdate = updatedDBTree.slice(dbIdx, dbIdx+1)[0];
@@ -65,6 +74,7 @@ class ListSource extends Component {
         dbToUpdate.tables.map(table => table.selected = dbToUpdate.selected)
         updatedDBTree[dbIdx] = dbToUpdate
         this.setState({dbTree: updatedDBTree})
+        this.sendSelectedToParent();
     }
 
     handleCheckTbl = (dbIdx, tblIdx) => {
@@ -73,6 +83,7 @@ class ListSource extends Component {
         dbToUpdate.tables[tblIdx].selected = !dbToUpdate.tables[tblIdx].selected
         updatedDBTree[dbIdx] = dbToUpdate
         this.setState({dbTree: updatedDBTree})
+        this.sendSelectedToParent();
     }
 
     renderTree = (dbInfo, index) => {

@@ -47,7 +47,7 @@ const input = (props) => {
             inputElement =
                 <div className={classes.Slider}>
                     <Typography id={props.name} gutterBottom>
-                        {props.name}
+                        {props.name}:
                     </Typography>
                     <Slider
                         aria-labelledby={props.name}

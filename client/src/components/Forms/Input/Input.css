@@ -13,11 +13,11 @@
 .Slider {
     margin-left: auto !important;
     margin-right: auto !important;
-    width: 50%;
+    width: 90%;
 }
 
 .Select {
-    width: 50%;
+    width: 100%;
 }
 
 .InputElement {
