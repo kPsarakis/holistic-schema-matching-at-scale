@@ -56,7 +56,7 @@ class Matcher extends Component {
         };
         axios({
           method: 'post',
-          url: 'http://127.0.0.1:5000/matches/minio/submit_batch_job',
+          url: '/api/matches/minio/submit_batch_job',
           headers: {},
           data: requestBody})
             .then(response => {this.setState({loading: false, responseReceived: true, latestResponse: response.data});})

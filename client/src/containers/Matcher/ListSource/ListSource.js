@@ -35,7 +35,6 @@ class Table {
     }
 }
 
-
 class ListSource extends Component {
 
     state = {
@@ -47,8 +46,7 @@ class ListSource extends Component {
         this.setState({loading: true})
         axios({
             method: 'get',
-            url: "http://127.0.0.1:5000/matches/minio/ls"
-             // url: '/api/matches/minio/ls'
+            url: "/api/matches/minio/ls"
         }).then(res => {
             const dbTree = [];
             res.data.map((dbInfo, index) => dbTree.push(new Database(index, dbInfo['db_name'], dbInfo['tables'])));

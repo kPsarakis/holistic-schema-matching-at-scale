@@ -45,6 +45,15 @@ class MinioPayload(BaseModel):
         arbitrary_types_allowed: bool = True
 
 
+class MinioBulkPayload(BaseModel):
+    source_tables: List[Dict[str, str]]  # The source tables in the format [{db_name: ..., table_name: ...}, ...]
+    target_tables: List[Dict[str, str]]  # The target tables in the format [{db_name: ..., table_name: ...}, ...]
+    algorithms: List[Dict[str, Optional[Dict[str, object]]]]  # The algorithms to run [{#algorithm_name: {params dict}}]
+
+    class Config:
+        arbitrary_types_allowed: bool = True
+
+
 def validate_matcher(name, args, endpoint):
     """
     Validates the matching algorithm params for early failure in the matching process if something is wrong
@@ -69,6 +78,23 @@ def get_atlas_payload(request_json: dict) -> AtlasPayload:
     except ValidationError:
         abort(400, "Incorrect payload arguments. Make sure that they contain the correct atlas_url: str, "
                    "atlas_username: str, atlas_password: str, db_types: List[str] and matching_algorithm: str")
+    else:
+        return payload
+
+
+def get_minio_bulk_payload(request_json: dict) -> MinioBulkPayload:
+    try:
+        payload = MinioBulkPayload(**request_json)
+        if not payload.source_tables:
+            abort(400, "Empty source table list")
+        if not payload.target_tables:
+            abort(400, "Empty target table list")
+        if not payload.algorithms:
+            abort(400, "Empty algorithm list")
+    except ValidationError:
+        abort(400, "Incorrect payload arguments. Make sure that they contain the correct source_tables: "
+                   "the source tables in the format [{db_name: ..., table_name: ...}, ...] same for the target tables"
+                   "and the algorithms [{#algorithm_name: {params dict}}]")
     else:
         return payload
 

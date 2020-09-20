@@ -6,7 +6,7 @@ from celery import Celery, chord
 from minio import Minio
 from minio.error import NoSuchKey
 from flask import Flask, request, abort, jsonify, Response
-from typing import List
+from typing import List, Dict, Optional, Tuple, Iterable
 from itertools import product
 
 from pandas.errors import EmptyDataError
@@ -20,7 +20,7 @@ from engine.data_sources.base_db import BaseDB
 from engine.data_sources.minio.minio_source import MinioSource
 from engine.data_sources.minio.minio_table import MinioTable
 from engine.utils.api_utils import AtlasPayload, get_atlas_payload, validate_matcher, get_atlas_source, get_matcher, \
-    MinioPayload, get_minio_payload
+    MinioPayload, get_minio_payload, get_minio_bulk_payload, MinioBulkPayload
 
 app = Flask(__name__)
 app.config['CELERY_BROKER_URL'] = 'amqp://{user}:{pwd}@{host}:{port}/'.format(user=os.environ['RABBITMQ_DEFAULT_USER'],
@@ -242,6 +242,31 @@ def find_matches_within_db_minio():
                   for table_combination in product(db.get_table_str_guids(), [table.unique_identifier])]
         chord(header)(callback)
         return jsonify(job_uuid)
+
+
+@app.route('/matches/minio/submit_batch_job', methods=['POST'])
+def submit_batch_job():
+    job_uuid: str = str(uuid.uuid4())
+
+    payload: MinioBulkPayload = get_minio_bulk_payload(request.json)
+
+    combs = list(product(payload.source_tables, payload.target_tables))
+    deduplicated_table_combinations: Iterable[Tuple[Dict[str, str], Dict[str, str]]] = \
+        filter(lambda comb: comb[0] != comb[1], combs)
+
+    algorithm: Dict[str, Optional[Dict[str, object]]]
+    for algorithm in payload.algorithms:
+        algorithm_name, algorithm_params = list(algorithm.items())[0]
+        algorithm_uuid: str = job_uuid + "_" + algorithm_name
+
+        validate_matcher(algorithm_name, algorithm_params, "minio")
+
+        callback = merge_matches.s(algorithm_uuid)
+        header = [get_matches_minio.s(algorithm_name, algorithm_params, *table_combination)
+                  for table_combination in deduplicated_table_combinations]
+        chord(header)(callback)
+
+    return jsonify(job_uuid)
 
 
 @app.route('/matches/minio/ls', methods=['GET'])
