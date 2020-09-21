@@ -38,13 +38,17 @@ class Result extends Component{
 
     render() {
         const renderedList = this.state.showRankedList ? <MatchList rankedList={this.state.rankedList} jobId={this.props.job_id}/> : null;
+        const splitJobId = this.props.job_id.split("_")
+        const id = splitJobId[0]
+        const algorithmName = splitJobId[1]
         return (
             <Aux>
                 <Modal show={this.state.loading}>
                     <Spinner />
                 </Modal>
                 <div className={classes.Result}>
-                    <p>Job: {this.props.job_id}</p>
+                    <p>Job: {id}</p>
+                    <p>Algorithm: {algorithmName}</p>
                     <Button variant="contained" color="primary" onClick={this.toggleRankedList}>Show/hide matches</Button>
                     <Button color="secondary" onClick={this.props.deleteJob}>Delete job</Button>
                     {renderedList}
