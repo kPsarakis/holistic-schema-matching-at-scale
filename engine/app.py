@@ -6,7 +6,7 @@ from celery import Celery, chord
 from minio import Minio
 from minio.error import NoSuchKey
 from flask import Flask, request, abort, jsonify, Response
-from typing import List, Dict, Optional, Tuple, Iterable
+from typing import List, Dict, Optional, Tuple
 from itertools import product
 
 from pandas.errors import EmptyDataError
@@ -251,8 +251,9 @@ def submit_batch_job():
     payload: MinioBulkPayload = get_minio_bulk_payload(request.json)
 
     combs = list(product(payload.source_tables, payload.target_tables))
-    deduplicated_table_combinations: Iterable[Tuple[Dict[str, str], Dict[str, str]]] = \
-        filter(lambda comb: comb[0] != comb[1], combs)
+    deduplicated_table_combinations: List[Tuple[Tuple[str, str], Tuple[str, str]]] = list(
+        map(lambda comb: ((comb[0]['db_name'], comb[0]['table_name']), (comb[1]['db_name'], comb[1]['table_name'])),
+            filter(lambda comb: comb[0] != comb[1], combs)))
 
     algorithm: Dict[str, Optional[Dict[str, object]]]
     for algorithm in payload.algorithms:
