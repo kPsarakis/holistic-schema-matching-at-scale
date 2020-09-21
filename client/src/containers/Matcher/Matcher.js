@@ -32,10 +32,6 @@ class Matcher extends Component {
     }
 
     sendJob = () => {
-        console.log("Submit")
-        console.log("Source", this.state.sourceSelectedTables)
-        console.log("Target", this.state.targetSelectedTables)
-        console.log("Algorithms", this.state.selectedAlgorithms)
         if(this.state.sourceSelectedTables.length === 0){
             alert('No selected tables for source!');
             return;
