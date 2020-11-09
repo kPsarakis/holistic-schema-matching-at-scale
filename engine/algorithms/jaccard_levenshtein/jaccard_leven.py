@@ -35,7 +35,6 @@ class JaccardLevenMatcher(BaseMatcher):
         self.process_num = process_num
 
     def get_matches(self, source_input: Union[BaseDB, BaseTable], target_input: Union[BaseDB, BaseTable]):
-        matches = []
         source_table: BaseTable
         target_table: BaseTable
         source_column: BaseColumn
@@ -44,64 +43,67 @@ class JaccardLevenMatcher(BaseMatcher):
             else source_input.unique_identifier
         target_id = target_input.db_belongs_uid if isinstance(target_input, BaseTable) \
             else target_input.unique_identifier
-        for (source_table, target_table) in \
-                product(source_input.get_tables().values(), target_input.get_tables().values()):
-            for source_column, target_column in product(source_table.get_columns(), target_table.get_columns()):
-                sim = self.jaccard_leven(source_column.data, target_column.data, self.threshold_leven)
-                if sim > 0.0:
-                    matches.append(Match(target_id,
-                                         target_table.name, target_table.unique_identifier,
-                                         target_column.name, target_column.unique_identifier,
-                                         source_id,
-                                         source_table.name, source_table.unique_identifier,
-                                         source_column.name, source_column.unique_identifier,
-                                         sim).to_dict)
-        return matches
-
-    def jaccard_leven(self, list1: list, list2: list, threshold: float) -> float:
-        """
-        Function that takes two columns and returns their Jaccard similarity based on the Levenshtein ratio between the
-        column entries (lower ration, the entries are more different)
-
-        Parameters
-        ----------
-        list1 : list
-            The first column's data
-        list2 : list
-            The second column's data
-        threshold : float
-            The Levenshtein ratio
-
-        Returns
-        -------
-        float
-            The Jaccard Levenshtein similarity between the two columns
-        """
-
-        if len(set(list1)) < len(set(list2)):
-            set1 = set(list1)
-            set2 = set(list2)
-        else:
-            set1 = set(list2)
-            set2 = set(list1)
-
-        combinations = list(get_set_combinations(set1, set2, threshold))
-
+        matches = []
         if self.process_num == 1:
-            intersection_cnt = 0
-            for cmb in combinations:
-                intersection_cnt = intersection_cnt + process_lv(cmb)
+            for combination in self.get_column_combinations(source_input.get_tables().values(),
+                                                            target_input.get_tables().values(), self.threshold_leven,
+                                                            target_id, source_id):
+                matches.append(process_jaccard_leven(combination))
         else:
             with get_context("spawn").Pool(self.process_num) as process_pool:
-                intersection_cnt_list = list(process_pool.map(process_lv, combinations))
-                intersection_cnt = sum(intersection_cnt_list)
+                matches = list(process_pool.map(process_jaccard_leven,
+                                                self.get_column_combinations(source_input.get_tables().values(),
+                                                                             target_input.get_tables().values(),
+                                                                             self.threshold_leven,
+                                                                             target_id, source_id), chunksize=1))
+        matches = list(filter(lambda elem: elem['sim'] > 0.0, matches))  # Remove the pairs with zero similarity
+        sorted_matches = list(sorted(matches, key=lambda item: item['sim'], reverse=True))
+        return sorted_matches
 
-        union_cnt = len(set1) + len(set2) - intersection_cnt
+    @staticmethod
+    def get_column_combinations(source_tables, target_tables, threshold, target_id, source_id):
+        for source_table, target_table in product(source_tables, target_tables):
+            for source_column, target_column in product(source_table.get_columns(), target_table.get_columns()):
+                yield source_column.data, target_column.data, threshold, target_id, \
+                      target_table.name, target_table.unique_identifier, \
+                      target_column.name, target_column.unique_identifier, \
+                      source_table.name, source_table.unique_identifier, source_id, \
+                      source_column.name, source_column.unique_identifier
 
-        if union_cnt == 0:
-            return 0
 
-        return float(intersection_cnt) / union_cnt
+def process_jaccard_leven(tup: tuple):
+
+    source_data, target_data, threshold, target_id, target_table_name, target_table_unique_identifier, \
+        target_column_name, target_column_unique_identifier, source_table_name, source_table_unique_identifier, \
+        source_id, source_column_name, source_column_unique_identifier = tup
+
+    if len(set(source_data)) < len(set(target_data)):
+        set1 = set(source_data)
+        set2 = set(target_data)
+    else:
+        set1 = set(target_data)
+        set2 = set(source_data)
+
+    combinations = get_set_combinations(set1, set2, threshold)
+
+    intersection_cnt = 0
+    for cmb in combinations:
+        intersection_cnt = intersection_cnt + process_lv(cmb)
+
+    union_cnt = len(set1) + len(set2) - intersection_cnt
+
+    if union_cnt == 0:
+        sim = 0.0
+    else:
+        sim = float(intersection_cnt) / union_cnt
+
+    return Match(target_id,
+                 target_table_name, target_table_unique_identifier,
+                 target_column_name, target_column_unique_identifier,
+                 source_id,
+                 source_table_name, source_table_unique_identifier,
+                 source_column_name, source_column_unique_identifier,
+                 sim).to_dict
 
 
 def get_set_combinations(set1: set, set2: set, threshold: float):
