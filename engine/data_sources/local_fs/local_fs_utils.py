@@ -12,18 +12,18 @@ def get_pandas_df_from_local_fs_csv_file(table_path: str):
                        index_col=False,
                        encoding=get_encoding(table_path),
                        sep=get_delimiter(table_path),
-                       error_bad_lines=False).fillna('')
+                       error_bad_lines=False)
 
 
 def get_column_sample_from_csv_file(table_path: str, column_name: str, n: int):
     df = pd.read_csv(table_path,
                      usecols=[column_name],
-                     nrows=n,
+                     nrows=2*n,
                      index_col=False,
                      encoding=get_encoding(table_path),
                      sep=get_delimiter(table_path),
-                     error_bad_lines=False).fillna('')
-    sample = list(filter(lambda x: x != '', df[column_name].tolist()))[:n]
+                     error_bad_lines=False)
+    sample = df[column_name].dropna().tolist()[:n]
     if len(sample) < n:
         sample = sample + [''] * (n - len(sample))
     return sample

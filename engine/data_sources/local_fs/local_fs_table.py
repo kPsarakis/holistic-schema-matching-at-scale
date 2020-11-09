@@ -78,13 +78,17 @@ class LocalFSTable(BaseDB, BaseTable):
         table_df: pd.DataFrame = get_pandas_df_from_local_fs_csv_file(self.__table_path)
         for (column_name, column_data) in table_df.iteritems():
             d_type = str(column_data.dtype)
-            data = list(filter(lambda d: d != '', list(column_data.values)))  # remove the NaN values
+            data = list(column_data.dropna().values)
             if len(data) != 0:
                 if d_type == "object":
                     if is_date(data[0]):
                         d_type = "date"
                     else:
                         d_type = "varchar"
+                elif d_type.startswith("int"):
+                    d_type = "int"
+                elif d_type.startswith("float"):
+                    d_type = "float"
                 self.__columns[column_name] = LocalFSColumn(column_name, data, d_type, self.unique_identifier)
             else:
                 if d_type == "object":
