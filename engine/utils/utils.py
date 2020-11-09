@@ -5,6 +5,7 @@ import time
 from pathlib import Path
 import os
 import openpyxl
+from chardet import UniversalDetector
 from dateutil.parser import parse
 import chardet
 
@@ -91,8 +92,16 @@ def directory_tree(dir_path: Path, prefix: str = ''):
 
 def get_encoding(ds_path: str) -> str:
     """ Returns the encoding of the file """
+    test_str = b''
+    count = 0
     with open(ds_path, 'rb') as f:
-        return chardet.detect(f.read(512*16))['encoding']
+        line = f.readline()
+        while line and count < 500:
+            test_str = test_str + line
+            count += 1
+            line = f.readline()
+        result = chardet.detect(test_str)
+    return result['encoding']
 
 
 def get_delimiter(ds_path: str) -> str:
