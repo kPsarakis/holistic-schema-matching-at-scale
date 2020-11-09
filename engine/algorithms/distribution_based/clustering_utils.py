@@ -203,6 +203,7 @@ def process_columns(tup: tuple):
     if not os.path.isfile(pickle_path):
         with open(pickle_path, 'wb') as output:
             pickle.dump(column, output, pickle.HIGHEST_PROTOCOL)
+    del column
 
 
 def parallel_cutoff_threshold(tup: tuple):
@@ -304,18 +305,6 @@ def unix_sort_ranks(corpus: set, file_name: str):
     os.mkdir('./cache/sorts/' + file_name)
 
     return dict(ranks)
-
-
-def calc_chunksize(n_workers: int, len_iterable: int, factor: int = 4):
-    """
-    Calculate chunksize argument for Pool-methods.
-
-    Resembles source-code within `multiprocessing.pool.Pool._map_async`.
-    """
-    chunksize, extra = divmod(len_iterable, n_workers * factor)
-    if extra:
-        chunksize += 1
-    return chunksize
 
 
 def create_cache_dirs():

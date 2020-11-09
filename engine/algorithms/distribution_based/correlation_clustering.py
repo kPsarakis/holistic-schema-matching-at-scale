@@ -29,8 +29,6 @@ class CorrelationClustering(BaseMatcher):
         the number of quantiles of the histograms
     process_num: int
         The number of processes to spawn
-    chunk_size: int, optional
-        The size of each chunk to process
     clear_cache: bool, optional
         Clear cached files or not
     column_names: list
@@ -50,7 +48,7 @@ class CorrelationClustering(BaseMatcher):
     """
 
     def __init__(self, threshold1: float = 0.15, threshold2: float = 0.15,
-                 quantiles: int = 256, process_num: int = 1, chunk_size: int = None, clear_cache: bool = True):
+                 quantiles: int = 256, process_num: int = 1, clear_cache: bool = True):
         """
         Parameters
         ----------
@@ -62,8 +60,6 @@ class CorrelationClustering(BaseMatcher):
             the number of quantiles of the histograms
         process_num: int
             The number of processes to spawn
-        chunk_size: int, optional
-            The size of each chunk to process
         clear_cache: bool, optional
             Clear cached files or not
         """
@@ -71,7 +67,6 @@ class CorrelationClustering(BaseMatcher):
         self.threshold1 = threshold1
         self.threshold2 = threshold2
         self.process_num = process_num
-        self.chunk_size = chunk_size
         self.clear_cache = clear_cache
         self.column_names = []
         self.dataset_name = None
@@ -127,10 +122,10 @@ class CorrelationClustering(BaseMatcher):
                     columns: List[BaseColumn] = table.get_columns()
                     process_pool.map(process_columns, ingestion_column_generator(columns, table.name,
                                                                                  table.unique_identifier,
-                                                                                 self.dataset_name, self.quantiles))
+                                                                                 self.dataset_name,
+                                                                                 self.quantiles), chunksize=1)
 
-                matches = self.find_matches_parallel(process_pool, self.chunk_size)
-
+                matches = self.find_matches_parallel(process_pool)
         return matches
 
     def find_matches(self):
@@ -158,7 +153,7 @@ class CorrelationClustering(BaseMatcher):
 
         return self.rank_output(attribute_clusters)
 
-    def find_matches_parallel(self, pool: Pool, chunk_size: int = None):
+    def find_matches_parallel(self, pool: Pool):
         """
         "Main" function of [1] that will calculate first the distribution clusters and then the attribute clusters
 
@@ -166,12 +161,9 @@ class CorrelationClustering(BaseMatcher):
         ---------
         pool: multiprocessing.Pool
             the process pool that will be used in the algorithms 1, 2 and 3 of [1]
-        chunk_size: int, optional
-            the number of chunks of each job process (default let the framework decide)
         """
         connected_components = discovery.compute_distribution_clusters_parallel(self.column_names, self.dataset_name,
-                                                                                self.threshold1, pool, chunk_size,
-                                                                                self.quantiles)
+                                                                                self.threshold1, pool, self.quantiles)
 
         # self.write_clusters_to_json(connected_components, 'Distribution_Clusters.json')
 
@@ -181,7 +173,7 @@ class CorrelationClustering(BaseMatcher):
             if len(components) > 1:
                 i = i + 1
                 edges = discovery.compute_attributes_parallel(list(components), self.dataset_name, self.threshold2,
-                                                              pool, chunk_size, self.quantiles)
+                                                              pool, self.quantiles)
                 all_attributes.append((list(components), edges))
 
         results = list()

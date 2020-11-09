@@ -4,11 +4,10 @@ from typing import List, Tuple
 import numpy as np
 import networkx as nx
 import pulp as plp
-from tqdm import tqdm
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool
 
-from .clustering_utils import column_combinations, calc_chunksize, transform_dict, process_emd, \
-    parallel_cutoff_threshold, cuttoff_column_generator, compute_cutoff_threshold
+from .clustering_utils import column_combinations, transform_dict, process_emd, parallel_cutoff_threshold, \
+    cuttoff_column_generator, compute_cutoff_threshold
 
 
 def compute_distribution_clusters(columns: List[Tuple[str, str, str, str]], dataset_name: str, threshold: float,
@@ -49,7 +48,7 @@ def compute_distribution_clusters(columns: List[Tuple[str, str, str, str]], data
 
 
 def compute_distribution_clusters_parallel(columns: list, dataset_name: str, threshold: float, pool: Pool,
-                                           chunk_size: int = None, quantiles: int = 256):
+                                           quantiles: int = 256):
     """
     Algorithm 2 of the paper "Automatic Discovery of Attributes in Relational Databases" from M. Zhang et al. [1]. This
     algorithm captures which columns contain data with similar distributions based on the EMD distance metric.
@@ -64,8 +63,6 @@ def compute_distribution_clusters_parallel(columns: list, dataset_name: str, thr
         The conservative global EMD cutoff threshold described in [1]
     pool: multiprocessing.Pool
         The process pool that will be used in the pre-processing of the table's columns
-    chunk_size : int, optional
-        The number of chunks of each job process (default let the framework decide)
     quantiles : int, optional
         The number of quantiles that the histograms are split on (default is 256)
 
@@ -74,19 +71,13 @@ def compute_distribution_clusters_parallel(columns: list, dataset_name: str, thr
     list(list(str))
         A list that contains the distribution clusters that contain the column names in the cluster
     """
-    combinations = list(column_combinations(columns, dataset_name, quantiles, intersection=False))
+    combinations = column_combinations(columns, dataset_name, quantiles, intersection=False)
 
-    total = len(combinations)
+    matrix_a: dict = transform_dict(dict(pool.map(process_emd, combinations, chunksize=1)))
 
-    if chunk_size is None:
-        chunk_size = int(calc_chunksize(cpu_count(), total))
-
-    matrix_a: dict = transform_dict(dict(tqdm(pool.imap_unordered(process_emd, combinations, chunksize=chunk_size),
-                                         total=total)))
-
-    edges_per_column = list(pool.map(parallel_cutoff_threshold, list(cuttoff_column_generator(matrix_a, columns,
-                                                                                              dataset_name,
-                                                                                              threshold))))
+    edges_per_column = list(pool.map(parallel_cutoff_threshold, cuttoff_column_generator(matrix_a, columns,
+                                                                                         dataset_name,
+                                                                                         threshold), chunksize=1))
 
     graph = create_graph(columns, edges_per_column)
 
@@ -125,7 +116,7 @@ def compute_attributes(distribution_clusters: list, dataset_name: str, threshold
 
 
 def compute_attributes_parallel(distribution_clusters: list, dataset_name: str, threshold: float, pool: Pool,
-                                chunk_size: int = None, quantiles: int = 256):
+                                quantiles: int = 256):
     """
     Algorithm 3 of the paper "Automatic Discovery of Attributes in Relational Databases" from M. Zhang et al.[1]
     This algorithm creates the attribute graph of the distribution clusters computed in algorithm 2.
@@ -140,8 +131,6 @@ def compute_attributes_parallel(distribution_clusters: list, dataset_name: str, 
         The conservative global EMD cutoff threshold described in [1]
     pool: multiprocessing.Pool
         The process pool that will be used in the pre-processing of the table's columns
-    chunk_size : int, optional
-        The number of chunks of each job process (default let the framework decide)
     quantiles : int, optional
         The number of quantiles that the histograms are split on (default is 256)
 
@@ -151,15 +140,9 @@ def compute_attributes_parallel(distribution_clusters: list, dataset_name: str, 
         A dictionary that contains the attribute graph of the distribution clusters
     """
 
-    combinations = list(column_combinations(distribution_clusters, dataset_name, quantiles, intersection=True))
+    combinations = column_combinations(distribution_clusters, dataset_name, quantiles, intersection=True)
 
-    total = len(combinations)
-
-    if chunk_size is None:
-        chunk_size = int(calc_chunksize(cpu_count(), total))
-
-    matrix_i = transform_dict(dict(tqdm(pool.imap_unordered(process_emd, combinations, chunksize=chunk_size),
-                                        total=total)))
+    matrix_i = transform_dict(dict(pool.map(process_emd, combinations, chunksize=1)))
 
     return get_attribute_graph(distribution_clusters, matrix_i, threshold)
 
