@@ -92,7 +92,7 @@ def directory_tree(dir_path: Path, prefix: str = ''):
 def get_encoding(ds_path: str) -> str:
     """ Returns the encoding of the file """
     with open(ds_path, 'rb') as f:
-        return chardet.detect(f.read())['encoding']
+        return chardet.detect(f.read(512*16))['encoding']
 
 
 def get_delimiter(ds_path: str) -> str:
