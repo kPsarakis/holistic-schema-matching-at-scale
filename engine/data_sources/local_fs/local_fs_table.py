@@ -2,7 +2,6 @@ import pandas as pd
 from typing import List, Dict
 
 from engine.data_sources.base_column import BaseColumn
-from engine.data_sources.base_db import BaseDB
 from engine.data_sources.base_table import BaseTable
 from engine.data_sources.local_fs.local_fs_column import LocalFSColumn
 from engine.data_sources.local_fs.local_fs_utils import correct_file_ending, get_columns_from_local_fs_csv_file, \
@@ -10,7 +9,7 @@ from engine.data_sources.local_fs.local_fs_utils import correct_file_ending, get
 from engine.utils.utils import is_date
 
 
-class LocalFSTable(BaseDB, BaseTable):
+class LocalFSTable(BaseTable):
 
     def __init__(self, table_path: str, table_name: str, db_name: str, load_data: bool):
         self.__table_path = table_path
@@ -18,7 +17,6 @@ class LocalFSTable(BaseDB, BaseTable):
         self.__db_name = db_name  # bucket name
         self.__columns = dict()
         self.__column_names = self.__get_column_names()
-        self.load_data = load_data
         if load_data:
             self.__get_columns_from_local_fs()
 
@@ -47,7 +45,7 @@ class LocalFSTable(BaseDB, BaseTable):
 
     def get_tables(self, load_data: bool = True) -> Dict[str, BaseTable]:
         if not self.__columns:
-            if self.load_data:
+            if load_data:
                 self.__get_columns_from_local_fs()
             else:
                 column_names: List[str] = self.__get_column_names()

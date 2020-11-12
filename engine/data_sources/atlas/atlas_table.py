@@ -2,11 +2,10 @@ from typing import List
 
 from .atlas_column import AtlasColumn
 from .atlas_utils import get_bulk_entities
-from ..base_db import BaseDB
 from ..base_table import BaseTable
 
 
-class AtlasTable(BaseTable, BaseDB):
+class AtlasTable(BaseTable):
 
     def __init__(self, url: str, auth: tuple, table_name: str, guid: str, column_guids: list, technology: str,
                  db_guid: str, chunk_size: int):

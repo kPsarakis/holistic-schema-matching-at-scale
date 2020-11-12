@@ -5,12 +5,11 @@ from minio import Minio
 from .minio_column import MinioColumn
 from .minio_utils import get_columns_from_minio_csv_file, get_pandas_df_from_minio_csv_file, correct_file_ending
 from ..base_column import BaseColumn
-from ..base_db import BaseDB
 from ..base_table import BaseTable
 from ...utils.utils import is_date
 
 
-class MinioTable(BaseTable, BaseDB):
+class MinioTable(BaseTable):
 
     def __init__(self, minio_client: Minio, table_name: str, db_name: str, load_data: bool):
         self.minio_client = minio_client
@@ -18,7 +17,6 @@ class MinioTable(BaseTable, BaseDB):
         self.__db_name = db_name  # bucket name
         self.__columns = dict()
         self.__column_names = self.__get_column_names()
-        self.load_data = load_data
         if load_data:
             self.__get_columns_from_local_minio_tmp_copy()
 
@@ -47,7 +45,7 @@ class MinioTable(BaseTable, BaseDB):
 
     def get_tables(self, load_data: bool = True) -> Dict[str, BaseTable]:
         if not self.__columns:
-            if self.load_data:
+            if load_data:
                 self.__get_columns_from_local_minio_tmp_copy()
             else:
                 column_names: List[str] = self.__get_column_names()

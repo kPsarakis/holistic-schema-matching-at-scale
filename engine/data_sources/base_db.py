@@ -2,8 +2,6 @@ from abc import ABC, abstractmethod
 
 from typing import Dict, List
 
-from .base_table import BaseTable
-
 
 class BaseDB(ABC):
     """
@@ -21,15 +19,15 @@ class BaseDB(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_tables(self, load_data: bool = True) -> Dict[str, BaseTable]:
+    def get_tables(self, load_data: bool = True) -> Dict[str, 'BaseDB']:
         raise NotImplementedError
 
     @abstractmethod
-    def remove_table(self, guid: object) -> BaseTable:
+    def remove_table(self, guid: object) -> 'BaseDB':
         raise NotImplementedError
 
     @abstractmethod
-    def add_table(self, table: BaseTable) -> None:
+    def add_table(self, table: 'BaseDB') -> None:
         raise NotImplementedError
 
     def get_table_str_guids(self) -> List[str]:

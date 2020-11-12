@@ -3,9 +3,10 @@ from typing import List, Dict
 from cached_property import cached_property
 
 from .base_column import BaseColumn
+from .base_db import BaseDB
 
 
-class BaseTable(ABC):
+class BaseTable(BaseDB, ABC):
     """
     Abstract class representing a table
     """
