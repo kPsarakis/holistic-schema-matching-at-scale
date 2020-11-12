@@ -27,7 +27,7 @@ class JaccardLevenMatcher(BaseMatcher):
         Parameters
         ----------
         threshold_leven : float, optional
-            The Levenshtein ratio between the two column entries (lower ration, the entries are more different)
+            The Levenshtein ratio between the two column entries (lower ratio, the entries are more different)
         process_num : int, optional
             Te number of processes to spawn
         """
@@ -55,7 +55,7 @@ class JaccardLevenMatcher(BaseMatcher):
                                                 self.get_column_combinations(source_input.get_tables().values(),
                                                                              target_input.get_tables().values(),
                                                                              self.threshold_leven,
-                                                                             target_id, source_id), chunksize=1))
+                                                                             target_id, source_id)))
         matches = list(filter(lambda elem: elem['sim'] > 0.0, matches))  # Remove the pairs with zero similarity
         sorted_matches = list(sorted(matches, key=lambda item: item['sim'], reverse=True))
         return sorted_matches
