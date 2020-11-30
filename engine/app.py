@@ -314,7 +314,7 @@ def get_job_results(job_id: str):
 
 
 @app.route('/results/job_runtime/<job_id>', methods=['GET'])
-def get_job_results(job_id: str):
+def get_job_runtime(job_id: str):
     results = runtime_db.get(job_id)
     if results is None:
         return Response("Job does not exist", status=400)
