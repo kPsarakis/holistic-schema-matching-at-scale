@@ -3,6 +3,7 @@ import os
 import uuid
 from os import path
 from tempfile import gettempdir
+from timeit import default_timer
 
 from celery import Celery, chord
 from minio import Minio
@@ -46,6 +47,9 @@ insertion_order_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ
 verified_match_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], charset="utf-8",
                                  decode_responses=True, db=2)
 
+runtime_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], charset="utf-8",
+                           decode_responses=True, db=3)
+
 minio_client: Minio = Minio('{host}:{port}'.format(host=os.environ['MINIO_HOST'],
                                                    port=os.environ['MINIO_PORT']),
                             access_key=os.environ['MINIO_ACCESS_KEY'],
@@ -77,9 +81,12 @@ def get_matches_atlas(matching_algorithm: str, algorithm_params: dict, target_ta
 
 
 @celery.task
-def merge_matches(individual_matches: list, job_uuid: str, max_number_of_matches: int = 1000):
+def merge_matches(individual_matches: list, job_uuid: str, start: float, max_number_of_matches: int = 1000):
     merged_matches = [item for sublist in individual_matches for item in sublist]
     sorted_matches = sorted(merged_matches, key=lambda k: k['sim'], reverse=True)[:max_number_of_matches]
+    end: float = default_timer()
+    runtime: float = end - start
+    runtime_db.set(job_uuid, runtime)
     insertion_order_db.rpush('insertion_ordered_ids', job_uuid)
     match_result_db.set(job_uuid, json.dumps(sorted_matches))
     return sorted_matches
@@ -271,8 +278,8 @@ def submit_batch_job():
         algorithm_uuid: str = job_uuid + "_" + algorithm_name
 
         validate_matcher(algorithm_name, algorithm_params, "minio")
-
-        callback = merge_matches.s(algorithm_uuid)
+        start = default_timer()
+        callback = merge_matches.s(algorithm_uuid, start)
         header = [get_matches_minio.s(algorithm_name, algorithm_params, *table_combination)
                   for table_combination in deduplicated_table_combinations]
         chord(header)(callback)
@@ -301,6 +308,14 @@ def get_finished_jobs():
 @app.route('/results/job_results/<job_id>', methods=['GET'])
 def get_job_results(job_id: str):
     results = match_result_db.get(job_id)
+    if results is None:
+        return Response("Job does not exist", status=400)
+    return jsonify(json.loads(results))
+
+
+@app.route('/results/job_runtime/<job_id>', methods=['GET'])
+def get_job_results(job_id: str):
+    results = runtime_db.get(job_id)
     if results is None:
         return Response("Job does not exist", status=400)
     return jsonify(json.loads(results))
