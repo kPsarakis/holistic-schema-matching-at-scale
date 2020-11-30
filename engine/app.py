@@ -1,6 +1,8 @@
 import json
 import os
 import uuid
+from os import path
+from tempfile import gettempdir
 
 from celery import Celery, chord
 from minio import Minio
@@ -11,6 +13,7 @@ from itertools import product
 
 from pandas.errors import EmptyDataError
 from redis import Redis
+from werkzeug.utils import secure_filename
 
 from engine.algorithms.algorithms import schema_only_algorithms
 from engine.data_sources.atlas.atlas_table import AtlasTable
@@ -19,6 +22,7 @@ from engine.data_sources.atlas.atlas_source import AtlasSource
 from engine.data_sources.base_db import BaseDB
 from engine.data_sources.minio.minio_source import MinioSource
 from engine.data_sources.minio.minio_table import MinioTable
+from engine.forms import UploadFileToMinioForm
 from engine.utils.api_utils import AtlasPayload, get_atlas_payload, validate_matcher, get_atlas_source, get_matcher, \
     MinioPayload, get_minio_payload, get_minio_bulk_payload, MinioBulkPayload
 
@@ -41,6 +45,12 @@ insertion_order_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ
                                   decode_responses=True, db=1)
 verified_match_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], charset="utf-8",
                                  decode_responses=True, db=2)
+
+minio_client: Minio = Minio('{host}:{port}'.format(host=os.environ['MINIO_HOST'],
+                                                   port=os.environ['MINIO_PORT']),
+                            access_key=os.environ['MINIO_ACCESS_KEY'],
+                            secret_key=os.environ['MINIO_SECRET_KEY'],
+                            secure=False)
 
 
 @celery.task
@@ -272,11 +282,6 @@ def submit_batch_job():
 
 @app.route('/matches/minio/ls', methods=['GET'])
 def get_minio_dir_tree():
-    minio_client = Minio('{host}:{port}'.format(host=os.environ['MINIO_HOST'],
-                                                port=os.environ['MINIO_PORT']),
-                         access_key=os.environ['MINIO_ACCESS_KEY'],
-                         secret_key=os.environ['MINIO_SECRET_KEY'],
-                         secure=False)
     return jsonify([{"db_name": bucket.name, "tables": list(map(lambda obj: obj.object_name,
                                                                 minio_client.list_objects(bucket.name)))}
                     for bucket in minio_client.list_buckets()])
@@ -343,6 +348,25 @@ def delete_job(job_id: str):
 @app.route('/results/verified_matches', methods=['GET'])
 def get_verified_matches():
     return jsonify(list(map(lambda x: json.loads(x), verified_match_db.lrange('verified_matches', 0, -1))))
+
+
+@app.route('minio/create_bucket/<bucket_name>', methods=['POST'])
+def create_minio_bucket(bucket_name: str):
+    minio_client.make_bucket(bucket_name)
+    return Response(f"Bucket {bucket_name} created successfully", status=200)
+
+
+@app.route('minio/upload_file/<bucket_name>', methods=['POST'])
+def minio_upload_file(bucket_name: str):
+    form = UploadFileToMinioForm()
+    if not form.validate_on_submit():
+        abort(400, form.errors)
+    tmp_dir: str = gettempdir()
+    filename = secure_filename(form.resource.data.filename)
+    src_file = path.join(tmp_dir, filename)
+    form.resource.data.save(src_file)
+    minio_client.fput_object(bucket_name, filename, src_file)
+    return Response(f"File {filename} uploaded in bucket {bucket_name} successfully", status=200)
 
 
 if __name__ == '__main__':
