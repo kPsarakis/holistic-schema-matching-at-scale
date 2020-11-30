@@ -23,7 +23,7 @@ spec:
       labels:
         component: flower
     spec:
-      containers:
+      containers:add
         - name: flower
           image: kpsarakis/schema-matching-engine:latest
           command: ['celery']
@@ -47,3 +47,11 @@ spec:
               value: celery-results-backend-cluster-ip-service
             - name: CELERY_RESULTS_REDIS_PORT
               value: '6379'
+            - name: MINIO_HOST
+              value: minio
+            - name: MINIO_PORT
+              value: '9000'
+            - name: MINIO_ACCESS_KEY
+              value: "minio"
+            - name: MINIO_SECRET_KEY
+              value: "minio123"
