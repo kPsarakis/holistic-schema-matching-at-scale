@@ -23,7 +23,7 @@ spec:
       labels:
         component: flower
     spec:
-      containers:add
+      containers:
         - name: flower
           image: kpsarakis/schema-matching-engine:latest
           command: ['celery']
