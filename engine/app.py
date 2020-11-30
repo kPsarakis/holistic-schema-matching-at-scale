@@ -350,13 +350,13 @@ def get_verified_matches():
     return jsonify(list(map(lambda x: json.loads(x), verified_match_db.lrange('verified_matches', 0, -1))))
 
 
-@app.route('minio/create_bucket/<bucket_name>', methods=['POST'])
+@app.route('/minio/create_bucket/<bucket_name>', methods=['POST'])
 def create_minio_bucket(bucket_name: str):
     minio_client.make_bucket(bucket_name)
     return Response(f"Bucket {bucket_name} created successfully", status=200)
 
 
-@app.route('minio/upload_file/<bucket_name>', methods=['POST'])
+@app.route('/minio/upload_file/<bucket_name>', methods=['POST'])
 def minio_upload_file(bucket_name: str):
     form = UploadFileToMinioForm()
     if not form.validate_on_submit():
