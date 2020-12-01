@@ -38,7 +38,10 @@ celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'], backend=app.co
 celery.conf.update(app.config)
 celery.conf.update(task_serializer='json',
                    accept_content=['json'],
-                   result_serializer='json')
+                   result_serializer='json',
+                   task_acks_late=True,
+                   worker_prefetch_multiplier=1
+                   )
 
 match_result_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], charset="utf-8",
                                decode_responses=True, db=0)
