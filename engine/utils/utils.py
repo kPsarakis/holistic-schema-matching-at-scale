@@ -103,7 +103,10 @@ def get_encoding(ds_path: str) -> str:
             count += 1
             line = f.readline()
         result = chardet.detect(test_str)
-    return result['encoding']
+    if result['encoding'] == 'ascii':
+        return 'utf-8'
+    else:
+        return result['encoding']
 
 
 def get_delimiter(ds_path: str) -> str:

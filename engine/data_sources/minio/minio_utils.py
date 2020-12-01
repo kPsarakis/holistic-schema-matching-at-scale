@@ -6,7 +6,11 @@ import pandas as pd
 
 
 def get_in_memory_encoding(f):
-    return chardet.detect(f)['encoding']
+    encoding = chardet.detect(f)['encoding']
+    if encoding == 'ascii':
+        return 'utf-8'
+    else:
+        return encoding
 
 
 def get_in_memory_delimiter(f):
