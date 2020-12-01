@@ -17,10 +17,10 @@ spec:
           image: kpsarakis/schema-matching-engine:latest
           resources:
             limits:
-              memory: 1Gi
+              memory: 8Gi
               cpu: "2"
             requests:
-              memory: 1Gi
+              memory: 8Gi
               cpu: "2"
           command: ["celery"]
           args: ["worker", "-A", "app.celery", "--concurrency=2", "--loglevel=info"]
