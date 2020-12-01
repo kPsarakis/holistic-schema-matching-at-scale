@@ -35,8 +35,10 @@ def get_project_root():
 
 
 def create_folder(path: str):
-    if not os.path.exists(path):
+    try:
         os.makedirs(path)
+    except (OSError, FileExistsError):
+        pass
 
 
 def allowed_csv_file(filename: str):
