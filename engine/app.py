@@ -51,7 +51,7 @@ verified_match_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ[
                                  decode_responses=True, db=2)
 
 runtime_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], charset="utf-8",
-                           decode_responses=True, db=3)
+                          decode_responses=True, db=3)
 
 minio_client: Minio = Minio('{host}:{port}'.format(host=os.environ['MINIO_HOST'],
                                                    port=os.environ['MINIO_PORT']),
@@ -84,7 +84,7 @@ def get_matches_atlas(matching_algorithm: str, algorithm_params: dict, target_ta
 
 
 @celery.task
-def merge_matches(individual_matches: list, job_uuid: str, start: float, max_number_of_matches: int = 1000):
+def merge_matches(individual_matches: list, job_uuid: str, start: float, max_number_of_matches: int = 10000):
     merged_matches = [item for sublist in individual_matches for item in sublist]
     sorted_matches = sorted(merged_matches, key=lambda k: k['sim'], reverse=True)[:max_number_of_matches]
     end: float = default_timer()
