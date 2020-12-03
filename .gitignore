@@ -3,3 +3,5 @@ engine/cache
 engine/data
 engine/algorithms/coma/artifact/coma.jar
 minio-volume
+tpch
+engine/experiments
