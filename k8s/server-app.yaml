@@ -29,13 +29,13 @@ spec:
           image: kpsarakis/schema-matching-engine:latest
           resources:
             limits:
-              memory: 8Gi
-              cpu: "2"
+              memory: "8Gi"
+              cpu: "1"
             requests:
-              memory: 8Gi
-              cpu: "2"
+              memory: "8Gi"
+              cpu: "1"
           command: ["gunicorn"] # Need to configure threads, w and t
-          args: ["-b", "0.0.0.0:5000", "app:app", "-t", "60", "-w", "2", "--threads", "1"]
+          args: ["-b", "0.0.0.0:5000", "app:app", "-t", "60", "-w", "1", "--threads", "1", "--loglevel=info"]
           ports:
             - containerPort: 5000
           env:

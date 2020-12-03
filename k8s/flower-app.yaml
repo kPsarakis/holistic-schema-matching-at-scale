@@ -26,6 +26,13 @@ spec:
       containers:
         - name: flower
           image: kpsarakis/schema-matching-engine:latest
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
           command: ['celery']
           args: ['flower', '-A', 'app.celery', 'flower']
           ports:

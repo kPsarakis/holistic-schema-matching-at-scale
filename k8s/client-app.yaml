@@ -26,5 +26,12 @@ spec:
       containers:
         - name: client
           image: kpsarakis/schema-matching-client:latest
+          resources:
+            limits:
+              memory: "500Mi"
+              cpu: "500m"
+            requests:
+              memory: "500Mi"
+              cpu: "500m"
           ports:
             - containerPort: 3000
