@@ -1,6 +1,7 @@
 import json
 import os
 import uuid
+import logging
 from os import path
 from tempfile import gettempdir
 from timeit import default_timer
@@ -84,14 +85,16 @@ def get_matches_atlas(matching_algorithm: str, algorithm_params: dict, target_ta
 
 @celery.task
 def merge_matches(individual_matches: list, job_uuid: str, start: float, max_number_of_matches: int = 10000):
+    app.logger.info(f"Starting to merge results of job: {job_uuid}")
     merged_matches = [item for sublist in individual_matches for item in sublist]
     sorted_matches = sorted(merged_matches, key=lambda k: k['sim'], reverse=True)[:max_number_of_matches]
     end: float = default_timer()
     runtime: float = end - start
+    app.logger.info(f"Starting to save results to db of job: {job_uuid}")
     runtime_db.set(job_uuid, runtime)
     insertion_order_db.rpush('insertion_ordered_ids', job_uuid)
     match_result_db.set(job_uuid, json.dumps(sorted_matches))
-    return sorted_matches
+    app.logger.info(f"job: {job_uuid} completed successfully")
 
 
 @app.route("/matches/atlas/holistic/<table_guid>", methods=['POST'])
@@ -268,7 +271,7 @@ def submit_batch_job():
     job_uuid: str = str(uuid.uuid4())
 
     payload: MinioBulkPayload = get_minio_bulk_payload(request.json)
-
+    app.logger.info(f"Retrieving data for job: {job_uuid}")
     combs = list(product(payload.source_tables, payload.target_tables))
     deduplicated_table_combinations: List[Tuple[Tuple[str, str], Tuple[str, str]]] = list(
         map(lambda comb: ((comb[0]['db_name'], comb[0]['table_name']), (comb[1]['db_name'], comb[1]['table_name'])),
@@ -280,6 +283,7 @@ def submit_batch_job():
         algorithm_uuid: str = job_uuid + "_" + algorithm_name
 
         validate_matcher(algorithm_name, algorithm_params, "minio")
+        app.logger.info(f"Starting job: {job_uuid}")
         start = default_timer()
         callback = merge_matches.s(algorithm_uuid, start)
         header = [get_matches_minio.s(algorithm_name, algorithm_params, *table_combination)
@@ -384,6 +388,12 @@ def minio_upload_file(bucket_name: str):
     form.resource.data.save(src_file)
     minio_client.fput_object(bucket_name, filename, src_file)
     return Response(f"File {filename} uploaded in bucket {bucket_name} successfully", status=200)
+
+
+if __name__ != '__main__':
+    gunicorn_logger = logging.getLogger('gunicorn.error')
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
 
 
 if __name__ == '__main__':
