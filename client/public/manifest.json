@@ -1,10 +1,10 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Valentine",
+  "name": "Valentine Matcher",
   "icons": [
     {
-      "src": "favicon.ico",
-      "sizes": "192x192",
+      "src": "delta.png",
+      "sizes": "481x433",
       "type": "image/png"
     }
   ],
