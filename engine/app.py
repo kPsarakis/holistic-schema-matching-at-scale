@@ -283,7 +283,7 @@ def submit_batch_job():
         algorithm_uuid: str = job_uuid + "_" + algorithm_name
 
         validate_matcher(algorithm_name, algorithm_params, "minio")
-        app.logger.info(f"Starting job: {job_uuid}")
+        app.logger.info(f"Sending job: {job_uuid} to Celery")
         start = default_timer()
         callback = merge_matches.s(algorithm_uuid, start)
         header = [get_matches_minio.s(algorithm_name, algorithm_params, *table_combination)

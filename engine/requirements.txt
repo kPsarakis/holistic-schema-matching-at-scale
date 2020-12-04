@@ -1,12 +1,11 @@
 # General
-setuptools==49.6.0
-wheel==0.35.1
-bitarray==1.5.3
-tqdm==4.48.2
+setuptools==50.3.2
+wheel==0.36.0
+bitarray==1.6.1
 # Algorithms
-numpy==1.19.1
-scipy==1.5.2
-pandas==1.1.1
+numpy==1.19.4
+scipy==1.5.4
+pandas==1.1.4
 nltk==3.5
 snakecase==1.0.1
 anytree==2.8.0
@@ -15,23 +14,23 @@ strsim==0.0.3
 networkx==2.5
 chardet==3.0.4
 python-Levenshtein==0.12.0
-PuLP==2.3
+PuLP==2.3.1
 pyemd==0.5.1
 # Data Sources
-cached-property==1.5.1
+cached-property==1.5.2
 openpyxl==3.0.5
 python-dateutil==2.8.1
 # Flask API
 Flask==1.1.2
 Flask-WTF==0.14.3
-pydantic==1.6.1
-requests==2.24.0
+pydantic==1.7.3
+requests==2.25.0
 gunicorn==20.0.4
 # redis connector
 redis==3.5.3
 # minio connector
-minio==6.0.0
+minio==6.0.2
 # celery
-celery==4.4.7
+celery==5.0.3
 # flower
 flower==0.9.5
