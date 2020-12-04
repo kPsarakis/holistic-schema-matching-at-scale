@@ -1,6 +1,6 @@
 import React from 'react'
 
-import classes from './Input.css'
+import classes from './Input.module.css'
 import TextField from '@material-ui/core/TextField';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';

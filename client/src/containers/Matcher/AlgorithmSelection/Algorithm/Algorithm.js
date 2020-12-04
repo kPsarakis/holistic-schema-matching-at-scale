@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 
-import classes from './Algorithm.css'
+import classes from './Algorithm.module.css'
 import Checkbox from "@material-ui/core/Checkbox";
 import Input from "../../../../components/Forms/Input/Input";
 

@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import TableContainer from "@material-ui/core/TableContainer";
-import classes from "./ColumnPreview.css";
+import classes from "./ColumnPreview.module.css";
 import Table from "@material-ui/core/Table";
 import TableHead from "@material-ui/core/TableHead";
 import Paper from "@material-ui/core/Paper";

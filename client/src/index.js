@@ -3,13 +3,18 @@ import ReactDOM from 'react-dom';
 import {BrowserRouter} from "react-router-dom";
 import './index.css';
 import App from './App';
-import registerServiceWorker from './registerServiceWorker';
+import reportWebVitals from './reportWebVitals';
 
-const app = (
+ReactDOM.render(
     <BrowserRouter>
+      <React.StrictMode>
         <App />
-    </BrowserRouter>
+      </React.StrictMode>
+    </BrowserRouter>,
+   document.getElementById('root')
 );
 
-ReactDOM.render(app, document.getElementById('root'));
-registerServiceWorker();
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();

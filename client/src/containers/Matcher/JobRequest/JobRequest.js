@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import classes from './JobRequest.css';
+import classes from './JobRequest.module.css';
 import axios from 'axios';
 import Input from '../../../components/Forms/Input/Input';
 import Button from '@material-ui/core/Button';

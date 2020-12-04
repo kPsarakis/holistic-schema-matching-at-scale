@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 
-import classes from './AlgorithmSelection.css'
+import classes from './AlgorithmSelection.module.css'
 import Algorithm from "./Algorithm/Algorithm";
 
 class AlgorithmSelection extends Component {

@@ -8,7 +8,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 
-import classes from './VerifiedMatches.css'
+import classes from './VerifiedMatches.module.css'
 import axios from "axios";
 import TablePagination from "@material-ui/core/TablePagination";
 

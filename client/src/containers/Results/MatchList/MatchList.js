@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import Button from '@material-ui/core/Button';
 import axios from "axios";
 
-import classes from './MatchList.css';
+import classes from './MatchList.module.css';
 import Modal from "../../../components/UI/Modal/Modal";
 import Spinner from "../../../components/UI/Spinner/Spinner";
 import Aux from "../../../hoc/Aux";

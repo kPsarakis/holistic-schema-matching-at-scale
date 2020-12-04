@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios';
 
-import classes from './Results.css'
+import classes from './Results.module.css'
 import Result from './Result/Result'
 import Aux from "../../hoc/Aux";
 import Modal from "../../components/UI/Modal/Modal";

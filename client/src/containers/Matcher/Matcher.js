@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import Aux from '../../hoc/Aux';
 import ListSource from './ListSource/ListSource'
 import AlgorithmSelection from './AlgorithmSelection/AlgorithmSelection'
-import classes from './Matcher.css'
+import classes from './Matcher.module.css'
 import {Button} from "@material-ui/core";
 import axios from "axios";
 import Modal from "../../components/UI/Modal/Modal";

@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: worker-deployment
 spec:
-  replicas: 23
+  replicas: 2
   selector:
     matchLabels:
       component: worker
@@ -23,7 +23,7 @@ spec:
               memory: "8Gi"
               cpu: "4"
           command: ["celery"]
-          args: ["worker", "-A", "app.celery", "--concurrency=4", "--loglevel=warning"]
+          args: ["worker", "-A", "app.celery", "--concurrency=4", "--loglevel=info"]
           ports:
             - containerPort: 5000
           env:

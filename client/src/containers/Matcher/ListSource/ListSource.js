@@ -7,7 +7,7 @@ import TreeView from "@material-ui/lab/TreeView";
 import TreeItem from "@material-ui/lab/TreeItem";
 import Checkbox from "@material-ui/core/Checkbox";
 import { blue, indigo } from '@material-ui/core/colors';
-import classes from './ListSource.css'
+import classes from './ListSource.module.css'
 import Aux from "../../../hoc/Aux";
 import Modal from "../../../components/UI/Modal/Modal";
 import Spinner from "../../../components/UI/Spinner/Spinner";
