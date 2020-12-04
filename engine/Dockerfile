@@ -15,15 +15,15 @@ RUN git clone https://github.com/kPsarakis/COMA \
     && mvn -Dmaven.test.skip=true package \
     && mv coma-engine/target/coma-engine-0.1-CE-SNAPSHOT-jar-with-dependencies.jar /usr/local/coma.jar
 
-# Build the algorithms module
-FROM python:3.8-slim as build-stage-algorithms
+# Python dependancies builder
+FROM python:3.8-slim as builder
 
 RUN apt-get update && apt-get install -y gcc g++
 
-COPY requirements-algorithms.txt /var/local/algorithms/
+COPY requirements.txt /var/local/schema-matching-system/
 
 RUN pip3 install --upgrade pip \
-    && pip3 install --prefix=/usr/local -r /var/local/algorithms/requirements-algorithms.txt \
+    && pip3 install --prefix=/usr/local -r /var/local/schema-matching-system/requirements.txt \
     && python -m nltk.downloader -d /usr/local/share/nltk_data stopwords punkt wordnet
 
 # Create the final service
@@ -33,14 +33,9 @@ COPY --from=python:3.8-slim / /
 RUN groupadd flask \
     && useradd -m -d /var/local/schema-matching-system -g flask flask
 
-COPY --from=build-stage-algorithms /usr/local/ /usr/local
+COPY --from=builder /usr/local/ /usr/local
 
 WORKDIR /usr/local/schema-matching-system/engine
-
-COPY requirements-server.txt .
-
-RUN pip3 install --no-cache-dir --upgrade pip \
-    && pip3 install --no-cache-dir --prefix=/usr/local -r requirements-server.txt
 
 COPY . .
 
