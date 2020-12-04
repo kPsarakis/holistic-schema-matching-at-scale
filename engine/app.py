@@ -10,6 +10,7 @@ from celery import Celery, chord
 from minio import Minio
 from minio.error import NoSuchKey
 from flask import Flask, request, abort, jsonify, Response
+from flask_cors import CORS
 from typing import List, Dict, Optional, Tuple
 from itertools import product
 
@@ -29,6 +30,7 @@ from engine.utils.api_utils import AtlasPayload, get_atlas_payload, validate_mat
     MinioPayload, get_minio_payload, get_minio_bulk_payload, MinioBulkPayload
 
 app = Flask(__name__)
+CORS(app)
 app.config['CELERY_BROKER_URL'] = 'amqp://{user}:{pwd}@{host}:{port}/'.format(user=os.environ['RABBITMQ_DEFAULT_USER'],
                                                                               pwd=os.environ['RABBITMQ_DEFAULT_PASS'],
                                                                               host=os.environ['RABBITMQ_HOST'],

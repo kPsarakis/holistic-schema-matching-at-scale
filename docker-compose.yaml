@@ -1,0 +1,92 @@
+version: "3"
+services:
+
+  web:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_SERVER_ADDRESS: http://localhost:5000
+    image: dev/schema-matching-client:latest
+    ports:
+      - 3000:3000
+    volumes:
+      - /app/node_modules
+      - .:/app
+
+  # WSGI Flask service containing the schema matching API
+  engine:
+    build: ./engine
+    image: dev/schema-matching-engine:latest
+    ports:
+      - 5000:5000
+    env_file:
+      - env_files/redis.env
+      - env_files/minio.env
+      - env_files/rabbitmq.env
+      - env_files/redis-celery-results-backend.env
+    restart: always
+    command: gunicorn -b 0.0.0.0:5000 app:app -t 60 -w 1 --threads 1
+
+  # S3-like object store holding the data that we want to match
+  minio:
+    image: minio/minio:latest
+    ports:
+      - 9000:9000
+    volumes:
+      - ./minio-volume:/mnt/data
+    env_file:
+      - env_files/minio.env
+    command: server /mnt/data
+
+  # Celery worker that does schema matching jobs
+  celery-worker:
+    build: ./engine
+    image: dev/schema-matching-engine:latest
+    restart: always
+    environment:
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - env_files/redis.env
+      - env_files/rabbitmq.env
+      - env_files/redis-celery-results-backend.env
+      - env_files/minio.env
+    depends_on:
+      - celery-rabbitmq
+    command: celery worker -A app.celery --loglevel=info
+
+  # Redis db that holds the schema matching results
+  redis-db-matches:
+    image: redis:latest
+
+  # Redis as the celery results backend
+  redis-celery-results-backend:
+    image: redis:latest
+
+  # Message queue required by Celery
+  celery-rabbitmq:
+    image: rabbitmq:management
+    restart: always
+    env_file: env_files/rabbitmq.env
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  # Celery Flower dashboard
+  celery-flower:
+    build: ./engine
+    image: dev/schema-matching-engine:latest
+    command: "celery flower -A app.celery flower"
+    restart: always
+    environment:
+      - FLOWER_PORT=5555
+    env_file:
+      - env_files/redis.env
+      - env_files/rabbitmq.env
+      - env_files/redis-celery-results-backend.env
+      - env_files/minio.env
+    ports:
+      - 5555:5555
+    depends_on:
+      - celery-worker
+      - celery-rabbitmq
