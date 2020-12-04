@@ -30,8 +30,6 @@ RUN pip3 install --upgrade pip \
 FROM openjdk:8-slim
 COPY --from=python:3.8-slim / /
 
-RUN groupadd flask \
-    && useradd -m -d /var/local/schema-matching-system -g flask flask
 
 COPY --from=builder /usr/local/ /usr/local
 
@@ -42,19 +40,6 @@ COPY . .
 COPY --from=build-stage-COMA /usr/local/coma.jar algorithms/coma/artifact
 
 ENV PYTHONPATH /usr/local/schema-matching-system
-
-RUN mkdir algorithms/coma/tmp_data/ \
-    && chown flask:flask algorithms/coma/tmp_data/ \
-    && mkdir algorithms/coma/coma_output/ \
-    && chown flask:flask algorithms/coma/coma_output/ \
-    && mkdir algorithms/distribution_based/cache/ \
-    && chown flask:flask algorithms/distribution_based/cache/ \
-    && mkdir algorithms/distribution_based/cache/global_ranks/ \
-    && chown flask:flask algorithms/distribution_based/cache/global_ranks/ \
-    && mkdir algorithms/distribution_based/cache/sorts/ \
-    && chown flask:flask algorithms/distribution_based/cache/sorts/
-
-USER flask
 
 EXPOSE 5000
 
