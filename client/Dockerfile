@@ -2,6 +2,7 @@ FROM node:alpine as builder
 WORKDIR '/app'
 COPY ./package.json ./
 RUN npm install
+ARG REACT_APP_SERVER_ADDRESS
 COPY . .
 RUN npm run build
 

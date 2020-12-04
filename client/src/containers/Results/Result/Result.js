@@ -26,7 +26,7 @@ class Result extends Component{
             this.setState({loading: true})
             axios({
                  method: 'get',
-                 url: '/api/results/job_results/' + this.props.job_id
+                 url: process.env.REACT_APP_SERVER_ADDRESS + '/results/job_results/' + this.props.job_id
             }).then(res => {
                 this.setState({loading: false, rankedList: res.data, showRankedList: true})
             }).catch(err => {

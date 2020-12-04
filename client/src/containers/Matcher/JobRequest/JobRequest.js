@@ -309,10 +309,10 @@ class JobRequest extends Component {
         let serverPath = '';
         switch (formData['mode']){
             case 'holistic':
-                serverPath = '/api/matches/minio/holistic';
+                serverPath = process.env.REACT_APP_SERVER_ADDRESS + '/matches/minio/holistic';
                 break;
             case 'internal':
-                serverPath = '/api/matches/minio/within_db';
+                serverPath = process.env.REACT_APP_SERVER_ADDRESS + '/matches/minio/within_db';
                 break
             case 'specifyDB':
                 const otherDB = formData['otherDB']
@@ -320,7 +320,7 @@ class JobRequest extends Component {
                     alert('You must specify the name of the database!');
                     return;
                 }
-                serverPath = '/api/matches/minio/other_db/' + otherDB
+                serverPath = process.env.REACT_APP_SERVER_ADDRESS + '/matches/minio/other_db/' + otherDB
                 break;
             default:
                 break;

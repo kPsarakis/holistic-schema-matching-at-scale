@@ -46,7 +46,7 @@ class ListSource extends Component {
         this.setState({loading: true})
         axios({
             method: 'get',
-            url: "/api/matches/minio/ls"
+            url: process.env.REACT_APP_SERVER_ADDRESS + "/matches/minio/ls"
         }).then(res => {
             const dbTree = [];
             res.data.map((dbInfo, index) => dbTree.push(new Database(index, dbInfo['db_name'], dbInfo['tables'])));

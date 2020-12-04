@@ -52,7 +52,7 @@ class Matcher extends Component {
         };
         axios({
           method: 'post',
-          url: '/api/matches/minio/submit_batch_job',
+          url:  process.env.REACT_APP_SERVER_ADDRESS + '/matches/minio/submit_batch_job',
           headers: {},
           data: requestBody})
             .then(response => {this.setState({loading: false, responseReceived: true, latestResponse: response.data});})

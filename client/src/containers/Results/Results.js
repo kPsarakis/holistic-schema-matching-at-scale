@@ -24,7 +24,7 @@ class Results extends Component {
     componentDidMount() {
         axios({
              method: 'get',
-             url: '/api/results/finished_jobs'
+             url: process.env.REACT_APP_SERVER_ADDRESS + '/results/finished_jobs'
         }).then(res => {
             this.setState({loading: false, jobs: res.data})
         }).catch(err => {
@@ -48,7 +48,7 @@ class Results extends Component {
         this.setState({jobs: jobs, loading: true})
         axios({
              method: 'post',
-             url: '/api/results/delete_job/' + job_id
+             url: process.env.REACT_APP_SERVER_ADDRESS + '/results/delete_job/' + job_id
         }).then(() => {
             this.setState({loading: false, rankedList: []})
         }).catch(err => {
