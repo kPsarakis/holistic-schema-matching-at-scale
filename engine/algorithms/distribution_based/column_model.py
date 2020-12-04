@@ -2,7 +2,7 @@ import numpy as np
 import pickle
 
 from ...data_sources.base_column import BaseColumn
-from ...utils.utils import convert_data_type
+from ...utils.utils import convert_data_type, get_project_root
 
 
 class CorrelationClusteringColumn(BaseColumn):
@@ -101,7 +101,8 @@ class CorrelationClusteringColumn(BaseColumn):
         ndarray
             The ndarray that contains the ranks of the data
         """
-        with open('cache/global_ranks/' + dataset_name + '.pkl', 'rb') as pkl_file:
+        with open(get_project_root() + '/algorithms/distribution_based/cache/global_ranks/'
+                  + dataset_name + '.pkl', 'rb') as pkl_file:
             global_ranks: dict = pickle.load(pkl_file)
             ranks = np.array(sorted([global_ranks[convert_data_type(x)] for x in column]))
             return ranks

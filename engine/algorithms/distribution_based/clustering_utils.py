@@ -10,7 +10,7 @@ from .column_model import CorrelationClusteringColumn
 from .emd_utils import intersection_emd, quantile_emd
 from .quantile_histogram import QuantileHistogram
 from ...data_sources.base_column import BaseColumn
-from ...utils.utils import convert_data_type, create_folder
+from ...utils.utils import convert_data_type, create_folder, get_project_root
 
 
 def compute_cutoff_threshold(C: list, threshold: float):
@@ -122,7 +122,8 @@ def read_from_cache(file_name: str, dataset_name: str):
         The preprocessed column
     """
 
-    file_path = 'cache/' + dataset_name + '_' + re.sub('\\W+', '_', str(file_name)) + '.pkl'
+    file_path = get_project_root() + '/algorithms/distribution_based/cache/' + \
+                dataset_name + '_' + re.sub('\\W+', '_', str(file_name)) + '.pkl'
     if os.path.getsize(file_path) > 0:
         with open(file_path, 'rb') as pkl_file:
             data = pickle.load(pkl_file)
@@ -199,7 +200,8 @@ def process_columns(tup: tuple):
         column.quantile_histogram = QuantileHistogram(column.long_name, column.ranks, column.size, quantiles)
     tn_i, _, cn_i, _ = column.long_name
     fname = (tn_i, cn_i)
-    pickle_path = 'cache/' + dataset_name + '_' + re.sub('\\W+', '_', str(fname)) + '.pkl'
+    pickle_path = get_project_root() + '/algorithms/distribution_based/cache/' \
+                  + dataset_name + '_' + re.sub('\\W+', '_', str(fname)) + '.pkl'
     if not os.path.isfile(pickle_path):
         with open(pickle_path, 'wb') as output:
             pickle.dump(column, output, pickle.HIGHEST_PROTOCOL)
@@ -238,7 +240,8 @@ def cuttoff_column_generator(A: dict, columns: List[Tuple[str, str, str, str]], 
     for column_name in columns:
         tn_i, _, cn_i, _ = column_name
         fname = (tn_i, cn_i)
-        file_path = 'cache/' + dataset_name + '_' + re.sub('\\W+', '_', str(fname)) + '.pkl'
+        file_path = get_project_root() + '/algorithms/distribution_based/cache/' \
+                    + dataset_name + '_' + re.sub('\\W+', '_', str(fname)) + '.pkl'
         if os.path.getsize(file_path) > 0:
             with open(file_path, 'rb') as pkl_file:
                 column = pickle.load(pkl_file)
@@ -256,9 +259,11 @@ def generate_global_ranks(data: list, file_name: str):
     file_name
         The name of the file to sore these "global" ranks
     """
-    if not os.path.isfile('cache/global_ranks/' + file_name + '.pkl'):
+    if not os.path.isfile(get_project_root() + '/algorithms/distribution_based/cache/global_ranks/'
+                          + file_name + '.pkl'):
         ranks = unix_sort_ranks(set(data), file_name)
-        with open('cache/global_ranks/' + file_name + '.pkl', 'wb') as output:
+        with open(get_project_root() + '/algorithms/distribution_based/cache/sorts/''cache/global_ranks/'
+                  + file_name + '.pkl', 'wb') as output:
             pickle.dump(ranks, output, pickle.HIGHEST_PROTOCOL)
 
 
@@ -279,36 +284,41 @@ def unix_sort_ranks(corpus: set, file_name: str):
     dict
         The ranks in the form of k: value, v: the rank of the value
     """
-    create_folder("./cache/sorts/" + file_name)
-    with open("./cache/sorts/" + file_name + "/unsorted_file.txt", 'w') as out:
+    create_folder(get_project_root() + '/algorithms/distribution_based/cache/sorts/' + file_name)
+    with open(get_project_root() + '/algorithms/distribution_based/cache/sorts/'
+              + file_name + "/unsorted_file.txt", 'w') as out:
         for var in corpus:
             print(str(var), file=out)
 
-    with open('cache/sorts/' + file_name + '/sorted_file.txt', 'w') as f:
+    with open(get_project_root() + '/algorithms/distribution_based/cache/sorts/'
+              + file_name + '/sorted_file.txt', 'w') as f:
         if os.name == 'nt':
-            subprocess.call(['sort', 'cache/sorts/' + file_name + '/unsorted_file.txt'], stdout=f)
+            subprocess.call(['sort', get_project_root() + '/algorithms/distribution_based/cache/sorts/'
+                             + file_name + '/unsorted_file.txt'], stdout=f)
         else:
             sort_env = os.environ.copy()
             sort_env['LC_ALL'] = 'C'
-            subprocess.call(['sort', '-n', 'cache/sorts/' + file_name + '/unsorted_file.txt'], stdout=f, env=sort_env)
+            subprocess.call(['sort', '-n', get_project_root() + '/algorithms/distribution_based/cache/sorts/' +
+                             file_name + '/unsorted_file.txt'], stdout=f, env=sort_env)
 
     rank = 1
     ranks = []
 
-    with open('./cache/sorts/' + file_name + '/sorted_file.txt', 'r') as f:
+    with open(get_project_root() + '/algorithms/distribution_based/cache/sorts/'
+              + file_name + '/sorted_file.txt', 'r') as f:
         txt = f.read()
         for var in txt.splitlines():
             ranks.append((convert_data_type(var.replace('\n', '')), rank))
             rank = rank + 1
 
-    shutil.rmtree('./cache/sorts/' + file_name)
-    os.mkdir('./cache/sorts/' + file_name)
+    shutil.rmtree(get_project_root() + '/algorithms/distribution_based/cache/sorts/' + file_name)
+    os.mkdir(get_project_root() + '/algorithms/distribution_based/cache/sorts/')
 
     return dict(ranks)
 
 
 def create_cache_dirs():
     """ Create the directories needed for the correlation clustering algorithm"""
-    create_folder('cache')
-    create_folder('cache/global_ranks')
-    create_folder('cache/sorts')
+    create_folder(get_project_root() + '/algorithms/distribution_based/cache')
+    create_folder(get_project_root() + '/algorithms/distribution_based/cache/global_ranks')
+    create_folder(get_project_root() + '/algorithms/distribution_based/cache/sorts')
