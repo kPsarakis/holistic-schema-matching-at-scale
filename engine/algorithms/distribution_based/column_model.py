@@ -28,9 +28,8 @@ class CorrelationClusteringColumn(BaseColumn):
     get_original_data()
         Returns the original data instances
     """
-
     def __init__(self, name: str, column_uid: str, data: list,
-                 table_name: str, table_guid: str, dataset_name: str, quantiles: int):
+                 table_name: str, table_guid: str, quantiles: int, uuid: str):
         """
         Parameters
         ----------
@@ -40,8 +39,6 @@ class CorrelationClusteringColumn(BaseColumn):
             The data instances of the column
         table_name : str
             The name of the table
-        dataset_name : str
-            The name of the dataset
         quantiles: int
             The number of quantiles of the column's quantile histogram
         """
@@ -51,8 +48,8 @@ class CorrelationClusteringColumn(BaseColumn):
         self.__table_name = table_name
         self.__table_guid = table_guid
         self.__quantiles = quantiles
-        self.dataset_name = dataset_name
-        self.__ranks = self.get_global_ranks(self.__data, self.dataset_name)
+        self.task_uuid = uuid
+        self.__ranks = self.get_global_ranks(self.__data, self.task_uuid)
         self.quantile_histogram = None
 
     @property
@@ -84,7 +81,7 @@ class CorrelationClusteringColumn(BaseColumn):
         return self.__ranks
 
     @staticmethod
-    def get_global_ranks(column: list, dataset_name: str):
+    def get_global_ranks(column: list, task_uuid: str):
         """
         Function that gets the column data, reads the pickled global ranks and produces a ndarray that contains the
         ranks of the data .
@@ -93,16 +90,16 @@ class CorrelationClusteringColumn(BaseColumn):
         ----------
         column : list
             The column data
-        dataset_name : str
-            The name of the dataset
+        task_uuid : str
+            The unique identifier of the task
 
         Returns
         -------
         ndarray
             The ndarray that contains the ranks of the data
         """
-        with open(get_project_root() + '/algorithms/distribution_based/cache/global_ranks/'
-                  + dataset_name + '.pkl', 'rb') as pkl_file:
+        with open(get_project_root() + '/algorithms/distribution_based/cache/global_ranks/' + task_uuid + '/'
+                  + task_uuid + '.pkl', 'rb') as pkl_file:
             global_ranks: dict = pickle.load(pkl_file)
             ranks = np.array(sorted([global_ranks[convert_data_type(x)] for x in column]))
             return ranks
