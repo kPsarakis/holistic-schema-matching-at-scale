@@ -1,6 +1,5 @@
 import React, {Component} from 'react'
-
-import classes from './Result.css'
+import classes from './Result.module.css'
 import axios from "axios";
 import MatchList from "../MatchList/MatchList";
 import Aux from '../../../hoc/Aux'
@@ -14,7 +13,7 @@ class Result extends Component{
     state = {
         loading: false,
         rankedList: [],
-        showRankedList: false
+        showRankedList: false,
     }
 
     toggleRankedList = () => {
@@ -37,7 +36,9 @@ class Result extends Component{
     }
 
     render() {
-        const renderedList = this.state.showRankedList ? <MatchList rankedList={this.state.rankedList} jobId={this.props.job_id}/> : null;
+        const renderedList = this.state.showRankedList ? <MatchList key={this.props.job_id}
+                                                                    rankedList={this.state.rankedList}
+                                                                    jobId={this.props.job_id}/> : null;
         const splitJobId = this.props.job_id.split("_")
         const id = splitJobId[0]
         const algorithmName = splitJobId[1]
@@ -49,8 +50,12 @@ class Result extends Component{
                 <div className={classes.Result}>
                     <p>Job: {id}</p>
                     <p>Algorithm: {algorithmName}</p>
-                    <Button variant="contained" color="primary" onClick={this.toggleRankedList}>Show/hide matches</Button>
-                    <Button color="secondary" onClick={this.props.deleteJob}>Delete job</Button>
+                    <Button variant="contained" color="primary" onClick={this.toggleRankedList}>
+                        Show/hide matches
+                    </Button>
+                    <Button color="secondary" onClick={this.props.deleteJob}>
+                        Delete job
+                    </Button>
                     {renderedList}
                 </div>
             </Aux>

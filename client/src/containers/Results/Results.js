@@ -50,7 +50,7 @@ class Results extends Component {
              method: 'post',
              url: process.env.REACT_APP_SERVER_ADDRESS + '/results/delete_job/' + job_id
         }).then(() => {
-            this.setState({loading: false, rankedList: []})
+            this.setState({loading: false})
         }).catch(err => {
             this.setState({loading: false})
             console.log(err)
@@ -63,26 +63,32 @@ class Results extends Component {
                 <Modal show={this.state.loading}>
                     <Spinner />
                 </Modal>
-                <Paper className={classes.Root}>
-                    <TableContainer className={classes.Container}>
-                        <Table className={classes.Results}>
-                            <TableBody>
-                                {this.state.jobs.slice(this.state.page * this.state.rowsPerPage, this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
-                                    .map((job_id, index) =>
-                                        (<Result key={index} job_id={job_id} deleteJob={() => this.deleteJob(job_id, index)}/>))}
-                            </TableBody>
-                        </Table>
-                        <TablePagination
-                                rowsPerPageOptions={[5, 10, 25]}
-                                component="div"
-                                count={this.state.jobs.length}
-                                rowsPerPage={this.state.rowsPerPage}
-                                page={this.state.page}
-                                onChangePage={this.handleChangePage}
-                                onChangeRowsPerPage={this.handleChangeRowsPerPage}
-                        />
-                    </TableContainer>
-                </Paper>
+                <div className={classes.Parent}>
+                    <Paper className={classes.Root}>
+                        <TableContainer className={classes.Container}>
+                            <Table className={classes.Results}>
+                                <TableBody>
+                                    {this.state.jobs.slice(this.state.page * this.state.rowsPerPage,
+                                        this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
+                                        .map((job_id, index) =>
+                                            (<Result key={index}
+                                                     job_id={job_id}
+                                                     deleteJob={() => this.deleteJob(job_id, index)}/>))
+                                    }
+                                </TableBody>
+                            </Table>
+                            <TablePagination
+                                    rowsPerPageOptions={[5, 10, 25]}
+                                    component="div"
+                                    count={this.state.jobs.length}
+                                    rowsPerPage={this.state.rowsPerPage}
+                                    page={this.state.page}
+                                    onChangePage={this.handleChangePage}
+                                    onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                            />
+                        </TableContainer>
+                    </Paper>
+                </div>
             </Aux>
         );
     }

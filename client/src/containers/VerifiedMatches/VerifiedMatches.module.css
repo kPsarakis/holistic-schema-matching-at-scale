@@ -1,5 +1,4 @@
 .VerifiedMatches {
-    margin-top: 80px;
     width: 100%;
     text-align: center;
 }
@@ -10,4 +9,10 @@
 
 .Container {
     max-height: 800px;
+}
+
+.Parent {
+    margin-top: 80px;
+    margin-right: 100px;
+    margin-left: 100px;
 }

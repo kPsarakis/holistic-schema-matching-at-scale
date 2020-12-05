@@ -72,68 +72,71 @@ class VerifiedMatches extends Component {
 
     render() {
         return (
-            <Paper className={classes.Root}>
-             <TableContainer className={classes.Container}>
-              <Table className={classes.VerifiedMatches} size="small">
-                <TableHead>
-                  <TableRow>
-                      <StyledTableCell align="center" colSpan={4}>Source</StyledTableCell>
-                      <StyledTableCell align="center" colSpan={4}>Target</StyledTableCell>
-                  </TableRow>
-                  <TableRow>
-                      <StyledTableCell align="center" colSpan={2}>
-                          Table
-                      </StyledTableCell>
-                      <StyledTableCell align="center" colSpan={2}>
-                          Column
-                      </StyledTableCell>
-                      <StyledTableCell align="center" colSpan={2}>
-                          Table
-                      </StyledTableCell>
-                      <StyledTableCell align="center" colSpan={2}>
-                          Column
-                      </StyledTableCell>
-                  </TableRow>
-                  <TableRow>
-                      <StyledTableCell align="center">Name</StyledTableCell>
-                      <StyledTableCell align="center">GUID</StyledTableCell>
-                      <StyledTableCell align="center">Name</StyledTableCell>
-                      <StyledTableCell align="center">GUID</StyledTableCell>
-                      <StyledTableCell align="center">Name</StyledTableCell>
-                      <StyledTableCell align="center">GUID</StyledTableCell>
-                      <StyledTableCell align="center">Name</StyledTableCell>
-                      <StyledTableCell align="center">GUID</StyledTableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {this.state.verifiedMatches
-                      .slice(this.state.page * this.state.rowsPerPage, this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
-                      .map((row, index) => (
-                            <StyledTableRow key={index}>
-                              <StyledTableCell align="center">{row['source']['tbl_nm']}</StyledTableCell>
-                              <StyledTableCell align="center">{row['source']['tbl_guid']}</StyledTableCell>
-                              <StyledTableCell align="center">{row['source']['clm_nm']}</StyledTableCell>
-                              <StyledTableCell align="center">{row['source']['clm_guid']}</StyledTableCell>
-                              <StyledTableCell align="center">{row['target']['tbl_nm']}</StyledTableCell>
-                              <StyledTableCell align="center">{row['target']['tbl_guid']}</StyledTableCell>
-                              <StyledTableCell align="center">{row['target']['clm_nm']}</StyledTableCell>
-                              <StyledTableCell align="center">{row['target']['clm_guid']}</StyledTableCell>
-                            </StyledTableRow>
-                        ))
-                  }
-                </TableBody>
-              </Table>
-            </TableContainer>
-            <TablePagination
-                rowsPerPageOptions={[10, 25, 100]}
-                component="div"
-                count={this.state.verifiedMatches.length}
-                rowsPerPage={this.state.rowsPerPage}
-                page={this.state.page}
-                onChangePage={this.handleChangePage}
-                onChangeRowsPerPage={this.handleChangeRowsPerPage}
-              />
-              </Paper>
+            <div className={classes.Parent}>
+                <Paper className={classes.Root}>
+                 <TableContainer className={classes.Container}>
+                  <Table className={classes.VerifiedMatches} size="small">
+                    <TableHead>
+                      <TableRow>
+                          <StyledTableCell align="center" colSpan={4}>Source</StyledTableCell>
+                          <StyledTableCell align="center" colSpan={4}>Target</StyledTableCell>
+                      </TableRow>
+                      <TableRow>
+                          <StyledTableCell align="center" colSpan={2}>
+                              Table
+                          </StyledTableCell>
+                          <StyledTableCell align="center" colSpan={2}>
+                              Column
+                          </StyledTableCell>
+                          <StyledTableCell align="center" colSpan={2}>
+                              Table
+                          </StyledTableCell>
+                          <StyledTableCell align="center" colSpan={2}>
+                              Column
+                          </StyledTableCell>
+                      </TableRow>
+                      <TableRow>
+                          <StyledTableCell align="center">Name</StyledTableCell>
+                          <StyledTableCell align="center">GUID</StyledTableCell>
+                          <StyledTableCell align="center">Name</StyledTableCell>
+                          <StyledTableCell align="center">GUID</StyledTableCell>
+                          <StyledTableCell align="center">Name</StyledTableCell>
+                          <StyledTableCell align="center">GUID</StyledTableCell>
+                          <StyledTableCell align="center">Name</StyledTableCell>
+                          <StyledTableCell align="center">GUID</StyledTableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {this.state.verifiedMatches
+                          .slice(this.state.page * this.state.rowsPerPage,
+                              this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
+                          .map((row, index) => (
+                                <StyledTableRow key={index}>
+                                  <StyledTableCell align="center">{row['source']['tbl_nm']}</StyledTableCell>
+                                  <StyledTableCell align="center">{row['source']['tbl_guid']}</StyledTableCell>
+                                  <StyledTableCell align="center">{row['source']['clm_nm']}</StyledTableCell>
+                                  <StyledTableCell align="center">{row['source']['clm_guid']}</StyledTableCell>
+                                  <StyledTableCell align="center">{row['target']['tbl_nm']}</StyledTableCell>
+                                  <StyledTableCell align="center">{row['target']['tbl_guid']}</StyledTableCell>
+                                  <StyledTableCell align="center">{row['target']['clm_nm']}</StyledTableCell>
+                                  <StyledTableCell align="center">{row['target']['clm_guid']}</StyledTableCell>
+                                </StyledTableRow>
+                            ))
+                      }
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                <TablePagination
+                    rowsPerPageOptions={[10, 25, 100]}
+                    component="div"
+                    count={this.state.verifiedMatches.length}
+                    rowsPerPage={this.state.rowsPerPage}
+                    page={this.state.page}
+                    onChangePage={this.handleChangePage}
+                    onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                  />
+                </Paper>
+            </div>
         );
     }
 }

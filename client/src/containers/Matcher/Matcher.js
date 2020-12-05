@@ -72,17 +72,19 @@ class Matcher extends Component {
                 <Modal show={this.state.responseReceived} modalClosed={this.closeResponseHandler}>
                     <Response response={this.state.latestResponse}/>
                 </Modal>
-                <div className={classes.DbList}>
-                    <ListSource
-                        header={"Select Source Tables"}
-                        sendSelected={(val) => this.getSelectedTables(val, "source")}
-                    />
-                </div>
-                <div className={classes.DbList}>
-                    <ListSource
-                        header={"Select Target Tables"}
-                        sendSelected={(val) => this.getSelectedTables(val, "target")}
-                    />
+                <div className={classes.DBView}>
+                    <div className={classes.DbList}>
+                        <ListSource
+                            header={"Select Source Tables"}
+                            sendSelected={(val) => this.getSelectedTables(val, "source")}
+                        />
+                    </div>
+                    <div className={classes.DbList}>
+                        <ListSource
+                            header={"Select Target Tables"}
+                            sendSelected={(val) => this.getSelectedTables(val, "target")}
+                        />
+                    </div>
                 </div>
                 <div className={classes.AlgorithmSelection}>
                     <AlgorithmSelection
