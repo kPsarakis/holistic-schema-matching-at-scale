@@ -4,7 +4,6 @@ from .node_pair import NodePair
 
 
 class PropagationGraph:
-
     """
         Class for constructing a Propagation Graph from two input graphs.
     """
@@ -38,7 +37,7 @@ class PropagationGraph:
             for n in p_g.nodes():
 
                 in_edges = c_g.in_edges(n)
-                out_edges = c_g.out_edges()
+                out_edges = c_g.out_edges(n)
 
                 in_labels = {}
                 out_labels = {}
@@ -201,7 +200,7 @@ class PropagationGraph:
 
                     p_g.add_edge(e[1], e[0], weight=in_labels[label])
 
-                for e in c_g.out_edges():
+                for e in c_g.out_edges(n):
                     edge_data = c_g.get_edge_data(e[0], e[1])
 
                     label = edge_data.get('label')
