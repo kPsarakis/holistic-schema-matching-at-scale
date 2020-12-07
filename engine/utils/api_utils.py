@@ -18,7 +18,7 @@ class AtlasPayload(BaseModel):
     db_types: List[str]
     matching_algorithm: str
     # the maximum number of matches to be given as output
-    max_number_matches: int = 10000
+    max_number_matches: int = None
     # increase the request_parallelism and request_chunk_size for faster data ingestion from atlas the default
     # values are low enough to work with a very slow internet connection.
     # request_parallelism is how many parallel requests the framework makes to atlas
@@ -37,7 +37,7 @@ class MinioPayload(BaseModel):
     db_name: str  # DB name is the name of the folder that it is under
     matching_algorithm: str
     # the maximum number of matches to be given as output
-    max_number_matches: int = 10000
+    max_number_matches: int = None
     # if the algorithm params are left empty the defaults will be chosen
     matching_algorithm_params: Optional[Dict[str, object]]
 

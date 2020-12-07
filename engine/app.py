@@ -71,7 +71,7 @@ def get_matches_minio(matching_algorithm: str, algorithm_params: dict, target_ta
     load_data = False if matching_algorithm in schema_only_algorithms else True
     target_minio_table: MinioTable = minio_source.get_db_table(target_table_name, target_db_name, load_data=load_data)
     source_minio_table: MinioTable = minio_source.get_db_table(source_table_name, source_db_name, load_data=load_data)
-    return matcher.get_matches(source_minio_table, target_minio_table)[:100]
+    return matcher.get_matches(source_minio_table, target_minio_table)
 
 
 @celery.task
@@ -86,10 +86,12 @@ def get_matches_atlas(matching_algorithm: str, algorithm_params: dict, target_ta
 
 
 @celery.task
-def merge_matches(individual_matches: list, job_uuid: str, start: float, max_number_of_matches: int = 10000):
+def merge_matches(individual_matches: list, job_uuid: str, start: float, max_number_of_matches: int = None):
     app.logger.info(f"Starting to merge results of job: {job_uuid}")
     merged_matches = [item for sublist in individual_matches for item in sublist]
-    sorted_matches = sorted(merged_matches, key=lambda k: k['sim'], reverse=True)[:max_number_of_matches]
+    sorted_matches = sorted(merged_matches, key=lambda k: k['sim'], reverse=True)
+    if max_number_of_matches is not None:
+        sorted_matches = sorted_matches[:max_number_of_matches]
     end: float = default_timer()
     runtime: float = end - start
     app.logger.info(f"Starting to save results to db of job: {job_uuid}")
