@@ -7,6 +7,6 @@ script:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
   - docker push kpsarakis/schema-matching-engine:latest
 
-  - docker build -t kpsarakis/schema-matching-client ./client
+  - docker build -t kpsarakis/schema-matching-client --build-arg REACT_APP_SERVER_ADDRESS=/api ./client
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
   - docker push kpsarakis/schema-matching-client:latest
