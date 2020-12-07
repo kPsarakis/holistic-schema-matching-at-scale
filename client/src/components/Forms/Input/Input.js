@@ -1,6 +1,6 @@
-import React from 'react'
+import React from 'react';
 
-import classes from './Input.module.css'
+import classes from './Input.module.css';
 import TextField from '@material-ui/core/TextField';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -36,12 +36,12 @@ const input = (props) => {
                                 {option.displayValue}
                             </MenuItem>))}
                     </Select>
-                </FormControl>
+                </FormControl>;
             break;
         case('checkbox'):
             inputElement = <FormControlLabel
                 control={<Checkbox {...props.config} onChange={props.changed} name={props.name} color="primary"/>}
-                label={props.name} />
+                label={props.name} />;
             break;
         case('range'):
             inputElement =
@@ -58,7 +58,7 @@ const input = (props) => {
                 </div>
             break;
         default:
-            inputElement = null
+            inputElement = null;
             break;
     }
     return(

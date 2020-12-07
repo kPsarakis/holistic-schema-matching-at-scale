@@ -8,7 +8,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 
-import classes from './VerifiedMatches.module.css'
+import classes from './VerifiedMatches.module.css';
 import axios from "axios";
 import TablePagination from "@material-ui/core/TablePagination";
 
@@ -48,15 +48,15 @@ class VerifiedMatches extends Component {
     }
 
     componentDidMount() {
-        this.setState({loading: true})
+        this.setState({loading: true});
         axios({
                  method: 'get',
                  url: process.env.REACT_APP_SERVER_ADDRESS + '/results/verified_matches'
             }).then(res => {
-                this.setState({loading: false, verifiedMatches: res.data})
+                this.setState({loading: false, verifiedMatches: res.data});
             }).catch(err => {
-                this.setState({loading: false})
-                console.log(err)
+                this.setState({loading: false});
+                console.log(err);
             })
     }
 

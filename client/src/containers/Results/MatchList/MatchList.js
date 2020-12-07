@@ -59,32 +59,32 @@ class MatchList extends Component {
     }
 
     componentDidMount() {
-        this.setState({rankedList: this.props.rankedList, jobId: this.props.jobId})
+        this.setState({rankedList: this.props.rankedList, jobId: this.props.jobId});
     }
 
     deleteMatchHandler = (matchIndex, save) => {
         const rankedList = [...this.state.rankedList];
         rankedList.splice(matchIndex, 1);
-        this.setState({rankedList: rankedList, loading: true})
+        this.setState({rankedList: rankedList, loading: true});
         if(save){
             axios({
                  method: 'post',
                  url: process.env.REACT_APP_SERVER_ADDRESS + '/results/save_verified_match/' + this.state.jobId + '/' + matchIndex
             }).then(() => {
-                this.setState({loading: false})
+                this.setState({loading: false});
             }).catch(err => {
-                this.setState({loading: false})
-                console.log(err)
-            })
+                this.setState({loading: false});
+                console.log(err);
+            });
         }else{
             axios({
                  method: 'post',
                  url: process.env.REACT_APP_SERVER_ADDRESS + '/results/discard_match/' + this.state.jobId + '/' + matchIndex
             }).then(() => {
-                this.setState({loading: false})
+                this.setState({loading: false});
             }).catch(err => {
-                this.setState({loading: false})
-                console.log(err)
+                this.setState({loading: false});
+                console.log(err);
             })
         }
     }
@@ -99,31 +99,31 @@ class MatchList extends Component {
     };
 
     closeShowDataHandler = () => {
-        this.setState({showData: false})
+        this.setState({showData: false});
     }
 
     getColumnSamples = (dbName, tableName, columnName, source) => {
-        this.setState({loading: true})
+        this.setState({loading: true});
         axios({
                  method: 'get',
                  url: process.env.REACT_APP_SERVER_ADDRESS + '/matches/minio/column_sample/' + dbName + '/' + tableName + '/' + columnName
             }).then(res => {
                 if(source){
-                    this.setState({loading: false, sourceData: res.data})
+                    this.setState({loading: false, sourceData: res.data});
                 }
                 else{
-                    this.setState({loading: false, targetData: res.data})
+                    this.setState({loading: false, targetData: res.data});
                 }
             }).catch(err => {
-                this.setState({loading: false})
-                console.log(err)
+                this.setState({loading: false});
+                console.log(err);
             })
     }
 
     showData = (sourceDbName, sourceTableName, sourceColumnName, targetDbName, targetTableName, targetColumnName) => {
-        this.getColumnSamples(sourceDbName, sourceTableName, sourceColumnName, true)
-        this.getColumnSamples(targetDbName, targetTableName, targetColumnName, false)
-        this.setState({showData: true, targetColumn: targetColumnName, sourceColumn: sourceColumnName})
+        this.getColumnSamples(sourceDbName, sourceTableName, sourceColumnName, true);
+        this.getColumnSamples(targetDbName, targetTableName, targetColumnName, false);
+        this.setState({showData: true, targetColumn: targetColumnName, sourceColumn: sourceColumnName});
     }
 
     render() {

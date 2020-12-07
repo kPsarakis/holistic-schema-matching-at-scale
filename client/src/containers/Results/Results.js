@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios';
 
-import classes from './Results.module.css'
+import classes from './Results.module.css';
 import Aux from "../../hoc/Aux";
 import Modal from "../../components/UI/Modal/Modal";
 import Spinner from "../../components/UI/Spinner/Spinner";
@@ -28,12 +28,12 @@ class Results extends Component {
              method: 'get',
              url: process.env.REACT_APP_SERVER_ADDRESS + '/results/finished_jobs'
         }).then(res => {
-            let jobs = {}
-            res.data.forEach(jobId => jobs[jobId] = {rankedList: [], showRankedList: false})
-            this.setState({loading: false, jobs: jobs})
+            let jobs = {};
+            res.data.forEach(jobId => jobs[jobId] = {rankedList: [], showRankedList: false});
+            this.setState({loading: false, jobs: jobs});
         }).catch(err => {
-            this.setState({loading: false})
-            console.log(err)
+            this.setState({loading: false});
+            console.log(err);
         })
     }
 
@@ -47,41 +47,41 @@ class Results extends Component {
     };
 
     deleteJob = (jobId) => {
-        this.setState({loading: true})
+        this.setState({loading: true});
         axios({
              method: 'post',
              url: process.env.REACT_APP_SERVER_ADDRESS + '/results/delete_job/' + jobId
         }).then(() => {
             const jobs = {...this.state.jobs};
-            delete jobs[jobId]
-            this.setState({jobs: jobs, loading: false})
+            delete jobs[jobId];
+            this.setState({jobs: jobs, loading: false});
         }).catch(err => {
-            this.setState({loading: false})
-            console.log(err)
+            this.setState({loading: false});
+            console.log(err);
         })
     }
 
     toggleRankedList = (jobId) => {
-        const jobs = {...this.state.jobs}
-        const job = jobs[jobId]
+        const jobs = {...this.state.jobs};
+        const job = jobs[jobId];
         if(job.showRankedList){
-            job.showRankedList = false
-            this.setState({jobs: jobs})
+            job.showRankedList = false;
+            this.setState({jobs: jobs});
         }else if(job.rankedList.length !== 0){
-            job.showRankedList = true
-            this.setState({jobs: jobs})
+            job.showRankedList = true;
+            this.setState({jobs: jobs});
         }else{
-            this.setState({loading: true})
+            this.setState({loading: true});
             axios({
                  method: 'get',
                  url: process.env.REACT_APP_SERVER_ADDRESS + '/results/job_results/' + jobId
             }).then(res => {
-                job.showRankedList = true
-                job.rankedList = res.data
-                this.setState({loading: false, jobs: jobs})
+                job.showRankedList = true;
+                job.rankedList = res.data;
+                this.setState({loading: false, jobs: jobs});
             }).catch(err => {
-                this.setState({loading: false})
-                console.log(err)
+                this.setState({loading: false});
+                console.log(err);
             })
         }
     }
@@ -100,7 +100,7 @@ class Results extends Component {
                                     {Object.keys(this.state.jobs).slice(this.state.page * this.state.rowsPerPage,
                                         this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
                                         .map((jobId) => {
-                                            const job = this.state.jobs[jobId]
+                                            const job = this.state.jobs[jobId];
                                             const renderedList = job.showRankedList
                                                 ? <MatchList key={jobId}
                                                            rankedList={job.rankedList}

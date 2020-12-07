@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 
-import classes from './AlgorithmSelection.module.css'
+import classes from './AlgorithmSelection.module.css';
 import Algorithm from "./Algorithm/Algorithm";
 
 class AlgorithmSelection extends Component {
@@ -224,7 +224,7 @@ class AlgorithmSelection extends Component {
             for (let key in val) {
                 if (val.hasOwnProperty(key)) {
                     if (key.startsWith(algorithmName)) {
-                        algoParams[key.substr(algorithmName.length + 1)] = val[key].value
+                        algoParams[key.substr(algorithmName.length + 1)] = val[key].value;
                     }
                 }
             }
@@ -238,7 +238,7 @@ class AlgorithmSelection extends Component {
         const selectedAlgorithms = [];
          for (let algorithmName in this.state.isSelected) {
              if(this.state.isSelected[algorithmName]){
-                 selectedAlgorithms.push({[algorithmName]: this.state.algorithmParams[algorithmName]})
+                 selectedAlgorithms.push({[algorithmName]: this.state.algorithmParams[algorithmName]});
              }
          }
         this.props.sendSelected(selectedAlgorithms);

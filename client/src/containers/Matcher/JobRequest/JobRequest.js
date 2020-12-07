@@ -5,9 +5,9 @@ import axios from 'axios';
 import Input from '../../../components/Forms/Input/Input';
 import Button from '@material-ui/core/Button';
 import Modal from '../../../components/UI/Modal/Modal';
-import Aux from '../../../hoc/Aux'
-import Spinner from '../../../components/UI/Spinner/Spinner'
-import Response from '../../../components/Forms/Response/Response'
+import Aux from '../../../hoc/Aux';
+import Spinner from '../../../components/UI/Spinner/Spinner';
+import Response from '../../../components/Forms/Response/Response';
 
 class JobRequest extends Component {
 
@@ -258,11 +258,11 @@ class JobRequest extends Component {
         };
         if(inputIdentifier === 'defaultAlgoParams') {
             updatedJobElement.value = !updatedJobElement.value;
-            this.toggle_show_dynamic_component(updatedJobForm, updatedJobForm.algorithm.value)
+            this.toggle_show_dynamic_component(updatedJobForm, updatedJobForm.algorithm.value);
         }else if(inputIdentifier === 'algorithm'){
             if(!updatedJobForm.defaultAlgoParams.value){
-                this.toggle_show_dynamic_component(updatedJobForm, updatedJobForm.algorithm.value)
-                this.toggle_show_dynamic_component(updatedJobForm, event.target.value)
+                this.toggle_show_dynamic_component(updatedJobForm, updatedJobForm.algorithm.value);
+                this.toggle_show_dynamic_component(updatedJobForm, event.target.value);
             }
             updatedJobElement.value = event.target.value;
         }else{
@@ -271,9 +271,9 @@ class JobRequest extends Component {
             } else {
                  updatedJobElement.value = event.target.value;
                 if(inputIdentifier === 'mode' && event.target.value === 'specifyDB'){
-                    updatedJobForm['otherDB'].show = true
+                    updatedJobForm['otherDB'].show = true;
                 } else if (inputIdentifier === 'mode' && event.target.value !== 'specifyDB'){
-                    updatedJobForm['otherDB'].show = false
+                    updatedJobForm['otherDB'].show = false;
                 }
             }
         }
@@ -285,7 +285,7 @@ class JobRequest extends Component {
         for (let key in updatedJobForm) {
             if (updatedJobForm.hasOwnProperty(key)){
                 if (key.startsWith(name)) {
-                    updatedJobForm[key].show = !updatedJobForm[key].show
+                    updatedJobForm[key].show = !updatedJobForm[key].show;
                 }
             }
         }
@@ -305,7 +305,7 @@ class JobRequest extends Component {
             alert('You must specify the name of the table!');
             return;
         }
-        this.setState( {loading: true} )
+        this.setState({loading: true});
         let serverPath = '';
         switch (formData['mode']){
             case 'holistic':
@@ -313,14 +313,14 @@ class JobRequest extends Component {
                 break;
             case 'internal':
                 serverPath = process.env.REACT_APP_SERVER_ADDRESS + '/matches/minio/within_db';
-                break
+                break;
             case 'specifyDB':
-                const otherDB = formData['otherDB']
+                const otherDB = formData['otherDB'];
                 if(otherDB === ''){
                     alert('You must specify the name of the database!');
                     return;
                 }
-                serverPath = process.env.REACT_APP_SERVER_ADDRESS + '/matches/minio/other_db/' + otherDB
+                serverPath = process.env.REACT_APP_SERVER_ADDRESS + '/matches/minio/other_db/' + otherDB;
                 break;
             default:
                 break;
@@ -336,11 +336,11 @@ class JobRequest extends Component {
             for (let key in formData) {
                 if (formData.hasOwnProperty(key)){
                     if (key.startsWith(formData['algorithm'])) {
-                        algoParams[key.substr(formData['algorithm'].length + 1)] = formData[key]
+                        algoParams[key.substr(formData['algorithm'].length + 1)] = formData[key];
                     }
                 }
             }
-            requestBody['matching_algorithm_params'] = {...algoParams}
+            requestBody['matching_algorithm_params'] = {...algoParams};
         }
 
         axios({
@@ -349,12 +349,12 @@ class JobRequest extends Component {
           headers: {},
           data: requestBody})
             .then(response => {this.setState({loading: false, responseReceived: true, latestResponse: response.data});})
-            .catch(error => {this.setState( {loading: false} ); console.log(error)})
+            .catch(error => {this.setState( {loading: false} ); console.log(error);})
         // window.location.reload(false);
     }
 
     closeResponseHandler = () => {
-        this.setState({responseReceived: false})
+        this.setState({responseReceived: false});
     }
 
     render () {
@@ -364,7 +364,7 @@ class JobRequest extends Component {
                 formElementsArray.push({
                     id: key,
                     config: this.state.jobForm[key]
-                })
+                });
             }
         }
         return (

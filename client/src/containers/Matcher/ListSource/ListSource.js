@@ -7,7 +7,7 @@ import TreeView from "@material-ui/lab/TreeView";
 import TreeItem from "@material-ui/lab/TreeItem";
 import Checkbox from "@material-ui/core/Checkbox";
 import { blue, indigo } from '@material-ui/core/colors';
-import classes from './ListSource.module.css'
+import classes from './ListSource.module.css';
 import Aux from "../../../hoc/Aux";
 import Modal from "../../../components/UI/Modal/Modal";
 import Spinner from "../../../components/UI/Spinner/Spinner";
@@ -54,31 +54,31 @@ class ListSource extends Component {
         }).catch(err => {
             this.setState({loading: false});
             console.log(err);
-        })
+        });
     }
 
     sendSelectedToParent = () => {
         const selectedTables = [];
         this.state.dbTree.map(db =>
             db.tables.map(table =>
-                (table.selected) ? selectedTables.push({"db_name": db.name, "table_name": table.name}) : null))
+                (table.selected) ? selectedTables.push({"db_name": db.name, "table_name": table.name}) : null));
         this.props.sendSelected(selectedTables);
     }
 
     handleCheckDB = (dbIdx) => {
         const updatedDBTree = [...this.state.dbTree];
         const dbToUpdate = updatedDBTree.slice(dbIdx, dbIdx+1)[0];
-        dbToUpdate.selected = !dbToUpdate.selected
-        dbToUpdate.tables.map(table => table.selected = dbToUpdate.selected)
-        updatedDBTree[dbIdx] = dbToUpdate
+        dbToUpdate.selected = !dbToUpdate.selected;
+        dbToUpdate.tables.map(table => table.selected = dbToUpdate.selected);
+        updatedDBTree[dbIdx] = dbToUpdate;
         this.setState({dbTree: updatedDBTree},() => this.sendSelectedToParent());
     }
 
     handleCheckTbl = (dbIdx, tblIdx) => {
         const updatedDBTree = [...this.state.dbTree];
         const dbToUpdate = updatedDBTree.slice(dbIdx, dbIdx+1)[0];
-        dbToUpdate.tables[tblIdx].selected = !dbToUpdate.tables[tblIdx].selected
-        updatedDBTree[dbIdx] = dbToUpdate
+        dbToUpdate.tables[tblIdx].selected = !dbToUpdate.tables[tblIdx].selected;
+        updatedDBTree[dbIdx] = dbToUpdate;
         this.setState({dbTree: updatedDBTree}, () => this.sendSelectedToParent());
     }
 

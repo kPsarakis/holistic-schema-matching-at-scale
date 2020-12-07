@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 
 import Aux from '../../hoc/Aux';
-import ListSource from './ListSource/ListSource'
-import AlgorithmSelection from './AlgorithmSelection/AlgorithmSelection'
-import classes from './Matcher.module.css'
+import ListSource from './ListSource/ListSource';
+import AlgorithmSelection from './AlgorithmSelection/AlgorithmSelection';
+import classes from './Matcher.module.css';
 import {Button} from "@material-ui/core";
 import axios from "axios";
 import Modal from "../../components/UI/Modal/Modal";
@@ -23,11 +23,11 @@ class Matcher extends Component {
 
     getSelectedTables(val, mode){
         if(mode==="source"){
-            this.setState({sourceSelectedTables: [...val]})
+            this.setState({sourceSelectedTables: [...val]});
         }else if(mode==="target") {
-            this.setState({targetSelectedTables: [...val]})
+            this.setState({targetSelectedTables: [...val]});
         }else if(mode==="algorithms"){
-            this.setState({selectedAlgorithms: [...val]})
+            this.setState({selectedAlgorithms: [...val]});
         }
     }
 
@@ -44,7 +44,7 @@ class Matcher extends Component {
             alert('No selected algorithms!');
             return;
         }
-        this.setState( {loading: true} )
+        this.setState({loading: true});
         const requestBody = {
             "source_tables": this.state.sourceSelectedTables,
             "target_tables": this.state.targetSelectedTables,
@@ -56,7 +56,7 @@ class Matcher extends Component {
           headers: {},
           data: requestBody})
             .then(response => {this.setState({loading: false, responseReceived: true, latestResponse: response.data});})
-            .catch(error => {this.setState( {loading: false} ); console.log(error)})
+            .catch(error => {this.setState( {loading: false} ); console.log(error);})
     }
 
     closeResponseHandler = () => {

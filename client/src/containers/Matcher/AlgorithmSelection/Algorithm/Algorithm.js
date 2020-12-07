@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 
-import classes from './Algorithm.module.css'
+import classes from './Algorithm.module.css';
 import Checkbox from "@material-ui/core/Checkbox";
 import Input from "../../../../components/Forms/Input/Input";
 
@@ -20,7 +20,7 @@ class Algorithm extends Component{
         for (let key in updatedJobForm) {
             if (updatedJobForm.hasOwnProperty(key)){
                 if (!key.startsWith("defaultAlgoParams")) {
-                    updatedJobForm[key].show = !updatedJobForm[key].show
+                    updatedJobForm[key].show = !updatedJobForm[key].show;
                 }
             }
         }
@@ -67,7 +67,7 @@ class Algorithm extends Component{
                 formElementsArray.push({
                     id: key,
                     config: this.state.params[key]
-                })
+                });
             }
         }
         return(
