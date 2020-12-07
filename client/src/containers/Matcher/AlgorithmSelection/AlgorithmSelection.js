@@ -279,7 +279,7 @@ class AlgorithmSelection extends Component {
                     />
                 </div>
                 <div className={classes.Algorithm}>
-                     <Algorithm algoName={"SimilarityFlooding"} params={null}
+                     <Algorithm algoName={"Similarity Flooding"} params={null}
                                 sendSelected={(val) => this.getSelectedAlgorithms(val, "SimilarityFlooding")}
                                 toggleAlgorithm={(selected) => this.toggleAlgorithmSelection(selected, "SimilarityFlooding")}
                      />
