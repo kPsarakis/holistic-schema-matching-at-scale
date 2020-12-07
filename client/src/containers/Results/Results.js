@@ -1,7 +1,7 @@
-import React, { Component } from 'react'
-import axios from 'axios';
+import React, { Component } from "react"
+import axios from "axios";
 
-import classes from './Results.module.css';
+import classes from "./Results.module.css";
 import Aux from "../../hoc/Aux";
 import Modal from "../../components/UI/Modal/Modal";
 import Spinner from "../../components/UI/Spinner/Spinner";
@@ -25,8 +25,8 @@ class Results extends Component {
     componentDidMount() {
         this.setState({loading: true})
         axios({
-             method: 'get',
-             url: process.env.REACT_APP_SERVER_ADDRESS + '/results/finished_jobs'
+             method: "get",
+             url: process.env.REACT_APP_SERVER_ADDRESS + "/results/finished_jobs"
         }).then(res => {
             let jobs = {};
             res.data.forEach(jobId => jobs[jobId] = {rankedList: [], showRankedList: false});
@@ -49,8 +49,8 @@ class Results extends Component {
     deleteJob = (jobId) => {
         this.setState({loading: true});
         axios({
-             method: 'post',
-             url: process.env.REACT_APP_SERVER_ADDRESS + '/results/delete_job/' + jobId
+             method: "post",
+             url: process.env.REACT_APP_SERVER_ADDRESS + "/results/delete_job/" + jobId
         }).then(() => {
             const jobs = {...this.state.jobs};
             delete jobs[jobId];
@@ -73,8 +73,8 @@ class Results extends Component {
         }else{
             this.setState({loading: true});
             axios({
-                 method: 'get',
-                 url: process.env.REACT_APP_SERVER_ADDRESS + '/results/job_results/' + jobId
+                 method: "get",
+                 url: process.env.REACT_APP_SERVER_ADDRESS + "/results/job_results/" + jobId
             }).then(res => {
                 job.showRankedList = true;
                 job.rankedList = res.data;

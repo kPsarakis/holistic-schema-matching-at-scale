@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 
-import classes from './AlgorithmSelection.module.css';
+import classes from "./AlgorithmSelection.module.css";
 import Algorithm from "./Algorithm/Algorithm";
 
 class AlgorithmSelection extends Component {
@@ -8,31 +8,31 @@ class AlgorithmSelection extends Component {
     state = {
         comaParams:{
             defaultAlgoParams: {
-                name:'Default Params',
-                elementType: 'checkbox',
+                name:"Default Params",
+                elementType: "checkbox",
                 elementConfig:{
-                    type: 'checkbox',
+                    type: "checkbox",
                     defaultChecked: true,
-                    name: 'Default Parameters'
+                    name: "Default Parameters"
                 },
                 value: true,
                 show: true
              },
             Coma_strategy: {
-                name: 'Strategy',
-                elementType: 'select',
+                name: "Strategy",
+                elementType: "select",
                 elementConfig: {
                     options: [
-                        {value: 'COMA_OPT', displayValue: 'Schema'},
-                        {value: 'COMA_OPT_INST', displayValue: 'Schema + Instances'}
+                        {value: "COMA_OPT", displayValue: "Schema"},
+                        {value: "COMA_OPT_INST", displayValue: "Schema + Instances"}
                         ]
                 },
-                value: 'COMA_OPT',
+                value: "COMA_OPT",
                 show: false
             },
             Coma_max_n: {
-                name: 'max_n',
-                elementType: 'range',
+                name: "max_n",
+                elementType: "range",
                 elementConfig : {
                     min: 0,
                     max: 10,
@@ -45,19 +45,19 @@ class AlgorithmSelection extends Component {
         },
         cupidParams: {
              defaultAlgoParams: {
-                name:'Default Params',
-                elementType: 'checkbox',
+                name:"Default Params",
+                elementType: "checkbox",
                 elementConfig:{
-                    type: 'checkbox',
+                    type: "checkbox",
                     defaultChecked: true,
-                    name: 'Default Parameters'
+                    name: "Default Parameters"
                 },
                 value: true,
                 show: true
              },
             Cupid_leaf_w_struct: {
-                name: 'leaf_w_struct',
-                elementType: 'range',
+                name: "leaf_w_struct",
+                elementType: "range",
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
@@ -68,8 +68,8 @@ class AlgorithmSelection extends Component {
                 show: false
             },
             Cupid_w_struct: {
-                name: 'w_struct',
-                elementType: 'range',
+                name: "w_struct",
+                elementType: "range",
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
@@ -80,8 +80,8 @@ class AlgorithmSelection extends Component {
                 show: false
             },
             Cupid_th_accept: {
-                name: 'th_accept',
-                elementType: 'range',
+                name: "th_accept",
+                elementType: "range",
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
@@ -92,8 +92,8 @@ class AlgorithmSelection extends Component {
                 show: false
             },
             Cupid_th_high: {
-                name: 'th_high',
-                elementType: 'range',
+                name: "th_high",
+                elementType: "range",
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
@@ -104,8 +104,8 @@ class AlgorithmSelection extends Component {
                 show: false
             },
             Cupid_th_low: {
-                name: 'th_low',
-                elementType: 'range',
+                name: "th_low",
+                elementType: "range",
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
@@ -116,8 +116,8 @@ class AlgorithmSelection extends Component {
                 show: false
             },
             Cupid_th_ns: {
-                name: 'th_ns',
-                elementType: 'range',
+                name: "th_ns",
+                elementType: "range",
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
@@ -130,19 +130,19 @@ class AlgorithmSelection extends Component {
         },
         distributionBasedParams:{
             defaultAlgoParams: {
-                name:'Default Params',
-                elementType: 'checkbox',
+                name:"Default Params",
+                elementType: "checkbox",
                 elementConfig:{
-                    type: 'checkbox',
+                    type: "checkbox",
                     defaultChecked: true,
-                    name: 'Default Parameters'
+                    name: "Default Parameters"
                 },
                 value: true,
                 show: true
              },
             CorrelationClustering_threshold1: {
-                name: 'Phase 1 threshold',
-                elementType: 'range',
+                name: "Phase 1 threshold",
+                elementType: "range",
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
@@ -153,8 +153,8 @@ class AlgorithmSelection extends Component {
                 show: false
             },
             CorrelationClustering_threshold2: {
-                name: 'Phase 2 threshold',
-                elementType: 'range',
+                name: "Phase 2 threshold",
+                elementType: "range",
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
@@ -165,8 +165,8 @@ class AlgorithmSelection extends Component {
                 show: false
             },
             CorrelationClustering_quantiles: {
-                name: 'quantiles',
-                elementType: 'range',
+                name: "quantiles",
+                elementType: "range",
                 elementConfig : {
                     min: 1,
                     max: 1024,
@@ -179,19 +179,19 @@ class AlgorithmSelection extends Component {
         },
         jaccardLevenParams: {
             defaultAlgoParams: {
-                name:'Default Params',
-                elementType: 'checkbox',
+                name:"Default Params",
+                elementType: "checkbox",
                 elementConfig:{
-                    type: 'checkbox',
+                    type: "checkbox",
                     defaultChecked: true,
-                    name: 'Default Parameters'
+                    name: "Default Parameters"
                 },
                 value: true,
                 show: true
             },
             JaccardLevenMatcher_threshold_leven: {
-                name: 'th_leven',
-                elementType: 'range',
+                name: "th_leven",
+                elementType: "range",
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
@@ -220,7 +220,7 @@ class AlgorithmSelection extends Component {
 
     getSelectedAlgorithms(val, algorithmName){
         const algoParams = {}
-        if(val.hasOwnProperty('defaultAlgoParams') && !val['defaultAlgoParams'].value) {
+        if(val.hasOwnProperty("defaultAlgoParams") && !val["defaultAlgoParams"].value) {
             for (let key in val) {
                 if (val.hasOwnProperty(key)) {
                     if (key.startsWith(algorithmName)) {

@@ -12,12 +12,12 @@ import TableCell from "@material-ui/core/TableCell";
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
-      backgroundColor: '#534bae',
+      backgroundColor: "#534bae",
       border: 1,
       borderRadius: 0,
-      boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 1)',
+      boxShadow: "1px 1px 1px 1px rgba(0, 0, 0, 1)",
       color: theme.palette.common.white,
-      fontWeight: 'bold',
+      fontWeight: "bold",
   },
   body: {
     fontSize: 15,
@@ -27,7 +27,7 @@ const StyledTableCell = withStyles((theme) => ({
 
 const StyledTableRow = withStyles((theme) => ({
   root: {
-    '&:nth-of-type(odd)': {
+    "&:nth-of-type(odd)": {
       backgroundColor: theme.palette.action.hover,
     },
   },

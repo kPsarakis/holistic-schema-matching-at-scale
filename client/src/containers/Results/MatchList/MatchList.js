@@ -1,8 +1,8 @@
 import React, {Component} from "react";
-import Button from '@material-ui/core/Button';
+import Button from "@material-ui/core/Button";
 import axios from "axios";
 
-import classes from './MatchList.module.css';
+import classes from "./MatchList.module.css";
 import Modal from "../../../components/UI/Modal/Modal";
 import Spinner from "../../../components/UI/Spinner/Spinner";
 import Aux from "../../../hoc/Aux";
@@ -21,12 +21,12 @@ import GradientProgressBar from "../../../components/UI/ProgressBar/GradientProg
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
-      backgroundColor: '#534bae',
+      backgroundColor: "#534bae",
       border: 1,
       borderRadius: 0,
-      boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 1)',
+      boxShadow: "1px 1px 1px 1px rgba(0, 0, 0, 1)",
       color: theme.palette.common.white,
-      fontWeight: 'bold',
+      fontWeight: "bold",
   },
   body: {
     fontSize: 15,
@@ -36,7 +36,7 @@ const StyledTableCell = withStyles((theme) => ({
 
 const StyledTableRow = withStyles((theme) => ({
   root: {
-    '&:nth-of-type(odd)': {
+    "&:nth-of-type(odd)": {
       backgroundColor: theme.palette.action.hover,
     },
   },
@@ -68,8 +68,8 @@ class MatchList extends Component {
         this.setState({rankedList: rankedList, loading: true});
         if(save){
             axios({
-                 method: 'post',
-                 url: process.env.REACT_APP_SERVER_ADDRESS + '/results/save_verified_match/' + this.state.jobId + '/' + matchIndex
+                 method: "post",
+                 url: process.env.REACT_APP_SERVER_ADDRESS + "/results/save_verified_match/" + this.state.jobId + "/" + matchIndex
             }).then(() => {
                 this.setState({loading: false});
             }).catch(err => {
@@ -78,8 +78,8 @@ class MatchList extends Component {
             });
         }else{
             axios({
-                 method: 'post',
-                 url: process.env.REACT_APP_SERVER_ADDRESS + '/results/discard_match/' + this.state.jobId + '/' + matchIndex
+                 method: "post",
+                 url: process.env.REACT_APP_SERVER_ADDRESS + "/results/discard_match/" + this.state.jobId + "/" + matchIndex
             }).then(() => {
                 this.setState({loading: false});
             }).catch(err => {
@@ -105,8 +105,8 @@ class MatchList extends Component {
     getColumnSamples = (dbName, tableName, columnName, source) => {
         this.setState({loading: true});
         axios({
-                 method: 'get',
-                 url: process.env.REACT_APP_SERVER_ADDRESS + '/matches/minio/column_sample/' + dbName + '/' + tableName + '/' + columnName
+                 method: "get",
+                 url: process.env.REACT_APP_SERVER_ADDRESS + "/matches/minio/column_sample/" + dbName + "/" + tableName + "/" + columnName
             }).then(res => {
                 if(source){
                     this.setState({loading: false, sourceData: res.data});
@@ -157,14 +157,14 @@ class MatchList extends Component {
                                 .slice(this.state.page * this.state.rowsPerPage, this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
                                 .map((item, index) => (
                                     <StyledTableRow key={index}>
-                                        <StyledTableCell className={classes.Cell} align="center" onClick={() =>this.showData(item.source['db_guid'], item.source['tbl_nm'], item.source['clm_nm'], item.target['db_guid'], item.target['tbl_nm'], item.target['clm_nm'])}>
-                                            {item.source['tbl_nm']}.{item.source['clm_nm']}
+                                        <StyledTableCell className={classes.Cell} align="center" onClick={() =>this.showData(item.source["db_guid"], item.source["tbl_nm"], item.source["clm_nm"], item.target["db_guid"], item.target["tbl_nm"], item.target["clm_nm"])}>
+                                            {item.source["tbl_nm"]}.{item.source["clm_nm"]}
                                         </StyledTableCell>
-                                        <StyledTableCell className={classes.Cell} align="center" onClick={() =>this.showData(item.source['db_guid'], item.source['tbl_nm'], item.source['clm_nm'], item.target['db_guid'], item.target['tbl_nm'], item.target['clm_nm'])}>
-                                            {item.target['tbl_nm']}.{item.target['clm_nm']}
+                                        <StyledTableCell className={classes.Cell} align="center" onClick={() =>this.showData(item.source["db_guid"], item.source["tbl_nm"], item.source["clm_nm"], item.target["db_guid"], item.target["tbl_nm"], item.target["clm_nm"])}>
+                                            {item.target["tbl_nm"]}.{item.target["clm_nm"]}
                                         </StyledTableCell>
-                                        <TableCell align="center" onClick={() =>this.showData(item.source['db_guid'], item.source['tbl_nm'], item.source['clm_nm'], item.target['db_guid'], item.target['tbl_nm'], item.target['clm_nm'])}>
-                                            <GradientProgressBar similarity={item['sim']} />
+                                        <TableCell align="center" onClick={() =>this.showData(item.source["db_guid"], item.source["tbl_nm"], item.source["clm_nm"], item.target["db_guid"], item.target["tbl_nm"], item.target["clm_nm"])}>
+                                            <GradientProgressBar similarity={item["sim"]} />
                                         </TableCell>
                                         <StyledTableCell className={classes.Cell} align="left">
                                             <Button variant="contained" color="primary" onClick={() => this.deleteMatchHandler(index, true)}>Verify</Button>

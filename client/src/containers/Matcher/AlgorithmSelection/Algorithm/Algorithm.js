@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 
-import classes from './Algorithm.module.css';
+import classes from "./Algorithm.module.css";
 import Checkbox from "@material-ui/core/Checkbox";
 import Input from "../../../../components/Forms/Input/Input";
 
@@ -27,8 +27,8 @@ class Algorithm extends Component{
     }
 
     sendSelectedToParent = () => {
-        const paramsToPropagate = (this.state.params.hasOwnProperty('defaultAlgoParams') &&
-                                   this.state.params['defaultAlgoParams'].value) ? {} : {...this.state.params};
+        const paramsToPropagate = (this.state.params.hasOwnProperty("defaultAlgoParams") &&
+                                   this.state.params["defaultAlgoParams"].value) ? {} : {...this.state.params};
         if(this.state.selected){
             this.props.sendSelected(paramsToPropagate);
         }
@@ -42,7 +42,7 @@ class Algorithm extends Component{
         const updatedJobElement = {
             ...updatedJobForm[inputIdentifier]
         };
-        if(inputIdentifier === 'defaultAlgoParams') {
+        if(inputIdentifier === "defaultAlgoParams") {
             updatedJobElement.value = !updatedJobElement.value;
             this.toggle_show_dynamic_component(updatedJobForm);
         }else{

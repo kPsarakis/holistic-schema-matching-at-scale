@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 
-import Aux from '../../hoc/Aux';
-import ListSource from './ListSource/ListSource';
-import AlgorithmSelection from './AlgorithmSelection/AlgorithmSelection';
-import classes from './Matcher.module.css';
+import Aux from "../../hoc/Aux";
+import ListSource from "./ListSource/ListSource";
+import AlgorithmSelection from "./AlgorithmSelection/AlgorithmSelection";
+import classes from "./Matcher.module.css";
 import {Button} from "@material-ui/core";
 import axios from "axios";
 import Modal from "../../components/UI/Modal/Modal";
@@ -33,15 +33,15 @@ class Matcher extends Component {
 
     sendJob = () => {
         if(this.state.sourceSelectedTables.length === 0){
-            alert('No selected tables for source!');
+            alert("No selected tables for source!");
             return;
         }
         if(this.state.targetSelectedTables.length === 0){
-            alert('No selected tables for target!');
+            alert("No selected tables for target!");
             return;
         }
         if(this.state.selectedAlgorithms.length === 0){
-            alert('No selected algorithms!');
+            alert("No selected algorithms!");
             return;
         }
         this.setState({loading: true});
@@ -51,8 +51,8 @@ class Matcher extends Component {
             "algorithms": this.state.selectedAlgorithms
         };
         axios({
-          method: 'post',
-          url:  process.env.REACT_APP_SERVER_ADDRESS + '/matches/minio/submit_batch_job',
+          method: "post",
+          url:  process.env.REACT_APP_SERVER_ADDRESS + "/matches/minio/submit_batch_job",
           headers: {},
           data: requestBody})
             .then(response => {this.setState({loading: false, responseReceived: true, latestResponse: response.data});})

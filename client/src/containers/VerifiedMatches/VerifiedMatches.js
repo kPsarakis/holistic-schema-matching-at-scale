@@ -1,26 +1,26 @@
 import React, {Component} from "react";
-import { withStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
+import { withStyles } from "@material-ui/core/styles";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableContainer from "@material-ui/core/TableContainer";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import Paper from "@material-ui/core/Paper";
 
-import classes from './VerifiedMatches.module.css';
+import classes from "./VerifiedMatches.module.css";
 import axios from "axios";
 import TablePagination from "@material-ui/core/TablePagination";
 
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
-      backgroundColor: '#534bae',
+      backgroundColor: "#534bae",
       border: 1,
       borderRadius: 0,
-      boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 1)',
+      boxShadow: "1px 1px 1px 1px rgba(0, 0, 0, 1)",
       color: theme.palette.common.white,
-      fontWeight: 'bold',
+      fontWeight: "bold",
   },
   body: {
     fontSize: 14,
@@ -30,7 +30,7 @@ const StyledTableCell = withStyles((theme) => ({
 
 const StyledTableRow = withStyles((theme) => ({
   root: {
-    '&:nth-of-type(odd)': {
+    "&:nth-of-type(odd)": {
       backgroundColor: theme.palette.action.hover,
     },
   },
@@ -50,8 +50,8 @@ class VerifiedMatches extends Component {
     componentDidMount() {
         this.setState({loading: true});
         axios({
-                 method: 'get',
-                 url: process.env.REACT_APP_SERVER_ADDRESS + '/results/verified_matches'
+                 method: "get",
+                 url: process.env.REACT_APP_SERVER_ADDRESS + "/results/verified_matches"
             }).then(res => {
                 this.setState({loading: false, verifiedMatches: res.data});
             }).catch(err => {
@@ -112,14 +112,14 @@ class VerifiedMatches extends Component {
                               this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
                           .map((row, index) => (
                                 <StyledTableRow key={index}>
-                                  <StyledTableCell align="center">{row['source']['tbl_nm']}</StyledTableCell>
-                                  <StyledTableCell align="center">{row['source']['tbl_guid']}</StyledTableCell>
-                                  <StyledTableCell align="center">{row['source']['clm_nm']}</StyledTableCell>
-                                  <StyledTableCell align="center">{row['source']['clm_guid']}</StyledTableCell>
-                                  <StyledTableCell align="center">{row['target']['tbl_nm']}</StyledTableCell>
-                                  <StyledTableCell align="center">{row['target']['tbl_guid']}</StyledTableCell>
-                                  <StyledTableCell align="center">{row['target']['clm_nm']}</StyledTableCell>
-                                  <StyledTableCell align="center">{row['target']['clm_guid']}</StyledTableCell>
+                                  <StyledTableCell align="center">{row["source"]["tbl_nm"]}</StyledTableCell>
+                                  <StyledTableCell align="center">{row["source"]["tbl_guid"]}</StyledTableCell>
+                                  <StyledTableCell align="center">{row["source"]["clm_nm"]}</StyledTableCell>
+                                  <StyledTableCell align="center">{row["source"]["clm_guid"]}</StyledTableCell>
+                                  <StyledTableCell align="center">{row["target"]["tbl_nm"]}</StyledTableCell>
+                                  <StyledTableCell align="center">{row["target"]["tbl_guid"]}</StyledTableCell>
+                                  <StyledTableCell align="center">{row["target"]["clm_nm"]}</StyledTableCell>
+                                  <StyledTableCell align="center">{row["target"]["clm_guid"]}</StyledTableCell>
                                 </StyledTableRow>
                             ))
                       }

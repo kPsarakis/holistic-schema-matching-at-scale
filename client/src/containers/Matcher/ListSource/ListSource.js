@@ -1,13 +1,13 @@
 import React, {Component} from "react";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import StorageIcon from '@material-ui/icons/Storage';
-import TableChartIcon from '@material-ui/icons/TableChart';
+import StorageIcon from "@material-ui/icons/Storage";
+import TableChartIcon from "@material-ui/icons/TableChart";
 import TreeView from "@material-ui/lab/TreeView";
 import TreeItem from "@material-ui/lab/TreeItem";
 import Checkbox from "@material-ui/core/Checkbox";
-import { blue, indigo } from '@material-ui/core/colors';
-import classes from './ListSource.module.css';
+import { blue, indigo } from "@material-ui/core/colors";
+import classes from "./ListSource.module.css";
 import Aux from "../../../hoc/Aux";
 import Modal from "../../../components/UI/Modal/Modal";
 import Spinner from "../../../components/UI/Spinner/Spinner";
@@ -45,11 +45,11 @@ class ListSource extends Component {
     componentDidMount() {
         this.setState({loading: true})
         axios({
-            method: 'get',
+            method: "get",
             url: process.env.REACT_APP_SERVER_ADDRESS + "/matches/minio/ls"
         }).then(res => {
             const dbTree = [];
-            res.data.map((dbInfo, index) => dbTree.push(new Database(index, dbInfo['db_name'], dbInfo['tables'])));
+            res.data.map((dbInfo, index) => dbTree.push(new Database(index, dbInfo["db_name"], dbInfo["tables"])));
             this.setState({loading: false, dbTree: dbTree});
         }).catch(err => {
             this.setState({loading: false});
