@@ -102,27 +102,27 @@ class MatchList extends Component {
         this.setState({showData: false})
     }
 
+    getColumnSamples = (dbName, tableName, columnName, source) => {
+        this.setState({loading: true})
+        axios({
+                 method: 'get',
+                 url: process.env.REACT_APP_SERVER_ADDRESS + '/matches/minio/column_sample/' + dbName + '/' + tableName + '/' + columnName
+            }).then(res => {
+                if(source){
+                    this.setState({loading: false, sourceData: res.data})
+                }
+                else{
+                    this.setState({loading: false, targetData: res.data})
+                }
+            }).catch(err => {
+                this.setState({loading: false})
+                console.log(err)
+            })
+    }
+
     showData = (sourceDbName, sourceTableName, sourceColumnName, targetDbName, targetTableName, targetColumnName) => {
-        this.setState({loading: true})
-        axios({
-                 method: 'get',
-                 url: process.env.REACT_APP_SERVER_ADDRESS + '/matches/minio/column_sample/' + sourceDbName + '/' + sourceTableName + '/' + sourceColumnName
-            }).then(res => {
-                this.setState({loading: false, sourceData: res.data})
-            }).catch(err => {
-                this.setState({loading: false})
-                console.log(err)
-            })
-        this.setState({loading: true})
-        axios({
-                 method: 'get',
-                 url: process.env.REACT_APP_SERVER_ADDRESS + '/matches/minio/column_sample/' + targetDbName + '/' + targetTableName + '/' + targetColumnName
-            }).then(res => {
-                this.setState({loading: false, targetData: res.data})
-            }).catch(err => {
-                this.setState({loading: false})
-                console.log(err)
-            })
+        this.getColumnSamples(sourceDbName, sourceTableName, sourceColumnName, true)
+        this.getColumnSamples(targetDbName, targetTableName, targetColumnName, false)
         this.setState({showData: true, targetColumn: targetColumnName, sourceColumn: sourceColumnName})
     }
 
