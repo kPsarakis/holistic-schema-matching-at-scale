@@ -1,6 +1,6 @@
 from typing import Union
 
-import Levenshtein as lv
+import Levenshtein as Lv
 import math
 
 from .graph import Graph
@@ -39,7 +39,6 @@ class SimilarityFlooding(BaseMatcher):
         return self.format_output(filtered_matches)
 
     def calculate_initial_mapping(self):
-        
         self.initial_map = {}
 
         for n1 in self.graph1.nodes():
@@ -47,47 +46,40 @@ class SimilarityFlooding(BaseMatcher):
                 if n1.name[0:6] == "NodeID" or n2.name[0:6] == "NodeID":
                     self.initial_map[NodePair(n1, n2)] = 0.0
                 else:
-                    similarity = lv.ratio(n1.name, n2.name)
+                    similarity = Lv.ratio(n1.name, n2.name)
                     self.initial_map[NodePair(n1, n2)] = similarity
 
     def fixpoint_computation(self, num_iter, residual_diff):
 
-        """
+        p_g_builder = PropagationGraph(self.graph1, self.graph2, self.coeff_policy)
 
-        :param num_iter: maximum number of iterations
-        :param error: error bound for stopping the iterative process
-        :return: a dictionary with all similarities of all map pairs
-        """
-
-        PGbuilder = PropagationGraph(self.graph1, self.graph2, self.coeff_policy)
-
-        PG = PGbuilder.construct_graph()
+        p_g = p_g_builder.construct_graph()
 
         if self.formula == 'basic':  # using the basing formula
 
             previous_map = self.initial_map.copy()
             next_map = {}
             for i in range(0,num_iter):
-                maxmap = 0
-                for n in PG.nodes():
+                max_map = 0
+                for n in p_g.nodes():
                     map_sim = previous_map[n]
                     
-                    for e in PG.in_edges(n):
-                        l = PG.get_edge_data(e[0], e[1])
+                    for e in p_g.in_edges(n):
+                        edge_data = p_g.get_edge_data(e[0], e[1])
                         
-                        weight = l.get('weight')
+                        weight = edge_data.get('weight')
                         
                         map_sim += weight*previous_map[e[0]]
                         
-                    if map_sim > maxmap:
-                        maxmap = map_sim
+                    if map_sim > max_map:
+                        max_map = map_sim
                     
                     next_map[n] = map_sim
                 for key in next_map.keys():
-                    next_map[key] = next_map[key]/maxmap
+                    next_map[key] = next_map[key]/max_map
 
                 # residual vector
-                residual_vector = {key: math.pow(previous_map.get(key, 0) - next_map.get(key, 0),2)
+                residual_vector = {key: math.pow(previous_map.get(key, 0) - next_map.get(key, 0), 2)
                                    for key in set(previous_map) | set(next_map)}
 
                 euc_len = math.sqrt(sum(residual_vector.values()))  # compute euclidean length of residual vector
@@ -100,24 +92,24 @@ class SimilarityFlooding(BaseMatcher):
         elif self.formula == 'formula_a':  # using formula A
             previous_map = self.initial_map.copy()
             next_map = {}
-            for i in range(0,num_iter):
-                maxmap = 0
-                for n in PG.nodes():
+            for _ in range(0, num_iter):
+                max_map = 0
+                for n in p_g.nodes():
                     map_sim = self.initial_map[n]
 
-                    for e in PG.in_edges(n):
-                        l = PG.get_edge_data(e[0], e[1])
+                    for e in p_g.in_edges(n):
+                        edge_data = p_g.get_edge_data(e[0], e[1])
 
-                        weight = l.get('weight')
+                        weight = edge_data.get('weight')
 
                         map_sim += weight*previous_map[e[0]]
 
-                    if map_sim > maxmap:
-                        maxmap = map_sim
+                    if map_sim > max_map:
+                        max_map = map_sim
 
                     next_map[n] = map_sim
                 for key in next_map.keys():
-                    next_map[key] = next_map[key]/maxmap
+                    next_map[key] = next_map[key]/max_map
 
                 # residual vector
                 residual_vector = {key: math.pow(previous_map.get(key, 0) - next_map.get(key, 0),2)
@@ -132,44 +124,44 @@ class SimilarityFlooding(BaseMatcher):
                 next_map = {}
         elif self.formula == 'formula_b':  # using formula B
             next_map = {}
-            maxmap = 0
-            for n in PG.nodes():
+            max_map = 0
+            for n in p_g.nodes():
                 map_sim = 0
 
-                for e in PG.in_edges(n):
-                    l = PG.get_edge_data(e[0], e[1])
+                for e in p_g.in_edges(n):
+                    edge_data = p_g.get_edge_data(e[0], e[1])
 
-                    weight = l.get('weight')
+                    weight = edge_data.get('weight')
 
                     map_sim += weight*self.initial_map[e[0]]
 
-                if map_sim > maxmap:
-                    maxmap = map_sim
+                if map_sim > max_map:
+                    max_map = map_sim
 
                 next_map[n] = map_sim
             for key in next_map.keys():
-                next_map[key] = next_map[key]/maxmap
+                next_map[key] = next_map[key]/max_map
             previous_map = next_map.copy()
             next_map = {}
 
             for i in range(0, num_iter-1):
-                maxmap = 0
-                for n in PG.nodes():
+                max_map = 0
+                for n in p_g.nodes():
                     map_sim = 0
 
-                    for e in PG.in_edges(n):
-                        l = PG.get_edge_data(e[0],e[1])
+                    for e in p_g.in_edges(n):
+                        edge_data = p_g.get_edge_data(e[0],e[1])
 
-                        weight = l.get('weight')
+                        weight = edge_data.get('weight')
 
                         map_sim += weight*(previous_map[e[0]]+self.initial_map[e[0]])
 
-                    if map_sim > maxmap:
-                        maxmap = map_sim
+                    if map_sim > max_map:
+                        max_map = map_sim
 
                     next_map[n] = map_sim
                 for key in next_map.keys():
-                    next_map[key] = next_map[key]/maxmap
+                    next_map[key] = next_map[key]/max_map
 
                 # residual vector
                 residual_vector = {key: math.pow(previous_map.get(key, 0) - next_map.get(key, 0),2)
@@ -184,44 +176,44 @@ class SimilarityFlooding(BaseMatcher):
                 next_map = {}
         elif self.formula == 'formula_c':  # using formula C which is claimed to be the best one
             next_map = {}
-            maxmap = 0
-            for n in PG.nodes():
+            max_map = 0
+            for n in p_g.nodes():
                 map_sim = self.initial_map[n]
 
-                for e in PG.in_edges(n):
-                    l = PG.get_edge_data(e[0], e[1])
+                for e in p_g.in_edges(n):
+                    edge_data = p_g.get_edge_data(e[0], e[1])
 
-                    weight = l.get('weight')
+                    weight = edge_data.get('weight')
 
                     map_sim += weight*self.initial_map[e[0]]
 
-                if map_sim > maxmap:
-                    maxmap = map_sim
+                if map_sim > max_map:
+                    max_map = map_sim
 
                 next_map[n] = map_sim
             for key in next_map.keys():
-                next_map[key] = next_map[key]/maxmap
+                next_map[key] = next_map[key]/max_map
             previous_map = next_map.copy()
             next_map = {}
 
             for i in range(0, num_iter-1):
-                maxmap = 0
-                for n in PG.nodes():
+                max_map = 0
+                for n in p_g.nodes():
                     map_sim = previous_map[n]
 
-                    for e in PG.in_edges(n):
-                        l = PG.get_edge_data(e[0], e[1])
+                    for e in p_g.in_edges(n):
+                        edge_data = p_g.get_edge_data(e[0], e[1])
 
-                        weight = l.get('weight')
+                        weight = edge_data.get('weight')
 
                         map_sim += self.initial_map[e[0]] + weight*(previous_map[e[0]]+self.initial_map[e[0]])
 
-                    if map_sim > maxmap:
-                        maxmap = map_sim
+                    if map_sim > max_map:
+                        max_map = map_sim
 
                     next_map[n] = map_sim
                 for key in next_map.keys():
-                    next_map[key] = next_map[key]/maxmap
+                    next_map[key] = next_map[key]/max_map
 
                 # residual vector
                 residual_vector = {key: math.pow(previous_map.get(key, 0) - next_map.get(key, 0),2)
@@ -240,17 +232,17 @@ class SimilarityFlooding(BaseMatcher):
 
         return previous_map  # the dictionary storing the final similarities of map pairs
 
-    def filter_map(self, prevmap):
+    def filter_map(self, prev_map):
 
         """
         Function that filters the matching results, so that only pairs of columns remain
-        :param prevmap: the matching results of the iterative algorithm
+        :param prev_map: the matching results of the iterative algorithm
         :return: the filtered matchings
         """
 
-        filtered_map = prevmap.copy()
+        filtered_map = prev_map.copy()
 
-        for key in prevmap.keys():
+        for key in prev_map.keys():
 
             flag = False
             if key.node1.name[0:6] == 'NodeID':
@@ -324,14 +316,14 @@ class SimilarityFlooding(BaseMatcher):
                 name1 = "[" + key.node1.name + "=>"
                 if key.node1 in self.graph1.nodes():
                     for e in self.graph1.out_edges(key.node1):
-                        l = self.graph1.get_edge_data(e[0], e[1])
+                        edge_data = self.graph1.get_edge_data(e[0], e[1])
                         print("1) This is e[1].name: ", e[1].name)
-                        name1 += l.get('label') + ":" + e[1].name + ", "
+                        name1 += edge_data.get('label') + ":" + e[1].name + ", "
                 else:
                     for e in self.graph2.out_edges(key.node1):
-                        l = self.graph2.get_edge_data(e[0], e[1])
+                        edge_data = self.graph2.get_edge_data(e[0], e[1])
                         print("2) This is e[1].name: ", e[1].name)
-                        name1 += l.get('label') + e[1].name + ", "
+                        name1 += edge_data.get('label') + e[1].name + ", "
                 name1 += ']'
 
             name2 = key.node2.name
@@ -339,20 +331,21 @@ class SimilarityFlooding(BaseMatcher):
                 name2 = "[" + key.node2.name + "=>"
                 if key.node2 in self.graph1.nodes():
                     for e in self.graph1.out_edges(key.node2):
-                        l = self.graph1.get_edge_data(e[0], e[1])
+                        edge_data = self.graph1.get_edge_data(e[0], e[1])
                         print("3) This is e[1].name: ", e[1].name)
-                        name2 += l.get('label') + ":" + e[1].name + ", "
+                        name2 += edge_data.get('label') + ":" + e[1].name + ", "
                 else:
                     for e in self.graph2.out_edges(key.node2):
-                        l = self.graph2.get_edge_data(e[0], e[1])
+                        edge_data = self.graph2.get_edge_data(e[0], e[1])
                         print("4) This is e[1].name: ", e[1].name)
-                        name2 += l.get('label') + ":" + e[1].name + ", "
+                        name2 += edge_data.get('label') + ":" + e[1].name + ", "
                 name2 += ']'
             print(name1 + "-" + name2 + ":" + str(sortedmaps[key]))
 
-    def filterNto1matches(self, matches):
+    @staticmethod
+    def filter_n_to_1_matches(matches):
 
-        matchesNto1 = dict()
+        matches_n_to_1 = dict()
         nodes_left = set()
 
         for np in matches.keys():
@@ -361,20 +354,21 @@ class SimilarityFlooding(BaseMatcher):
 
         for nd in nodes_left:
 
-            maxsim = 0
+            max_sim = 0
+            max_node = 0
 
             for np in matches.keys():
 
                 if nd == np.node1:
 
-                    if matches[np] > maxsim:
+                    if matches[np] > max_sim:
 
-                        maxsim = matches[np]
-                        maxnode = np
+                        max_sim = matches[np]
+                        max_node = np
 
-            matchesNto1[maxnode] = maxsim
+            matches_n_to_1[max_node] = max_sim
 
-        return matchesNto1
+        return matches_n_to_1
 
     def format_output(self, matches):
         output = []

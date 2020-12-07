@@ -19,7 +19,7 @@ class SchemaElement:
         self.categories.append(category)
 
     def add_token(self, token):
-        if type(token) is Token:
+        if isinstance(token, Token):
             self.tokens.append(token)
         else:
             print("Incorrect token type. The type should be 'Token'")

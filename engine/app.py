@@ -71,7 +71,7 @@ def get_matches_minio(matching_algorithm: str, algorithm_params: dict, target_ta
     load_data = False if matching_algorithm in schema_only_algorithms else True
     target_minio_table: MinioTable = minio_source.get_db_table(target_table_name, target_db_name, load_data=load_data)
     source_minio_table: MinioTable = minio_source.get_db_table(source_table_name, source_db_name, load_data=load_data)
-    return matcher.get_matches(source_minio_table, target_minio_table)
+    return matcher.get_matches(source_minio_table, target_minio_table)[:100]
 
 
 @celery.task
@@ -82,7 +82,7 @@ def get_matches_atlas(matching_algorithm: str, algorithm_params: dict, target_ta
     atlas_source: AtlasSource = get_atlas_source(payload)
     target_atlas_table: AtlasTable = atlas_source.get_db_table(target_table_guid)
     source_atlas_table: AtlasTable = atlas_source.get_db_table(source_table_guid)
-    return matcher.get_matches(source_atlas_table, target_atlas_table)
+    return matcher.get_matches(source_atlas_table, target_atlas_table)[:100]
 
 
 @celery.task
@@ -108,8 +108,7 @@ def find_holistic_matches_of_table_atlas(table_guid: str):
         table: AtlasTable = atlas_src.get_db_table(table_guid)
         if table.is_empty:
             abort(400, "The table does not have any columns")
-        dbs_tables_guids: List[List[str]] = list(map(lambda x: x.get_table_str_guids(),
-                                                     atlas_src.get_all_dbs().values()))
+        dbs_tables_guids: List[List[str]] = [x.get_table_str_guids() for x in atlas_src.get_all_dbs().values()]
     except json.JSONDecodeError:
         abort(500, "Couldn't connect to Atlas. This is a network issue, "
                    "try to lower the request_chunk_size and the request_parallelism in the payload")
@@ -198,8 +197,7 @@ def find_holistic_matches_of_table_minio():
     validate_matcher(payload.matching_algorithm, payload.matching_algorithm_params, "minio")
     minio_source: MinioSource = MinioSource()
     try:
-        dbs_tables_guids: List[List[str]] = list(map(lambda x: x.get_table_str_guids(),
-                                                     minio_source.get_all_dbs().values()))
+        dbs_tables_guids: List[List[str]] = [x.get_table_str_guids() for x in minio_source.get_all_dbs().values()]
         table: MinioTable = minio_source.get_db_table(payload.table_name, payload.db_name, load_data=False)
     except (GUIDMissing, NoSuchKey):
         abort(400, "The table does not exist")
@@ -275,9 +273,11 @@ def submit_batch_job():
     payload: MinioBulkPayload = get_minio_bulk_payload(request.json)
     app.logger.info(f"Retrieving data for job: {job_uuid}")
     combs = list(product(payload.source_tables, payload.target_tables))
-    deduplicated_table_combinations: List[Tuple[Tuple[str, str], Tuple[str, str]]] = list(
-        map(lambda comb: ((comb[0]['db_name'], comb[0]['table_name']), (comb[1]['db_name'], comb[1]['table_name'])),
-            filter(lambda comb: comb[0] != comb[1], combs)))
+
+    deduplicated_table_combinations: List[Tuple[Tuple[str, str], Tuple[str, str]]] = [
+        ((comb[0]['db_name'], comb[0]['table_name']), (comb[1]['db_name'], comb[1]['table_name']))
+        for comb in combs
+        if comb[0] != comb[1]]
 
     algorithm: Dict[str, Optional[Dict[str, object]]]
     for algorithm in payload.algorithms:
@@ -297,8 +297,9 @@ def submit_batch_job():
 
 @app.route('/matches/minio/ls', methods=['GET'])
 def get_minio_dir_tree():
-    return jsonify([{"db_name": bucket.name, "tables": list(map(lambda obj: obj.object_name,
-                                                                minio_client.list_objects(bucket.name)))}
+    return jsonify([{"db_name": bucket.name,
+                     "tables": [obj.object_name for obj in minio_client.list_objects(bucket.name)]
+                     }
                     for bucket in minio_client.list_buckets()])
 
 
@@ -339,7 +340,7 @@ def save_verified_match(job_id: str, index: int):
         to_save = ranked_list.pop(int(index))
     except IndexError:
         return Response("Match does not exist", status=400)
-    verified_matches = list(map(lambda x: json.loads(x), verified_match_db.lrange('verified_matches', 0, -1)))
+    verified_matches = [json.loads(x) for x in verified_match_db.lrange('verified_matches', 0, -1)]
     match_result_db.set(job_id, json.dumps(ranked_list))
     if to_save in verified_matches:
         return Response("Match already verified", status=200)
@@ -370,7 +371,8 @@ def delete_job(job_id: str):
 
 @app.route('/results/verified_matches', methods=['GET'])
 def get_verified_matches():
-    return jsonify(list(map(lambda x: json.loads(x), verified_match_db.lrange('verified_matches', 0, -1))))
+    verified_matches = [json.loads(x) for x in verified_match_db.lrange('verified_matches', 0, -1)]
+    return jsonify(verified_matches)
 
 
 @app.route('/minio/create_bucket/<bucket_name>', methods=['POST'])

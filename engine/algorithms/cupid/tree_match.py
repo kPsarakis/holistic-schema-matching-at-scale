@@ -34,13 +34,13 @@ def tree_match(source_tree, target_tree, categories, leaf_w_struct, w_struct, th
     for s in s_post_order:
         s_name = s.long_name
 
-        if type(s) is not SchemaElement:
+        if isinstance(s, SchemaElement):
             continue
 
         for t in t_post_order:
             t_name = t.long_name
 
-            if type(t) is not SchemaElement:
+            if isinstance(t, SchemaElement):
                 continue
 
             # if the nodes are on the same level
@@ -74,13 +74,13 @@ def recompute_wsim(source_tree, target_tree, sims, w_struct=0.6, th_accept=0.14)
     for s in s_post_order:
         s_name = s.long_name
 
-        if type(s) is not SchemaElement:
+        if isinstance(s, SchemaElement):
             continue
 
         for t in t_post_order:
             t_name = t.long_name
 
-            if type(t) is not SchemaElement:
+            if isinstance(t, SchemaElement):
                 continue
 
             # if the nodes are on the same level and are not leaves

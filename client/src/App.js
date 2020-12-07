@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import React, { Component } from "react";
+import { Route, Switch } from "react-router-dom";
 
-import Layout from './components/Layout/Layout';
-import Matcher from './containers/Matcher/Matcher';
-import Results from './containers/Results/Results'
+import Layout from "./components/Layout/Layout";
+import Matcher from "./containers/Matcher/Matcher";
+import Results from "./containers/Results/Results"
 import VerifiedMatches from "./containers/VerifiedMatches/VerifiedMatches";
 
 class App extends Component {

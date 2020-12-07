@@ -64,11 +64,11 @@ def xlsx_to_csvs(xlsx_file_path: str, db_name: str, store_path: str):
         with open(folder_path+os.path.sep+sheet.title+".csv", "w+", encoding=sheet.encoding) as csv_file:
             for row in data:
                 row_data = list(row)
-                for i in range(len(row_data)):
+                for i, entry in enumerate(row_data):
                     if i == len(row_data) - 1:
-                        csv_file.write(str(row_data[i].value))
+                        csv_file.write(str(entry.value))
                     else:
-                        csv_file.write(str(row_data[i].value) + ',')
+                        csv_file.write(str(entry.value) + ',')
                 csv_file.write('\n')
 
 

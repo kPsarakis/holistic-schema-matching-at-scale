@@ -150,8 +150,8 @@ def get_attribute_graph(distribution_clusters: list, matrix_i: dict, threshold: 
     g_a = dict()
     matrix_e = np.zeros((len(distribution_clusters), len(distribution_clusters)))
 
-    for i in range(len(distribution_clusters)):
-        name_i = distribution_clusters[i]
+    for i, cluster in enumerate(distribution_clusters):
+        name_i = cluster
 
         cutoff_i = compute_cutoff_threshold(matrix_i[name_i], threshold)
 
@@ -159,15 +159,15 @@ def get_attribute_graph(distribution_clusters: list, matrix_i: dict, threshold: 
 
         for c_j in n_c:
             matrix_e[i][distribution_clusters.index(c_j)] = 1
-        g_a[distribution_clusters[i]] = dict()
+        g_a[cluster] = dict()
 
     matrix_m = matrix_e + np.dot(matrix_e, matrix_e)
-    for i in range(len(distribution_clusters)):
-        for j in range(len(distribution_clusters)):
+    for i, cluster_i in enumerate(distribution_clusters):
+        for j, cluster_j in enumerate(distribution_clusters):
             if matrix_m[i][j] == 0:
-                g_a[distribution_clusters[i]][distribution_clusters[j]] = -1
+                g_a[cluster_i][cluster_j] = -1
             else:
-                g_a[distribution_clusters[i]][distribution_clusters[j]] = 1
+                g_a[cluster_i][cluster_j] = 1
     return g_a
 
 

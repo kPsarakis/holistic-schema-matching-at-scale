@@ -36,7 +36,7 @@ class SchemaTree:
             self.nodes[table_name].add_category("Database")
 
     def print_schema_tree(self):
-        for pre, fill, node in self.get_schema_tree():
+        for pre, _, node in self.get_schema_tree():
             tree_str = u"%s%s" % (pre, node.name + str(node.categories))
             print(tree_str.ljust(8))
 
