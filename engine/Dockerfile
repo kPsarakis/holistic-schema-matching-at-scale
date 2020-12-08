@@ -32,17 +32,22 @@ FROM python:3.8-slim as clean-Python
 FROM openjdk:8-slim
 COPY --from=clean-Python / /
 
-
 COPY --from=builder /usr/local/ /usr/local
+
+RUN mkdir /usr/local/schema-matching-system \
+    && groupadd flask \
+    && useradd -m -d /usr/local/schema-matching-system/engine -g flask flask
 
 WORKDIR /usr/local/schema-matching-system/engine
 
-COPY . .
+COPY --chown=flask . .
 
-COPY --from=build-stage-COMA /usr/local/coma.jar algorithms/coma/artifact
+COPY --chown=flask --from=build-stage-COMA /usr/local/coma.jar algorithms/coma/artifact
 
 ENV PYTHONPATH /usr/local/schema-matching-system
 
 EXPOSE 5000
+
+USER flask
 
 CMD gunicorn -b 0.0.0.0:5000 app:app

@@ -11,9 +11,10 @@ from minio import Minio
 from minio.error import NoSuchKey
 from flask import Flask, request, abort, jsonify, Response
 from flask_cors import CORS
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Iterator
 from itertools import product
 
+from more_itertools import unique_everseen
 from pandas.errors import EmptyDataError
 from redis import Redis
 from werkzeug.utils import secure_filename
@@ -39,9 +40,9 @@ app.config['CELERY_RESULT_BACKEND_URL'] = 'redis://{host}:{port}/'.format(host=o
                                                                           port=os.environ['CELERY_RESULTS_REDIS_PORT'])
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'], backend=app.config['CELERY_RESULT_BACKEND_URL'])
 celery.conf.update(app.config)
-celery.conf.update(task_serializer='json',
-                   accept_content=['json'],
-                   result_serializer='json',
+celery.conf.update(task_serializer='msgpack',
+                   accept_content=['msgpack'],
+                   result_serializer='msgpack',
                    task_acks_late=True,
                    worker_prefetch_multiplier=1
                    )
@@ -274,12 +275,6 @@ def submit_batch_job():
 
     payload: MinioBulkPayload = get_minio_bulk_payload(request.json)
     app.logger.info(f"Retrieving data for job: {job_uuid}")
-    combs = list(product(payload.source_tables, payload.target_tables))
-
-    deduplicated_table_combinations: List[Tuple[Tuple[str, str], Tuple[str, str]]] = [
-        ((comb[0]['db_name'], comb[0]['table_name']), (comb[1]['db_name'], comb[1]['table_name']))
-        for comb in combs
-        if comb[0] != comb[1]]
 
     algorithm: Dict[str, Optional[Dict[str, object]]]
     for algorithm in payload.algorithms:
@@ -288,6 +283,14 @@ def submit_batch_job():
 
         validate_matcher(algorithm_name, algorithm_params, "minio")
         app.logger.info(f"Sending job: {job_uuid} to Celery")
+
+        combs = product(payload.source_tables, payload.target_tables)
+
+        deduplicated_table_combinations: Iterator[Tuple[Tuple[str, str], Tuple[str, str]]] = unique_everseen([
+            ((comb[0]['db_name'], comb[0]['table_name']), (comb[1]['db_name'], comb[1]['table_name']))
+            for comb in combs
+            if comb[0] != comb[1]], key=frozenset)
+
         start = default_timer()
         callback = merge_matches.s(algorithm_uuid, start)
         header = [get_matches_minio.s(algorithm_name, algorithm_params, *table_combination)

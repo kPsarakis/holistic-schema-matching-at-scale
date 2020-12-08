@@ -20,6 +20,7 @@ pyemd==0.5.1
 cached-property==1.5.2
 openpyxl==3.0.5
 python-dateutil==2.8.1
+more-itertools==8.6.0
 # Flask API
 Flask==1.1.2
 Flask-WTF==0.14.3
@@ -31,7 +32,8 @@ gunicorn==20.0.4
 redis==3.5.3
 # minio connector
 minio==6.0.2
-# celeryo
+# celery
 celery==4.4.7
+msgpack==1.0.0
 # flower
 flower==0.9.5
