@@ -25,6 +25,7 @@ more-itertools==8.6.0
 Flask==1.1.2
 Flask-WTF==0.14.3
 Flask-Cors==3.0.9
+Flask-Executor==0.9.4
 pydantic==1.7.3
 requests==2.25.0
 gunicorn==20.0.4
@@ -35,5 +36,6 @@ minio==6.0.2
 # celery
 celery==4.4.7
 msgpack==1.0.0
+pymongo==3.11.2
 # flower
 flower==0.9.5

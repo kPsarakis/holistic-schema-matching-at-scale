@@ -7,10 +7,12 @@ from tempfile import gettempdir
 from timeit import default_timer
 
 from celery import Celery, chord
+from celery.result import AsyncResult
 from minio import Minio
 from minio.error import NoSuchKey
 from flask import Flask, request, abort, jsonify, Response
 from flask_cors import CORS
+from flask_executor import Executor
 from typing import List, Dict, Optional, Tuple, Iterator
 from itertools import product
 
@@ -36,13 +38,15 @@ app.config['CELERY_BROKER_URL'] = 'amqp://{user}:{pwd}@{host}:{port}/'.format(us
                                                                               pwd=os.environ['RABBITMQ_DEFAULT_PASS'],
                                                                               host=os.environ['RABBITMQ_HOST'],
                                                                               port=os.environ['RABBITMQ_PORT'])
-app.config['CELERY_RESULT_BACKEND_URL'] = 'redis://{host}:{port}/'.format(host=os.environ['CELERY_RESULTS_REDIS_HOST'],
-                                                                          port=os.environ['CELERY_RESULTS_REDIS_PORT'])
+# app.config['CELERY_RESULT_BACKEND_URL'] = 'redis://{host}:{port}/'.format(host=os.environ['CELERY_RESULTS_REDIS_HOST'],
+#                                                                           port=os.environ['CELERY_RESULTS_REDIS_PORT'])
+app.config['CELERY_RESULT_BACKEND_URL'] = 'mongodb://{host}:{port}/'.format(host=os.environ['CELERY_RESULTS_MONGO_HOST'],
+                                                                            port=os.environ['CELERY_RESULTS_MONGO_PORT'])
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'], backend=app.config['CELERY_RESULT_BACKEND_URL'])
 celery.conf.update(app.config)
-celery.conf.update(task_serializer='msgpack',
-                   accept_content=['msgpack'],
-                   result_serializer='msgpack',
+celery.conf.update(task_serializer='json',
+                   accept_content=['json'],
+                   result_serializer='json',
                    task_acks_late=True,
                    worker_prefetch_multiplier=1
                    )
@@ -61,6 +65,41 @@ minio_client: Minio = Minio('{host}:{port}'.format(host=os.environ['MINIO_HOST']
                             access_key=os.environ['MINIO_ACCESS_KEY'],
                             secret_key=os.environ['MINIO_SECRET_KEY'],
                             secure=False)
+
+
+def executor_callback(future):
+    algorithm_uuid = future
+    app.logger.info(f"Job: {algorithm_uuid} finished")
+
+
+app.config['EXECUTOR_TYPE'] = 'thread'
+app.config['EXECUTOR_MAX_WORKERS'] = 10
+executor = Executor(app)
+executor.add_default_done_callback(executor_callback)
+
+
+@executor.job
+def enqueue(job_uuid: str, algorithm_name: str, algorithm_params: dict, source_tables, target_tables) -> str:
+
+    algorithm_uuid: str = job_uuid + "_" + algorithm_name
+    validate_matcher(algorithm_name, algorithm_params, "minio")
+    app.logger.info(f"Sending job: {job_uuid} to Celery")
+
+    combs = product(source_tables, target_tables)
+
+    deduplicated_table_combinations: Iterator[Tuple[Tuple[str, str], Tuple[str, str]]] = unique_everseen([
+        ((comb[0]['db_name'], comb[0]['table_name']), (comb[1]['db_name'], comb[1]['table_name']))
+        for comb in combs
+        if comb[0] != comb[1]], key=frozenset)
+
+    start = default_timer()
+    callback = merge_matches.s(algorithm_uuid, start)
+    header = [get_matches_minio.s(algorithm_name, algorithm_params, *table_combination)
+              for table_combination in deduplicated_table_combinations]
+    result: AsyncResult = chord(header)(callback)
+    result.get()
+
+    return algorithm_uuid
 
 
 @celery.task
@@ -279,23 +318,7 @@ def submit_batch_job():
     algorithm: Dict[str, Optional[Dict[str, object]]]
     for algorithm in payload.algorithms:
         algorithm_name, algorithm_params = list(algorithm.items())[0]
-        algorithm_uuid: str = job_uuid + "_" + algorithm_name
-
-        validate_matcher(algorithm_name, algorithm_params, "minio")
-        app.logger.info(f"Sending job: {job_uuid} to Celery")
-
-        combs = product(payload.source_tables, payload.target_tables)
-
-        deduplicated_table_combinations: Iterator[Tuple[Tuple[str, str], Tuple[str, str]]] = unique_everseen([
-            ((comb[0]['db_name'], comb[0]['table_name']), (comb[1]['db_name'], comb[1]['table_name']))
-            for comb in combs
-            if comb[0] != comb[1]], key=frozenset)
-
-        start = default_timer()
-        callback = merge_matches.s(algorithm_uuid, start)
-        header = [get_matches_minio.s(algorithm_name, algorithm_params, *table_combination)
-                  for table_combination in deduplicated_table_combinations]
-        chord(header)(callback)
+        enqueue.submit(job_uuid, algorithm_name, algorithm_params, payload.source_tables, payload.target_tables)
 
     return jsonify(job_uuid)
 
