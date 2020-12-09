@@ -1,5 +1,7 @@
-accessKey: minio
-secretKey: minio123
+accessKey:
+  password: minio
+secretKey:
+  password: minio123
 mode: distributed
 persistence:
   size: 1Gi
