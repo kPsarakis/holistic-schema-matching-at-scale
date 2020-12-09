@@ -1,0 +1,10 @@
+accessKey: minio
+secretKey: minio123
+mode: distributed
+persistence:
+  size: 1Gi
+replicas: 4
+resources:
+  requests:
+    memory: 1Gi
+    cpu: 250m

@@ -29,32 +29,26 @@ spec:
           image: kpsarakis/schema-matching-engine:latest
           resources:
             limits:
-              memory: "8Gi"
+              memory: "1Gi"
               cpu: "1"
             requests:
-              memory: "8Gi"
+              memory: "1Gi"
               cpu: "1"
           command: ["gunicorn"] # Need to configure threads, w and t
-          args: ["-b", "0.0.0.0:5000", "app:app", "-t", "60", "-w", "1", "--threads", "1", "--loglevel=info"]
+          args: ["-b", "0.0.0.0:5000", "app:app", "-t", "60", "-w", "1", "--threads", "10"]
           ports:
             - containerPort: 5000
           env:
             - name: REDIS_HOST
-              value: redis-cluster-ip-service
+              value: redis-master
             - name: REDIS_PORT
               value: '6379'
-            - name: RABBITMQ_HOST
-              value: rabbitmq-cluster-ip-service
-            - name: RABBITMQ_PORT
-              value: '5672'
-            - name: RABBITMQ_DEFAULT_USER
-              value: "rabbitmq"
-            - name: RABBITMQ_DEFAULT_PASS
-              value: "rabbitmq"
-            - name: CELERY_RESULTS_REDIS_HOST
-              value: celery-results-backend-cluster-ip-service
-            - name: CELERY_RESULTS_REDIS_PORT
-              value: '6379'
+            - name: REDIS_PASSWORD
+              value: "redis"
+            - name: CELERY_RESULTS_MONGO_HOST
+              value: mongodb
+            - name: CELERY_RESULTS_MONGO_PORT
+              value: '27017'
             - name: MINIO_HOST
               value: minio
             - name: MINIO_PORT

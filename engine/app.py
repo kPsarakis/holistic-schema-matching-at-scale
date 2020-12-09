@@ -34,31 +34,28 @@ from engine.utils.api_utils import AtlasPayload, get_atlas_payload, validate_mat
 
 app = Flask(__name__)
 CORS(app)
-app.config['CELERY_BROKER_URL'] = 'amqp://{user}:{pwd}@{host}:{port}/'.format(user=os.environ['RABBITMQ_DEFAULT_USER'],
-                                                                              pwd=os.environ['RABBITMQ_DEFAULT_PASS'],
-                                                                              host=os.environ['RABBITMQ_HOST'],
-                                                                              port=os.environ['RABBITMQ_PORT'])
-# app.config['CELERY_RESULT_BACKEND_URL'] = 'redis://{host}:{port}/'.format(host=os.environ['CELERY_RESULTS_REDIS_HOST'],
-#                                                                           port=os.environ['CELERY_RESULTS_REDIS_PORT'])
-app.config['CELERY_RESULT_BACKEND_URL'] = 'mongodb://{host}:{port}/'.format(host=os.environ['CELERY_RESULTS_MONGO_HOST'],
-                                                                            port=os.environ['CELERY_RESULTS_MONGO_PORT'])
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'], backend=app.config['CELERY_RESULT_BACKEND_URL'])
+
+app.config['CELERY_RESULT_BACKEND_URL'] = 'redis://:{password}@{host}:{port}/0'.format(host=os.environ['REDIS_HOST'],
+                                                                                       port=os.environ['REDIS_PORT'],
+                                                                                       password=os.environ['REDIS_PASSWORD'])
+
+celery = Celery(app.name, broker=app.config['CELERY_RESULT_BACKEND_URL'], backend=app.config['CELERY_RESULT_BACKEND_URL'])
 celery.conf.update(app.config)
-celery.conf.update(task_serializer='json',
-                   accept_content=['json'],
-                   result_serializer='json',
+celery.conf.update(task_serializer='msgpack',
+                   accept_content=['msgpack'],
+                   result_serializer='msgpack',
                    task_acks_late=True,
                    worker_prefetch_multiplier=1
                    )
 
-match_result_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'],
-                               charset="utf-8", decode_responses=True, db=0)
-insertion_order_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'],
-                                  charset="utf-8", decode_responses=True, db=1)
-verified_match_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'],
-                                 charset="utf-8", decode_responses=True, db=2)
-runtime_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'],
-                          charset="utf-8", decode_responses=True, db=3)
+match_result_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], password=os.environ['REDIS_PASSWORD'],
+                               charset="utf-8", decode_responses=True, db=1)
+insertion_order_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], password=os.environ['REDIS_PASSWORD'],
+                                  charset="utf-8", decode_responses=True, db=2)
+verified_match_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], password=os.environ['REDIS_PASSWORD'],
+                                 charset="utf-8", decode_responses=True, db=3)
+runtime_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], password=os.environ['REDIS_PASSWORD'],
+                          charset="utf-8", decode_responses=True, db=4)
 
 minio_client: Minio = Minio('{host}:{port}'.format(host=os.environ['MINIO_HOST'],
                                                    port=os.environ['MINIO_PORT']),

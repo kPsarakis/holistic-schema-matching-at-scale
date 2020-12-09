@@ -39,21 +39,15 @@ spec:
             - containerPort: 5555
           env:
             - name: REDIS_HOST
-              value: redis-cluster-ip-service
+              value: redis-master
             - name: REDIS_PORT
               value: '6379'
-            - name: RABBITMQ_HOST
-              value: rabbitmq-cluster-ip-service
-            - name: RABBITMQ_PORT
-              value: '5672'
-            - name: RABBITMQ_DEFAULT_USER
-              value: "rabbitmq"
-            - name: RABBITMQ_DEFAULT_PASS
-              value: "rabbitmq"
-            - name: CELERY_RESULTS_REDIS_HOST
-              value: celery-results-backend-cluster-ip-service
-            - name: CELERY_RESULTS_REDIS_PORT
-              value: '6379'
+            - name: REDIS_PASSWORD
+              value: "redis"
+            - name: CELERY_RESULTS_MONGO_HOST
+              value: mongodb
+            - name: CELERY_RESULTS_MONGO_PORT
+              value: '27017'
             - name: MINIO_HOST
               value: minio
             - name: MINIO_PORT
