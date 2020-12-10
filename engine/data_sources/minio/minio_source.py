@@ -1,8 +1,8 @@
 import os
 from typing import Union, Dict, List
 
-from minio import Minio, ResponseError
-
+from minio import Minio
+from minio.error import MinioException
 from .minio_database import MinioDatabase
 from .minio_table import MinioTable
 from .minio_utils import correct_file_ending, get_column_sample_from_minio_csv_file
@@ -44,7 +44,7 @@ class MinioSource(BaseSource):
             raise GUIDMissing
         try:
             table: MinioTable = MinioTable(self.__minio_client, correct_file_ending(str(guid)), str(db_guid), load_data)
-        except ResponseError:
+        except MinioException:
             raise GUIDMissing
         else:
             return table

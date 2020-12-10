@@ -9,7 +9,7 @@ from timeit import default_timer
 from celery import Celery, chord
 from celery.result import AsyncResult
 from minio import Minio
-from minio.error import NoSuchKey
+from minio.error import MinioException
 from flask import Flask, request, abort, jsonify, Response
 from flask_cors import CORS
 from flask_executor import Executor
@@ -41,9 +41,9 @@ app.config['CELERY_RESULT_BACKEND_URL'] = 'redis://:{password}@{host}:{port}/0'.
 
 celery = Celery(app.name, broker=app.config['CELERY_RESULT_BACKEND_URL'], backend=app.config['CELERY_RESULT_BACKEND_URL'])
 celery.conf.update(app.config)
-celery.conf.update(task_serializer='pickle',
-                   accept_content=['pickle'],
-                   result_serializer='pickle',
+celery.conf.update(task_serializer='msgpack',
+                   accept_content=['msgpack'],
+                   result_serializer='msgpack',
                    task_acks_late=True,
                    worker_prefetch_multiplier=1
                    )
@@ -56,6 +56,8 @@ verified_match_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ[
                                  charset="utf-8", decode_responses=True, db=3)
 runtime_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], password=os.environ['REDIS_PASSWORD'],
                           charset="utf-8", decode_responses=True, db=4)
+task_result_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], password=os.environ['REDIS_PASSWORD'],
+                              charset="utf-8", decode_responses=True, db=5)
 
 minio_client: Minio = Minio('{host}:{port}'.format(host=os.environ['MINIO_HOST'],
                                                    port=os.environ['MINIO_PORT']),
@@ -108,7 +110,10 @@ def get_matches_minio(matching_algorithm: str, algorithm_params: dict, target_ta
     load_data = False if matching_algorithm in schema_only_algorithms else True
     target_minio_table: MinioTable = minio_source.get_db_table(target_table_name, target_db_name, load_data=load_data)
     source_minio_table: MinioTable = minio_source.get_db_table(source_table_name, source_db_name, load_data=load_data)
-    return matcher.get_matches(source_minio_table, target_minio_table)
+    matches = matcher.get_matches(source_minio_table, target_minio_table)
+    task_uuid: str = str(uuid.uuid4())
+    task_result_db.set(task_uuid, json.dumps(matches))
+    return task_uuid
 
 
 @celery.task
@@ -123,10 +128,11 @@ def get_matches_atlas(matching_algorithm: str, algorithm_params: dict, target_ta
 
 
 @celery.task
-def merge_matches(individual_matches: list, job_uuid: str, start: float, max_number_of_matches: int = None):
+def merge_matches(individual_match_uuids: list, job_uuid: str, start: float, max_number_of_matches: int = None):
     app.logger.info(f"Starting to merge results of job: {job_uuid}")
-    merged_matches = [item for sublist in individual_matches for item in sublist]
-    sorted_matches = sorted(merged_matches, key=lambda k: k['sim'], reverse=True)
+    merged_matches = [json.loads(task_result_db.get(task_uuid)) for task_uuid in individual_match_uuids]
+    flattened_merged_matches = [item for sublist in merged_matches for item in sublist]
+    sorted_matches = sorted(flattened_merged_matches, key=lambda k: k['sim'], reverse=True)
     if max_number_of_matches is not None:
         sorted_matches = sorted_matches[:max_number_of_matches]
     end: float = default_timer()
@@ -136,6 +142,8 @@ def merge_matches(individual_matches: list, job_uuid: str, start: float, max_num
     insertion_order_db.rpush('insertion_ordered_ids', job_uuid)
     match_result_db.set(job_uuid, json.dumps(sorted_matches))
     app.logger.info(f"job: {job_uuid} completed successfully")
+    task_result_db.delete(*individual_match_uuids)
+    app.logger.info(f"job's: {job_uuid} intermediate results deleted successfully")
 
 
 @app.route("/matches/atlas/holistic/<table_guid>", methods=['POST'])
@@ -238,7 +246,7 @@ def find_holistic_matches_of_table_minio():
     try:
         dbs_tables_guids: List[List[str]] = [x.get_table_str_guids() for x in minio_source.get_all_dbs().values()]
         table: MinioTable = minio_source.get_db_table(payload.table_name, payload.db_name, load_data=False)
-    except (GUIDMissing, NoSuchKey):
+    except (GUIDMissing, MinioException):
         abort(400, "The table does not exist")
     except EmptyDataError:
         abort(400, "The table does not contain any columns")
@@ -264,7 +272,7 @@ def find_matches_other_db_minio(db_name: str):
         if db.is_empty:
             abort(400, "The given db does not contain any tables")
         table: MinioTable = minio_source.get_db_table(payload.table_name, payload.db_name, load_data=False)
-    except (GUIDMissing, NoSuchKey):
+    except (GUIDMissing, MinioException):
         abort(400, "The table does not exist")
     except EmptyDataError:
         abort(400, "The table does not contain any columns")
@@ -291,7 +299,7 @@ def find_matches_within_db_minio():
         if db.number_of_tables == 1:
             abort(400, "The given db only contains one table")
         table: MinioTable = minio_source.get_db_table(payload.table_name, payload.db_name, load_data=False)
-    except (GUIDMissing, NoSuchKey):
+    except (GUIDMissing, MinioException):
         abort(400, "The table does not exist")
     except EmptyDataError:
         abort(400, "The table does not contain any columns")
