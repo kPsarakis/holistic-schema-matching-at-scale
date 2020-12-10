@@ -2,18 +2,16 @@ import json
 import os
 import uuid
 import logging
-import lzma
+import gzip
 from os import path
 from tempfile import gettempdir
 from timeit import default_timer
 
 from celery import Celery, chord
-from celery.result import AsyncResult
 from minio import Minio
 from minio.error import MinioException
 from flask import Flask, request, abort, jsonify, Response
 from flask_cors import CORS
-from flask_executor import Executor
 from typing import List, Dict, Optional, Tuple, Iterator
 from itertools import product
 
@@ -67,41 +65,6 @@ minio_client: Minio = Minio('{host}:{port}'.format(host=os.environ['MINIO_HOST']
                             secure=False)
 
 
-def executor_callback(future):
-    algorithm_uuid = future.result()
-    app.logger.info(f"Job: {algorithm_uuid} finished")
-
-
-app.config['EXECUTOR_TYPE'] = 'thread'
-app.config['EXECUTOR_MAX_WORKERS'] = 10
-executor = Executor(app)
-executor.add_default_done_callback(executor_callback)
-
-
-@executor.job
-def enqueue(job_uuid: str, algorithm_name: str, algorithm_params: dict, source_tables, target_tables) -> str:
-
-    algorithm_uuid: str = job_uuid + "_" + algorithm_name
-    validate_matcher(algorithm_name, algorithm_params, "minio")
-    app.logger.info(f"Sending job: {job_uuid} to Celery")
-
-    combs = product(source_tables, target_tables)
-
-    deduplicated_table_combinations: Iterator[Tuple[Tuple[str, str], Tuple[str, str]]] = unique_everseen([
-        ((comb[0]['db_name'], comb[0]['table_name']), (comb[1]['db_name'], comb[1]['table_name']))
-        for comb in combs
-        if comb[0] != comb[1]], key=frozenset)
-
-    start = default_timer()
-    callback = merge_matches.s(algorithm_uuid, start)
-    header = [get_matches_minio.s(algorithm_name, algorithm_params, *table_combination)
-              for table_combination in deduplicated_table_combinations]
-    result: AsyncResult = chord(header)(callback)
-    result.get()
-
-    return algorithm_uuid
-
-
 @celery.task
 def get_matches_minio(matching_algorithm: str, algorithm_params: dict, target_table: tuple, source_table: tuple):
     matcher = get_matcher(matching_algorithm, algorithm_params)
@@ -113,7 +76,7 @@ def get_matches_minio(matching_algorithm: str, algorithm_params: dict, target_ta
     source_minio_table: MinioTable = minio_source.get_db_table(source_table_name, source_db_name, load_data=load_data)
     matches = matcher.get_matches(source_minio_table, target_minio_table)
     task_uuid: str = str(uuid.uuid4())
-    task_result_db.set(task_uuid, lzma.compress(json.dumps(matches).encode('gbk')))
+    task_result_db.set(task_uuid, gzip.compress(json.dumps(matches).encode('gbk')))
     return task_uuid
 
 
@@ -131,23 +94,30 @@ def get_matches_atlas(matching_algorithm: str, algorithm_params: dict, target_ta
 @celery.task
 def merge_matches(individual_match_uuids: list, job_uuid: str, start: float, max_number_of_matches: int = None):
     app.logger.info(f"Starting to merge results of job: {job_uuid}")
+    start_merge = default_timer()
     sorted_flattened_merged_matches = [item for sublist in
-                                       [json.loads(lzma.decompress(task_result_db.get(task_uuid)))
+                                       [json.loads(gzip.decompress(task_result_db.get(task_uuid)))
                                         for task_uuid in individual_match_uuids]
                                        for item in sublist]
+    app.logger.info(f"Merge results of job: {job_uuid} completed in {default_timer() - start_merge}")
+    app.logger.info(f"Starting to sort results of job: {job_uuid}")
+    start_sort = default_timer()
     sorted_flattened_merged_matches.sort(key=lambda k: k['sim'], reverse=True)
+    app.logger.info(f"Sorting results of job: {job_uuid} completed in {default_timer() - start_sort}")
     if max_number_of_matches is not None:
         sorted_flattened_merged_matches = sorted_flattened_merged_matches[:max_number_of_matches]
     end: float = default_timer()
     runtime: float = end - start
     app.logger.info(f"Starting to save results to db of job: {job_uuid}")
+    start_store = default_timer()
     runtime_db.set(job_uuid, runtime)
     insertion_order_db.rpush('insertion_ordered_ids', job_uuid)
-    match_result_db.set(job_uuid, lzma.compress(json.dumps(sorted_flattened_merged_matches).encode('gbk')))
+    match_result_db.set(job_uuid, gzip.compress(json.dumps(sorted_flattened_merged_matches).encode('gbk')))
+    app.logger.info(f"job's : {job_uuid} results saved successfully in {default_timer() - start_store}")
+    start_delete = default_timer()
     del sorted_flattened_merged_matches
-    app.logger.info(f"job: {job_uuid} completed successfully")
     task_result_db.delete(*individual_match_uuids)
-    app.logger.info(f"job's: {job_uuid} intermediate results deleted successfully")
+    app.logger.info(f"job's: {job_uuid} intermediate results deleted successfully in {default_timer() - start_delete}")
 
 
 @app.route("/matches/atlas/holistic/<table_guid>", methods=['POST'])
@@ -327,7 +297,22 @@ def submit_batch_job():
     algorithm: Dict[str, Optional[Dict[str, object]]]
     for algorithm in payload.algorithms:
         algorithm_name, algorithm_params = list(algorithm.items())[0]
-        enqueue.submit(job_uuid, algorithm_name, algorithm_params, payload.source_tables, payload.target_tables)
+        algorithm_uuid: str = job_uuid + "_" + algorithm_name
+        validate_matcher(algorithm_name, algorithm_params, "minio")
+        app.logger.info(f"Sending job: {algorithm_uuid} to Celery")
+
+        combs = product(payload.source_tables, payload.target_tables)
+
+        deduplicated_table_combinations: Iterator[Tuple[Tuple[str, str], Tuple[str, str]]] = unique_everseen([
+            ((comb[0]['db_name'], comb[0]['table_name']), (comb[1]['db_name'], comb[1]['table_name']))
+            for comb in combs
+            if comb[0] != comb[1]], key=frozenset)
+
+        start = default_timer()
+        callback = merge_matches.s(algorithm_uuid, start)
+        header = [get_matches_minio.s(algorithm_name, algorithm_params, *table_combination)
+                  for table_combination in deduplicated_table_combinations]
+        chord(header)(callback)
 
     return jsonify(job_uuid)
 
@@ -353,7 +338,7 @@ def get_finished_jobs():
 
 @app.route('/results/job_results/<job_id>', methods=['GET'])
 def get_job_results(job_id: str):
-    results = json.loads(lzma.decompress(match_result_db.get(job_id)))
+    results = json.loads(gzip.decompress(match_result_db.get(job_id)))
     if results is None:
         return Response("Job does not exist", status=400)
     return jsonify(results)
@@ -372,13 +357,13 @@ def save_verified_match(job_id: str, index: int):
     results = match_result_db.get(job_id)
     if results is None:
         return Response("Job does not exist", status=400)
-    ranked_list: list = json.loads(lzma.decompress(results))
+    ranked_list: list = json.loads(gzip.decompress(results))
     try:
         to_save = ranked_list.pop(int(index))
     except IndexError:
         return Response("Match does not exist", status=400)
     verified_matches = [json.loads(x) for x in verified_match_db.lrange('verified_matches', 0, -1)]
-    match_result_db.set(job_id, lzma.compress(json.dumps(ranked_list).encode('gbk')))
+    match_result_db.set(job_id, gzip.compress(json.dumps(ranked_list).encode('gbk')))
     if to_save in verified_matches:
         return Response("Match already verified", status=200)
     verified_match_db.rpush('verified_matches', json.dumps(to_save))
@@ -395,7 +380,7 @@ def discard_match(job_id: str, index: int):
         ranked_list.pop(int(index))
     except IndexError:
         return Response("Match does not exist", status=400)
-    match_result_db.set(job_id, lzma.compress(json.dumps(ranked_list).encode('gbk')))
+    match_result_db.set(job_id, gzip.compress(json.dumps(ranked_list).encode('gbk')))
     return Response("Matched discarded successfully", status=200)
 
 
