@@ -41,9 +41,9 @@ app.config['CELERY_RESULT_BACKEND_URL'] = 'redis://:{password}@{host}:{port}/0'.
 
 celery = Celery(app.name, broker=app.config['CELERY_RESULT_BACKEND_URL'], backend=app.config['CELERY_RESULT_BACKEND_URL'])
 celery.conf.update(app.config)
-celery.conf.update(task_serializer='msgpack',
-                   accept_content=['msgpack'],
-                   result_serializer='msgpack',
+celery.conf.update(task_serializer='pickle',
+                   accept_content=['pickle'],
+                   result_serializer='pickle',
                    task_acks_late=True,
                    worker_prefetch_multiplier=1
                    )
@@ -66,7 +66,7 @@ minio_client: Minio = Minio('{host}:{port}'.format(host=os.environ['MINIO_HOST']
 
 def executor_callback(future):
     algorithm_uuid = future
-    app.logger.info(f"Job: {algorithm_uuid} finished")
+    app.logger.info(f"Job: {str(algorithm_uuid)} finished")
 
 
 app.config['EXECUTOR_TYPE'] = 'thread'

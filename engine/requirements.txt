@@ -35,6 +35,5 @@ redis==3.5.3
 minio==6.0.2
 # celery
 celery==4.4.7
-msgpack==1.0.0
 # flower
 flower==0.9.5
