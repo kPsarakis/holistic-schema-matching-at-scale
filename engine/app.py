@@ -34,11 +34,16 @@ from engine.utils.api_utils import AtlasPayload, get_atlas_payload, validate_mat
 app = Flask(__name__)
 CORS(app)
 
+app.config['CELERY_BROKER_URL'] = 'amqp://{user}:{pwd}@{host}:{port}/'.format(user=os.environ['RABBITMQ_DEFAULT_USER'],
+                                                                              pwd=os.environ['RABBITMQ_DEFAULT_PASS'],
+                                                                              host=os.environ['RABBITMQ_HOST'],
+                                                                              port=os.environ['RABBITMQ_PORT'])
+
 app.config['CELERY_RESULT_BACKEND_URL'] = 'redis://:{password}@{host}:{port}/0'.format(host=os.environ['REDIS_HOST'],
                                                                                        port=os.environ['REDIS_PORT'],
                                                                                        password=os.environ['REDIS_PASSWORD'])
 
-celery = Celery(app.name, broker=app.config['CELERY_RESULT_BACKEND_URL'], backend=app.config['CELERY_RESULT_BACKEND_URL'])
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'], backend=app.config['CELERY_RESULT_BACKEND_URL'])
 celery.conf.update(app.config)
 celery.conf.update(task_serializer='msgpack',
                    accept_content=['msgpack'],

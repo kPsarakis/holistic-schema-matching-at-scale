@@ -23,6 +23,7 @@ services:
     env_file:
       - env_files/redis.env
       - env_files/minio.env
+      - env_files/rabbitmq.env
     restart: always
     command: gunicorn -b 0.0.0.0:5000 app:app -t 60 -w 1 --threads 1
 
@@ -47,6 +48,7 @@ services:
     env_file:
       - env_files/redis.env
       - env_files/minio.env
+      - env_files/rabbitmq.env
     command: celery worker -A app.celery --loglevel=info
 
   redis:
@@ -55,17 +57,27 @@ services:
     ports:
       - 6379:6379
 
+  # Message queue required by Celery
+  celery-rabbitmq:
+    image: rabbitmq:management
+    restart: always
+    env_file: env_files/rabbitmq.env
+    ports:
+      - 5672:5672
+      - 15672:15672
+
   # Celery Flower dashboard
   celery-flower:
     build: ./engine
     image: dev/schema-matching-engine:latest
-    command: "celery flower -A app.celery flower"
+    command: "celery flower -A app.celery flower --broker_api=http://rabbitmq:rabbitmq@celery-rabbitmq:15672/api/"
     restart: always
     environment:
       - FLOWER_PORT=5555
     env_file:
       - env_files/redis.env
       - env_files/minio.env
+      - env_files/rabbitmq.env
     ports:
       - 5555:5555
     depends_on:
