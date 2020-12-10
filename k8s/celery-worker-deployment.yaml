@@ -23,7 +23,7 @@ spec:
               memory: "1Gi"
               cpu: "1"
           command: ["celery"]
-          args: ["worker", "-A", "app.celery", "--concurrency=4", "--loglevel=info"]
+          args: ["worker", "-A", "app.celery", "--concurrency=1", "--loglevel=info"]
           ports:
             - containerPort: 5000
           env:
@@ -33,10 +33,14 @@ spec:
               value: '6379'
             - name: REDIS_PASSWORD
               value: "redis"
-            - name: CELERY_RESULTS_MONGO_HOST
-              value: mongodb
-            - name: CELERY_RESULTS_MONGO_PORT
-              value: '27017'
+            - name: RABBITMQ_HOST
+              value: rabbitmq
+            - name: RABBITMQ_PORT
+              value: '5672'
+            - name: RABBITMQ_DEFAULT_USER
+              value: rabbitmq
+            - name: RABBITMQ_DEFAULT_PASS
+              value: rabbitmq
             - name: MINIO_HOST
               value: minio
             - name: MINIO_PORT
