@@ -131,20 +131,20 @@ def get_matches_atlas(matching_algorithm: str, algorithm_params: dict, target_ta
 @celery.task
 def merge_matches(individual_match_uuids: list, job_uuid: str, start: float, max_number_of_matches: int = None):
     app.logger.info(f"Starting to merge results of job: {job_uuid}")
-    merged_matches = [json.loads(lzma.decompress(task_result_db.get(task_uuid))) for task_uuid in individual_match_uuids]
-    flattened_merged_matches = [item for sublist in merged_matches for item in sublist]
-    del merged_matches
-    sorted_matches = sorted(flattened_merged_matches, key=lambda k: k['sim'], reverse=True)
-    del flattened_merged_matches
+    sorted_flattened_merged_matches = [item for sublist in
+                                       [json.loads(lzma.decompress(task_result_db.get(task_uuid)))
+                                        for task_uuid in individual_match_uuids]
+                                       for item in sublist]
+    sorted_flattened_merged_matches.sort(key=lambda k: k['sim'], reverse=True)
     if max_number_of_matches is not None:
-        sorted_matches = sorted_matches[:max_number_of_matches]
+        sorted_flattened_merged_matches = sorted_flattened_merged_matches[:max_number_of_matches]
     end: float = default_timer()
     runtime: float = end - start
     app.logger.info(f"Starting to save results to db of job: {job_uuid}")
     runtime_db.set(job_uuid, runtime)
     insertion_order_db.rpush('insertion_ordered_ids', job_uuid)
-    match_result_db.set(job_uuid, lzma.compress(json.dumps(sorted_matches).encode('gbk')))
-    del sorted_matches
+    match_result_db.set(job_uuid, lzma.compress(json.dumps(sorted_flattened_merged_matches).encode('gbk')))
+    del sorted_flattened_merged_matches
     app.logger.info(f"job: {job_uuid} completed successfully")
     task_result_db.delete(*individual_match_uuids)
     app.logger.info(f"job's: {job_uuid} intermediate results deleted successfully")
