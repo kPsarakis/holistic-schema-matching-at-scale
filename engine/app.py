@@ -2,6 +2,7 @@ import json
 import os
 import uuid
 import logging
+import lzma
 from os import path
 from tempfile import gettempdir
 from timeit import default_timer
@@ -49,7 +50,7 @@ celery.conf.update(task_serializer='msgpack',
                    )
 
 match_result_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], password=os.environ['REDIS_PASSWORD'],
-                               charset="utf-8", decode_responses=True, db=1)
+                               db=1)
 insertion_order_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], password=os.environ['REDIS_PASSWORD'],
                                   charset="utf-8", decode_responses=True, db=2)
 verified_match_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], password=os.environ['REDIS_PASSWORD'],
@@ -57,7 +58,7 @@ verified_match_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ[
 runtime_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], password=os.environ['REDIS_PASSWORD'],
                           charset="utf-8", decode_responses=True, db=4)
 task_result_db: Redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'], password=os.environ['REDIS_PASSWORD'],
-                              charset="utf-8", decode_responses=True, db=5)
+                              db=5)
 
 minio_client: Minio = Minio('{host}:{port}'.format(host=os.environ['MINIO_HOST'],
                                                    port=os.environ['MINIO_PORT']),
@@ -112,7 +113,7 @@ def get_matches_minio(matching_algorithm: str, algorithm_params: dict, target_ta
     source_minio_table: MinioTable = minio_source.get_db_table(source_table_name, source_db_name, load_data=load_data)
     matches = matcher.get_matches(source_minio_table, target_minio_table)
     task_uuid: str = str(uuid.uuid4())
-    task_result_db.set(task_uuid, json.dumps(matches))
+    task_result_db.set(task_uuid, lzma.compress(json.dumps(matches).encode('gbk')))
     return task_uuid
 
 
@@ -130,9 +131,11 @@ def get_matches_atlas(matching_algorithm: str, algorithm_params: dict, target_ta
 @celery.task
 def merge_matches(individual_match_uuids: list, job_uuid: str, start: float, max_number_of_matches: int = None):
     app.logger.info(f"Starting to merge results of job: {job_uuid}")
-    merged_matches = [json.loads(task_result_db.get(task_uuid)) for task_uuid in individual_match_uuids]
+    merged_matches = [json.loads(lzma.decompress(task_result_db.get(task_uuid))) for task_uuid in individual_match_uuids]
     flattened_merged_matches = [item for sublist in merged_matches for item in sublist]
+    del merged_matches
     sorted_matches = sorted(flattened_merged_matches, key=lambda k: k['sim'], reverse=True)
+    del flattened_merged_matches
     if max_number_of_matches is not None:
         sorted_matches = sorted_matches[:max_number_of_matches]
     end: float = default_timer()
@@ -140,7 +143,8 @@ def merge_matches(individual_match_uuids: list, job_uuid: str, start: float, max
     app.logger.info(f"Starting to save results to db of job: {job_uuid}")
     runtime_db.set(job_uuid, runtime)
     insertion_order_db.rpush('insertion_ordered_ids', job_uuid)
-    match_result_db.set(job_uuid, json.dumps(sorted_matches))
+    match_result_db.set(job_uuid, lzma.compress(json.dumps(sorted_matches).encode('gbk')))
+    del sorted_matches
     app.logger.info(f"job: {job_uuid} completed successfully")
     task_result_db.delete(*individual_match_uuids)
     app.logger.info(f"job's: {job_uuid} intermediate results deleted successfully")
@@ -349,10 +353,10 @@ def get_finished_jobs():
 
 @app.route('/results/job_results/<job_id>', methods=['GET'])
 def get_job_results(job_id: str):
-    results = match_result_db.get(job_id)
+    results = json.loads(lzma.decompress(match_result_db.get(job_id)))
     if results is None:
         return Response("Job does not exist", status=400)
-    return jsonify(json.loads(results))
+    return jsonify(results)
 
 
 @app.route('/results/job_runtime/<job_id>', methods=['GET'])
@@ -368,13 +372,13 @@ def save_verified_match(job_id: str, index: int):
     results = match_result_db.get(job_id)
     if results is None:
         return Response("Job does not exist", status=400)
-    ranked_list: list = json.loads(results)
+    ranked_list: list = json.loads(lzma.decompress(results))
     try:
         to_save = ranked_list.pop(int(index))
     except IndexError:
         return Response("Match does not exist", status=400)
     verified_matches = [json.loads(x) for x in verified_match_db.lrange('verified_matches', 0, -1)]
-    match_result_db.set(job_id, json.dumps(ranked_list))
+    match_result_db.set(job_id, lzma.compress(json.dumps(ranked_list).encode('gbk')))
     if to_save in verified_matches:
         return Response("Match already verified", status=200)
     verified_match_db.rpush('verified_matches', json.dumps(to_save))
@@ -391,7 +395,7 @@ def discard_match(job_id: str, index: int):
         ranked_list.pop(int(index))
     except IndexError:
         return Response("Match does not exist", status=400)
-    match_result_db.set(job_id, json.dumps(ranked_list))
+    match_result_db.set(job_id, lzma.compress(json.dumps(ranked_list).encode('gbk')))
     return Response("Matched discarded successfully", status=200)
 
 
