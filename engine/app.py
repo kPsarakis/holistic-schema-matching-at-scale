@@ -67,8 +67,8 @@ minio_client: Minio = Minio('{host}:{port}'.format(host=os.environ['MINIO_HOST']
 
 
 def executor_callback(future):
-    algorithm_uuid = future
-    app.logger.info(f"Job: {str(algorithm_uuid)} finished")
+    algorithm_uuid = future.result()
+    app.logger.info(f"Job: {algorithm_uuid} finished")
 
 
 app.config['EXECUTOR_TYPE'] = 'thread'
