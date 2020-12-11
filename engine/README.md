@@ -127,6 +127,5 @@ underneath the algorithm names are their parameters
        
 
 *   `data_sources` Module containing the two data sources, atlas, minio and the local filesystem
-    
 
 *   `utils` Module containing some utility functions used throughout the service
