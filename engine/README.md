@@ -125,6 +125,8 @@ underneath the algorithm names are their parameters
         [Similarity Flooding: A Versatile Graph Matching Algorithmand its Application to Schema Matching
         ](http://p8090-ilpubs.stanford.edu.tudelft.idm.oclc.org/730/1/2002-1.pdf)
        
+
 *   `data_sources` Module containing the two data sources, atlas, minio and the local filesystem
     
+
 *   `utils` Module containing some utility functions used throughout the service
