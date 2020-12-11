@@ -9,7 +9,7 @@ at TU Delft.
 
 ## Install
 
-### docker-compose
+### Install using docker-compose
 
 To install docker-compose follow the [official instructions](https://docs.docker.com/compose/install/).
 The next step is to build the required containers (client, engine) by running: 
@@ -21,7 +21,7 @@ docker-compose build
 > NOTE: For easier setup of Minio create a folder in the projects root named `minio-volume` and add folders (buckets) 
 > with the data you like in there to instantly load them to the system.
 
-### Minikube
+### Install in minikube
 
 To install minikube follow the [official instructions](https://minikube.sigs.k8s.io/docs/start/).
 
@@ -63,7 +63,7 @@ cd k8s/
 kubectl apply -f .
 ```
 
-### Kubernetes cluster 
+### Install in a kubernetes cluster 
 Assuming that you have created a kubernetes cluster somewhere and have the `kubectl` command configured go in the 
 `helm-config` and `k8s` folders to change the deployment configurations to match your use-case then run:
 
@@ -78,7 +78,7 @@ traffic.
 
 ## Run
 
-### docker-compose
+### Run with docker-compose
 
 To run the system with docker compose:
 
@@ -94,7 +94,7 @@ then go to:
 *   `localhost:9000` to access Minio.
 *   `localhost:15672` to access RabbitMQ.
 
-### Minikube
+### Run with  minikube
 
 To access the system deployed with Minikube at first get the IP by running:
 
@@ -120,7 +120,7 @@ minikube service flower-service
 
 > NOTE: To access the services deployed by Helm use the instructions given after their deployment.
 
-### Kubernetes cluster 
+### Run with a kubernetes cluster 
 
 The cluster case is similar to Minikube, you have to get the external IP of the nginx load balancer instead of 
 Minikube's and access the UI and api in the same way. For the rest of the services follow either the Helm or 
@@ -130,12 +130,16 @@ your providers port-forwarding instructions.
 
 *   [`client`](https://github.com/kPsarakis/holistic-schema-matching-at-scale/tree/master/client) 
     Module containing the React implementation of the system's UI.
+    
 *   [`engine`](https://github.com/kPsarakis/holistic-schema-matching-at-scale/tree/master/engine) 
     Module containing the schema matching engine and the backend of the system. 
+    
 *   [`env_files`](https://github.com/kPsarakis/holistic-schema-matching-at-scale/tree/master/env_files) 
     Folder containing example env files for the docker-compose. 
+    
 *   [`helm-config`](https://github.com/delftdata/valentine-suite/tree/master/helm-config) 
     Folder containing the configuration of the redis, rabbitmq and ingress-nginx charts. 
+    
 *   [`k8s`](https://github.com/delftdata/valentine-suite/tree/master/k8s) 
     Folder containing the kubernetes deployments, apps and services for the client, server, celery worker, 
     flower (celery cluster monitoring), and the ingress service.
