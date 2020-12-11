@@ -63,6 +63,7 @@ underneath the algorithm names are their parameters
     8.  `"th_ns"` the threshold of name similarity between data-types default 0.7. Columns with matches with lower 
         data-type similarity will not be considered.
         
+
 3.  `"SimilarityFlooding"`
 
 ### Instance only
