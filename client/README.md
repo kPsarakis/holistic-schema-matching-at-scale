@@ -9,11 +9,8 @@ The UI components are split in two categories Components (stateless) Containers 
 ### Components
 
 *   `Forms` Basic form input and output covering all input elements.
-    
 *   `Layout` Details the layout of the UI.
-    
 *   `Navigation` Contains the navigation logic between the different "pages" and the toolbar.
-    
 *   `UI` Various UI misc elements like the backdrop, modal, progressbar and spinner.
 
 ### Containers 
@@ -35,7 +32,5 @@ The UI components are split in two categories Components (stateless) Containers 
 *   `src` Folder containing the application code.
     
     *   `components` Folder containing the stateless UI components.
-        
     *   `containers` Folder containing the stateful UI components.
-        
     *   `hoc` Module containing the helper higher-order components of the UI.
