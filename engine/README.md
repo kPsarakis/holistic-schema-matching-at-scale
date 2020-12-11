@@ -89,6 +89,7 @@ underneath the algorithm names are their parameters
         
     6.  `"clear_cache"` boolean specifying to clear the global rank cache or not.
     
+
 3.  `"JaccardLevenMatcher"`
     
     1.  `"threshold_leven"` threshold specifying the distance which to match column elements with each other 
