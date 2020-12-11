@@ -42,6 +42,7 @@ underneath the algorithm names are their parameters
     
     1.  `"strategy"` defaults at the `"COMA_OPT"` value which tells Coma that we do not have instances.
     
+
 2.  `"Cupid"`
     
     1.  `"leaf_w_struct"` value from `[0-1]` default `0.2` and specifies how much does the structural similarity of 
