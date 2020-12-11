@@ -5,7 +5,7 @@ This repository contains the implementation of the holistic schema matching syst
 at TU Delft. 
 
 <p align="center">
-  <img src="https://github.com/kPsarakis/holistic-schema-matching-at-scale/tree/master/media/system.png" height="437" width="747">
+  <img src="https://github.com/kPsarakis/holistic-schema-matching-at-scale/blob/master/media/system.png" height="437" width="747">
 </p>
 
 ## Install
@@ -112,3 +112,4 @@ and access the UI and api in the same way. For the rest of the services follow e
 * [`env_files`](https://github.com/kPsarakis/holistic-schema-matching-at-scale/tree/master/env_files) Folder containing example env files for the docker-compose. 
 * [`helm-config`](https://github.com/delftdata/valentine-suite/tree/master/helm-config) Folder containing the configuration of the redis, rabbitmq and ingress-nginx charts. 
 * [`k8s`](https://github.com/delftdata/valentine-suite/tree/master/k8s) Folder containing the kubernetes deployments, apps and services for the client, server, celery worker, flower (celery cluster monitoring), and the ingress service.
+* [`media`](https://github.com/delftdata/valentine-suite/tree/master/media) Folder containing images for the README.
