@@ -41,8 +41,7 @@ underneath the algorithm names are their parameters
 1.  `"Coma"`
     
     1.  `"strategy"` defaults at the `"COMA_OPT"` value which tells Coma that we do not have instances.
-
-
+    
 2.  `"Cupid"`
     
     1.  `"leaf_w_struct"` value from `[0-1]` default `0.2` and specifies how much does the structural similarity of 
@@ -73,6 +72,7 @@ underneath the algorithm names are their parameters
     1.  `"strategy"` must be set at the `"COMA_OPT_INST"` value which tells Coma that we do have instances for 
         processing.
         
+
 2.  `"CorrelationClustering"` 
     
     1.  `"threshold1"` value from `[0.01-0.5]` default `0.15` specifying the EMD threshold of the first phase.
