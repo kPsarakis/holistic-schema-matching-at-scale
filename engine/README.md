@@ -41,7 +41,7 @@ underneath the algorithm names are their parameters
 1.  `"Coma"`
     
     1.  `"strategy"` defaults at the `"COMA_OPT"` value which tells Coma that we do not have instances.
-    
+
 
 2.  `"Cupid"`
     
