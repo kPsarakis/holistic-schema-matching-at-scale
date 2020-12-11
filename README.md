@@ -5,7 +5,7 @@ This repository contains the implementation of the holistic schema matching syst
 ](https://repository.tudelft.nl/islandora/object/uuid%3Af4ebeda3-6465-49da-813b-f1e6e0820c60?collection=education) 
 at TU Delft. 
 
-![](https://github.com/kPsarakis/holistic-schema-matching-at-scale/tree/master/media/system.png)
+![](https://user-images.githubusercontent.com/23175739/101961937-2223a400-3c0b-11eb-9062-86c68cbc87e9.png)
 
 ## Install
 
