@@ -42,6 +42,9 @@ WORKDIR /usr/local/schema-matching-system/engine
 
 COPY --chown=flask . .
 
+RUN mkdir algorithms/coma/artifact  \
+    && chown flask:flask algorithms/coma/artifact
+
 COPY --chown=flask --from=build-stage-COMA /usr/local/coma.jar algorithms/coma/artifact
 
 ENV PYTHONPATH /usr/local/schema-matching-system
