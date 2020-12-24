@@ -158,10 +158,10 @@ class MatchList extends Component {
                                 .map((item, index) => (
                                     <StyledTableRow key={index}>
                                         <StyledTableCell className={classes.Cell} align="center" onClick={() =>this.showData(item.source["db_guid"], item.source["tbl_nm"], item.source["clm_nm"], item.target["db_guid"], item.target["tbl_nm"], item.target["clm_nm"])}>
-                                            {item.source["tbl_nm"]}.{item.source["clm_nm"]}
+                                            {item.target["tbl_nm"]}.{item.target["clm_nm"]}
                                         </StyledTableCell>
                                         <StyledTableCell className={classes.Cell} align="center" onClick={() =>this.showData(item.source["db_guid"], item.source["tbl_nm"], item.source["clm_nm"], item.target["db_guid"], item.target["tbl_nm"], item.target["clm_nm"])}>
-                                            {item.target["tbl_nm"]}.{item.target["clm_nm"]}
+                                            {item.source["tbl_nm"]}.{item.source["clm_nm"]}
                                         </StyledTableCell>
                                         <TableCell align="center" onClick={() =>this.showData(item.source["db_guid"], item.source["tbl_nm"], item.source["clm_nm"], item.target["db_guid"], item.target["tbl_nm"], item.target["clm_nm"])}>
                                             <GradientProgressBar similarity={item["sim"]} />

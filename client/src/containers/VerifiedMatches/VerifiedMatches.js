@@ -112,14 +112,14 @@ class VerifiedMatches extends Component {
                               this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
                           .map((row, index) => (
                                 <StyledTableRow key={index}>
-                                  <StyledTableCell align="center">{row["source"]["tbl_nm"]}</StyledTableCell>
-                                  <StyledTableCell align="center">{row["source"]["tbl_guid"]}</StyledTableCell>
-                                  <StyledTableCell align="center">{row["source"]["clm_nm"]}</StyledTableCell>
-                                  <StyledTableCell align="center">{row["source"]["clm_guid"]}</StyledTableCell>
-                                  <StyledTableCell align="center">{row["target"]["tbl_nm"]}</StyledTableCell>
-                                  <StyledTableCell align="center">{row["target"]["tbl_guid"]}</StyledTableCell>
-                                  <StyledTableCell align="center">{row["target"]["clm_nm"]}</StyledTableCell>
-                                  <StyledTableCell align="center">{row["target"]["clm_guid"]}</StyledTableCell>
+                                    <StyledTableCell align="center">{row["target"]["tbl_nm"]}</StyledTableCell>
+                                    <StyledTableCell align="center">{row["target"]["tbl_guid"]}</StyledTableCell>
+                                    <StyledTableCell align="center">{row["target"]["clm_nm"]}</StyledTableCell>
+                                    <StyledTableCell align="center">{row["target"]["clm_guid"]}</StyledTableCell>
+                                    <StyledTableCell align="center">{row["source"]["tbl_nm"]}</StyledTableCell>
+                                    <StyledTableCell align="center">{row["source"]["tbl_guid"]}</StyledTableCell>
+                                    <StyledTableCell align="center">{row["source"]["clm_nm"]}</StyledTableCell>
+                                    <StyledTableCell align="center">{row["source"]["clm_guid"]}</StyledTableCell>
                                 </StyledTableRow>
                             ))
                       }

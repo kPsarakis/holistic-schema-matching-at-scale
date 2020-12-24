@@ -380,7 +380,7 @@ def discard_match(job_id: str, index: int):
     results = match_result_db.get(job_id)
     if results is None:
         return Response("Job does not exist", status=400)
-    ranked_list: list = json.loads(results)
+    ranked_list: list = json.loads(gzip.decompress(results))
     try:
         ranked_list.pop(int(index))
     except IndexError:
