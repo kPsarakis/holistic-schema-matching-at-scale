@@ -1,7 +1,7 @@
 # Build  COMA and its dependancies from source
 FROM maven:3-openjdk-8-slim as build-stage-COMA
 
-RUN apt-get update && apt-get -y --no-install-recommends install git=1:2.20.1* patch=2.7.6* dos2unix=7.4.0*
+RUN apt-get update && apt-get -y --no-install-recommends install git patch dos2unix
 
 WORKDIR /usr/local
 
@@ -17,11 +17,11 @@ RUN git clone https://github.com/kPsarakis/COMA \
 # Python dependancies builder
 FROM python:3.8-slim as builder
 
-RUN apt-get update && apt-get install -y --no-install-recommends gcc=4:8.3* g++=4:8.3*
+RUN apt-get update && apt-get install -y --no-install-recommends gcc g++
 
 COPY requirements.txt /var/local/schema-matching-system/
 
-RUN pip3 install --upgrade pip==20.3.1 \
+RUN pip3 install --upgrade pip \
     && pip3 install --prefix=/usr/local -r /var/local/schema-matching-system/requirements.txt \
     && python -m nltk.downloader -d /usr/local/share/nltk_data stopwords punkt wordnet
 

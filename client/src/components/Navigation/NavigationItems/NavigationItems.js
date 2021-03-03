@@ -6,6 +6,9 @@ import NavigationItem from "./NavgationItem/NavigationItem";
 const navigationItems = () => (
     <ul className={classes.NavigationItems}>
         <NavigationItem link={"/"} exact>
+            Go Back
+        </NavigationItem>
+        <NavigationItem link={"/matcher"}>
             Matcher
         </NavigationItem>
         <NavigationItem link={"/results"}>

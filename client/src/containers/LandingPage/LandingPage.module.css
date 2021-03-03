@@ -1,0 +1,16 @@
+.LandingPageTitle {
+    text-align: center;
+}
+
+.LandingPageItems {
+    margin-left: 40px;
+    margin-right: 40px;
+}
+
+.LandingPageItem {
+    text-align: center;
+    display: inline-block;
+    width: 50%;
+    margin-top: 80px;
+    margin-bottom: 80px;
+}
