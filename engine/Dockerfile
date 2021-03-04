@@ -15,7 +15,7 @@ RUN git clone https://github.com/kPsarakis/COMA \
     && mv COMA/coma-engine/target/coma-engine-0.1-CE-SNAPSHOT-jar-with-dependencies.jar /usr/local/coma.jar
 
 # Python dependancies builder
-FROM python:3.8-slim as builder
+FROM python:3.9-slim as builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends gcc g++
 
@@ -25,8 +25,8 @@ RUN pip3 install --upgrade pip \
     && pip3 install --prefix=/usr/local -r /var/local/schema-matching-system/requirements.txt \
     && python -m nltk.downloader -d /usr/local/share/nltk_data stopwords punkt wordnet
 
-# Clean Python 3.8 env
-FROM python:3.8-slim as clean-Python
+# Clean Python 3.9 env
+FROM python:3.9-slim as clean-Python
 
 # Create the final service
 FROM openjdk:8-slim
