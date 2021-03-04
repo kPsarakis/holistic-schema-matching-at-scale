@@ -12,7 +12,7 @@ const toolbar = (props) => (
         {/*    LOGO*/}
         {/*</div>*/}
         <nav>
-            <NavigationItems />
+            <NavigationItems toolbar_elements={props.toolbar_elements}/>
         </nav>
     </header>
 );

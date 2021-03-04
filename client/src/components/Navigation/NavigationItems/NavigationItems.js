@@ -3,20 +3,16 @@ import React from "react";
 import classes from "./NavigationItems.module.css";
 import NavigationItem from "./NavgationItem/NavigationItem";
 
-const navigationItems = () => (
+const navigationItems = (props) => (
     <ul className={classes.NavigationItems}>
         <NavigationItem link={"/"} exact>
-            Go Back
+            &lsaquo;&mdash;
         </NavigationItem>
-        <NavigationItem link={"/matcher"}>
-            Matcher
-        </NavigationItem>
-        <NavigationItem link={"/results"}>
-            Finished Jobs
-        </NavigationItem>
-        <NavigationItem link={"/verified_matches"}>
-            Verified Matches
-        </NavigationItem>
+        {props.toolbar_elements.map((row) => (
+            <NavigationItem link={row.link} exact>
+                {row.text}
+            </NavigationItem>
+        ))}
     </ul>
 );
 
