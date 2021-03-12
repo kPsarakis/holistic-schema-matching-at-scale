@@ -12,6 +12,19 @@
     transition: all 0.3s ease-out;
 }
 
+.FigureModal {
+    position: fixed;
+    z-index: 500;
+    width: 75%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 20px;
+    /*left: 15%;*/
+    top: 15%;
+    box-sizing: border-box;
+    transition: all 0.3s ease-out;
+}
+
 @media (min-width: 600px) {
     .Modal {
         width: 500px;

@@ -78,13 +78,16 @@ class Matcher extends Component {
                             header={"Select Source Tables"}
                             sendSelected={(val) => this.getSelectedTables(val, "source")}
                         />
+                        <Button variant="contained" color="primary" onClick={this.sendJob}>
+                        Add New Source
+                    </Button>
                     </div>
-                    <div className={classes.DbList}>
-                        <ListSource
-                            header={"Select Target Tables"}
-                            sendSelected={(val) => this.getSelectedTables(val, "target")}
-                        />
-                    </div>
+                    {/*<div className={classes.DbList}>*/}
+                    {/*    <ListSource*/}
+                    {/*        header={"Select Target Tables"}*/}
+                    {/*        sendSelected={(val) => this.getSelectedTables(val, "target")}*/}
+                    {/*    />*/}
+                    {/*</div>*/}
                 </div>
                 <div className={classes.AlgorithmSelection}>
                     <AlgorithmSelection

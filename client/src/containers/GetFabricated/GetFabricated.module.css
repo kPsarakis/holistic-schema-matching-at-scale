@@ -1,0 +1,39 @@
+.Results {
+    width: 100%;
+}
+
+.Result {
+    vertical-align: top;
+    width: 80%;
+    border: 1px solid #7fb3d5;
+    box-shadow: 0 2px 3px #2980b9;
+    padding: 10px;
+    margin: 10px auto;
+    box-sizing: border-box;
+}
+
+.Root {
+    width: 40%;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid #7fb3d5;
+    box-shadow: 0 2px 3px #2980b9;
+}
+
+.Container {
+    max-height: 800px;
+}
+
+.Parent {
+    margin-top: 80px;
+    margin-right: 100px;
+    margin-left: 100px;
+}
+
+.Buttons {
+    text-align: right;
+}
+
+.Paragraph {
+    text-align: left;
+}

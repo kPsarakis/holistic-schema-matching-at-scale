@@ -13,7 +13,7 @@
 .AlgorithmSelection{
     float:left;
     display:inline;
-    width: 50%;
+    width: 70%;
     margin-top: 80px;
     margin-bottom: 80px;
     margin-left: 80px;
@@ -25,7 +25,7 @@
     bottom: 0;
     padding: 20px;
     width: 100%;
-    background-color: lightskyblue;
+    background-color: #00A6D6;
 }
 
 .submitButton {

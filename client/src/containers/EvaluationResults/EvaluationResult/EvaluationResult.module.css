@@ -1,0 +1,18 @@
+.FabricatedPair {
+    vertical-align: top;
+    width: 50%;
+    border: 1px solid #455a64;
+    /*box-shadow: 0 2px 3px #2980b9;*/
+    padding: 10px;
+    margin: 10px auto;
+    box-sizing: border-box;
+}
+
+.Modal {
+    vertical-align: top;
+    margin: auto;
+    width: 80%;
+    height: 80%;
+    /*transform: translateX(-200px);*/
+    /*width: 100%;*/
+}

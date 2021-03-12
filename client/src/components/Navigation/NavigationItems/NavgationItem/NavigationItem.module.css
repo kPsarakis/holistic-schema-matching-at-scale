@@ -1,8 +1,15 @@
 .NavigationItem {
+    border-right: 1px solid #162545;
     margin: 10px 0;
     box-sizing: border-box;
     display: block;
     width: 100%;
+}
+
+.NavigationIcon {
+    float:left;
+    display:inline;
+    margin-right: 15px;
 }
 
 .NavigationItem a {
@@ -38,7 +45,7 @@
     .NavigationItem a:hover,
     .NavigationItem a:active,
     .NavigationItem a.active {
-        background-color: #85c1e9;
+        background-color: #588ddb;
         border-bottom: 4px solid #c0392b;
         color: black;
     }
