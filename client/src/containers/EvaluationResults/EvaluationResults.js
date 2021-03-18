@@ -3,22 +3,28 @@ import Aux from "../../hoc/Aux";
 import Modal from "../../components/UI/Modal/Modal";
 import Spinner from "../../components/UI/Spinner/Spinner";
 import classes from "./EvaluationResults.module.css";
-import Paper from "@material-ui/core/Paper";
 import {TableContainer} from "@material-ui/core";
 import Table from "@material-ui/core/Table";
+import TableFooter from '@material-ui/core/TableFooter';
 import TableBody from "@material-ui/core/TableBody";
 import TablePagination from "@material-ui/core/TablePagination";
 import axios from "axios";
 import EvaluationResult from "./EvaluationResult/EvaluationResult";
+import TableRow from "@material-ui/core/TableRow";
+import TestFigure from "../../assets/Unionable-all-1.png";
+import Button from "@material-ui/core/Button";
+import BarChartIcon from "@material-ui/icons/BarChart";
+import GetAppIcon from "@material-ui/icons/GetApp";
 
 
 class EvaluationResults extends Component {
 
     state = {
-        evaluationResults: {"Job1": ["fabricated1", "fabricated2"], "Job2": ["fabricated1", "fabricated2"]},
+        evaluationResults: {"Job_1": ["miller_j_vu_150"], "Job_2": ["miller_j_vu_150", "miller_j_vu_150", "miller_j_vu_150", "miller_j_vu_150"]},
         page: 0,
         rowsPerPage: 5,
-        loading: false
+        loading: false,
+        showPlot: false,
     }
 
     componentDidMount() {
@@ -32,6 +38,18 @@ class EvaluationResults extends Component {
             this.setState({loading: false});
             console.log(err);
         })
+    }
+
+    displayBoxplot = (fabricatedPairId) => {
+        this.setState({showPlot: true});
+    }
+
+    closeShowDataHandler = () => {
+        this.setState({showPlot: false});
+    }
+
+    downloadDataset = (fabricatedPairId) => {
+
     }
 
     handleChangePage = (event, newPage) => {
@@ -49,38 +67,63 @@ class EvaluationResults extends Component {
                 <Modal show={this.state.loading}>
                     <Spinner />
                 </Modal>
+                <Modal show={this.state.showPlot} modalClosed={this.closeShowDataHandler} figure={true}>
+                    <img src={TestFigure} alt={"figure"} className={classes.Modal}/>
+                </Modal>
                 <div className={classes.Parent}>
-                    <Paper className={classes.Root}>
-                        <TableContainer className={classes.Container}>
-                            <Table className={classes.Results}>
-                                <TableBody>
-                                    {Object.keys(this.state.evaluationResults).slice(this.state.page * this.state.rowsPerPage,
-                                        this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
-                                        .map((datasetId) => {
-                                            return (<div className={classes.Result}>
-                                                        <p className={classes.Paragraph}>Job: {datasetId}</p>
-                                                        {this.state.evaluationResults[datasetId].map((fabricatedPairId) => {
-                                                            return (
-                                                                <EvaluationResult fabricatedPairId={fabricatedPairId}/>
-                                                            );
-                                                        })}
-                                                    </div>);
-                                            }
-                                        )
-                                    }
-                                </TableBody>
-                            </Table>
-                            <TablePagination
-                                rowsPerPageOptions={[5, 10, 25]}
-                                component="div"
-                                count={Object.keys(this.state.evaluationResults).length}
-                                rowsPerPage={this.state.rowsPerPage}
-                                page={this.state.page}
-                                onChangePage={this.handleChangePage}
-                                onChangeRowsPerPage={this.handleChangeRowsPerPage}
-                            />
-                        </TableContainer>
-                    </Paper>
+                    <TableContainer className={classes.Container}>
+                        <Table className={classes.Results}>
+                            <TableBody>
+                                {Object.keys(this.state.evaluationResults).slice(this.state.page * this.state.rowsPerPage,
+                                    this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
+                                    .map((datasetId) => {
+                                        return (<div className={classes.Result}>
+                                            <p className={classes.Paragraph}>Job: {datasetId}</p>
+                                            <p className={classes.Paragraph}>Dataset group: {datasetId}</p>
+                                            <Button
+                                                style={{
+                                                    borderRadius: 10,
+                                                    color: "#016b9f",
+                                                    padding: "10px 10px",
+                                                    fontSize: "8px",
+                                                    marginRight: "10px"
+                                                }}
+                                                onClick={() => this.displayBoxplot(datasetId)}>
+                                                <BarChartIcon/>
+                                            </Button>
+                                            <Button
+                                                style={{
+                                                    borderRadius: 10,
+                                                    color: "#016b9f",
+                                                    padding: "10px 10px",
+                                                    fontSize: "8px"
+                                                }}
+                                                onClick={() => this.downloadDataset(datasetId)}>
+                                                <GetAppIcon/>
+                                            </Button>
+                                            <EvaluationResult pairIds={this.state.evaluationResults[datasetId]}/>
+                                        </div>);
+                                        }
+                                    )
+                                }
+                            </TableBody>
+                            <TableFooter>
+                                <TableRow>
+                                    <div className={classes.Pagination}>
+                                        <TablePagination
+                                        rowsPerPageOptions={[5, 10, 25]}
+                                        component="div"
+                                        count={Object.keys(this.state.evaluationResults).length}
+                                        rowsPerPage={this.state.rowsPerPage}
+                                        page={this.state.page}
+                                        onChangePage={this.handleChangePage}
+                                        onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                                        />
+                                    </div>
+                                </TableRow>
+                            </TableFooter>
+                        </Table>
+                    </TableContainer>
                 </div>
             </Aux>
         );

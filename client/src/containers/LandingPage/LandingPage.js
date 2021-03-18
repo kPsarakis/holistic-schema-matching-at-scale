@@ -32,7 +32,7 @@ class LandingPage extends Component {
     render(){
         return(
             <Aux>
-                <h1 className={classes.LandingPageTitle}>Valentine++</h1>
+                <h1 className={classes.LandingPageTitle}>Valentine</h1>
                 <div className={classes.Kiss}>
                     <img src={delftKiss} alt={"Delft kiss"} width="300px" height="192px"/>
                 </div>

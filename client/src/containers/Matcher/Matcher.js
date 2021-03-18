@@ -13,31 +13,24 @@ import Response from "../../components/Forms/Response/Response";
 class Matcher extends Component {
 
     state = {
-        sourceSelectedTables: [],
-        targetSelectedTables: [],
+        selectedTables: [],
         selectedAlgorithms: [],
         loading: false,
         responseReceived: false,
         latestResponse: ""
     }
 
-    getSelectedTables(val, mode){
-        if(mode==="source"){
-            this.setState({sourceSelectedTables: [...val]});
-        }else if(mode==="target") {
-            this.setState({targetSelectedTables: [...val]});
+    getSelected(val, mode){
+        if(mode==="tables"){
+            this.setState({selectedTables: [...val]});
         }else if(mode==="algorithms"){
             this.setState({selectedAlgorithms: [...val]});
         }
     }
 
     sendJob = () => {
-        if(this.state.sourceSelectedTables.length === 0){
-            alert("No selected tables for source!");
-            return;
-        }
-        if(this.state.targetSelectedTables.length === 0){
-            alert("No selected tables for target!");
+        if(this.state.selectedTables.length === 0){
+            alert("No selected tables!");
             return;
         }
         if(this.state.selectedAlgorithms.length === 0){
@@ -46,8 +39,7 @@ class Matcher extends Component {
         }
         this.setState({loading: true});
         const requestBody = {
-            "source_tables": this.state.sourceSelectedTables,
-            "target_tables": this.state.targetSelectedTables,
+            "tables": this.state.selectedTables,
             "algorithms": this.state.selectedAlgorithms
         };
         axios({
@@ -75,23 +67,17 @@ class Matcher extends Component {
                 <div className={classes.DBView}>
                     <div className={classes.DbList}>
                         <ListSource
-                            header={"Select Source Tables"}
-                            sendSelected={(val) => this.getSelectedTables(val, "source")}
+                            header={"Select Tables"}
+                            sendSelected={(val) => this.getSelected(val, "tables")}
                         />
                         <Button variant="contained" color="primary" onClick={this.sendJob}>
                         Add New Source
                     </Button>
                     </div>
-                    {/*<div className={classes.DbList}>*/}
-                    {/*    <ListSource*/}
-                    {/*        header={"Select Target Tables"}*/}
-                    {/*        sendSelected={(val) => this.getSelectedTables(val, "target")}*/}
-                    {/*    />*/}
-                    {/*</div>*/}
                 </div>
                 <div className={classes.AlgorithmSelection}>
                     <AlgorithmSelection
-                        sendSelected={(val) => this.getSelectedTables(val, "algorithms")}
+                        sendSelected={(val) => this.getSelected(val, "algorithms")}
                     />
                 </div>
                 <div className={classes.submitButtonFooter}>

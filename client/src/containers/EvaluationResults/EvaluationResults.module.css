@@ -5,30 +5,28 @@
 .Result {
     vertical-align: top;
     width: 80%;
-    border: 1px solid #455a64;
-    /*box-shadow: 0 2px 3px #2980b9;*/
-    padding: 10px;
-    margin: 10px auto;
-    /*box-sizing: border-box;*/
+    border-left: 3px solid #455a64;
+    border-bottom: 3px solid #455a64;
+    padding-left: 20px;
+    /*padding: 10px;*/
+    /*margin: 10px auto;*/
 }
 
-.Root {
-    width: 75%;
-    margin-left: auto;
-    margin-right: auto;
-    /*background: transparent;*/
-    /*border: 1px solid #7fb3d5;*/
-    /*box-shadow: 0 2px 3px #2980b9;*/
-}
 
 .Container {
     max-height: 800px;
 }
 
 .Parent {
+    width: 75%;
     margin-top: 80px;
-    margin-right: 100px;
-    margin-left: 100px;
+    margin-left: auto;
+    margin-right: auto;
+
+}
+
+.Pagination {
+    transform: translateX(-100px);
 }
 
 .Buttons {
@@ -37,4 +35,12 @@
 
 .Paragraph {
     text-align: left;
+}
+
+.Modal {
+    vertical-align: top;
+    margin: auto;
+    width: 80%;
+    height: 80%;
+    transform: translateX(400px);
 }

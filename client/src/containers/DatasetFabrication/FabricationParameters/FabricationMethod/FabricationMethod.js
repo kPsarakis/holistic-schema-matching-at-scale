@@ -8,6 +8,11 @@ class FabricationMethod extends Component{
 
     state = {
         selected: false,
+        vInstances: false,
+        nInstances: false,
+        vSchemata: false,
+        nSchemata: false,
+        numberOfPairs: 0,
         params: {}
     }
 
@@ -17,32 +22,56 @@ class FabricationMethod extends Component{
 
 
     toggleSelected = () => {
-         this.setState({selected: !this.state.selected})
-        // this.setState({selected: !this.state.selected}, () => this.sendSelectedToParent());
+        this.setState({selected: !this.state.selected})
     }
 
+    toggleNoisyInstances = () => {
+        this.setState({nInstances: !this.state.nInstances})
+
+    }
+
+    toggleVerbatimInstances = () => {
+        this.setState({vInstances: !this.state.vInstances})
+
+    }
+
+    toggleNoisySchemata = () => {
+        this.setState({nSchemata: !this.state.nSchemata})
+    }
+
+    toggleVerbatimSchemata = () => {
+        this.setState({vSchemata: !this.state.vSchemata})
+    }
 
     render() {
 
-        const joinable = (this.props.methodName !== "Joinable") ?
-            <div className={classes.Choice}>
+        const noisyInstances = <div className={classes.Choice}>
+            {(this.props.methodName !== "Joinable" && this.props.methodName !== "Semantically Joinable") ?
                 <Checkbox
-                    checked={this.state.selected}
-                    onChange={() => this.toggleSelected()}
+                    checked={this.state.nInstances}
+                    onChange={() => this.toggleNoisyInstances()}
                     color="primary"
-                />
+                /> :
+                (this.props.methodName === "Joinable") ?
+                    <Checkbox disabled inputProps={{ 'aria-label': 'disabled checked checkbox' }} />
+                    : <Checkbox disabled checked inputProps={{ 'aria-label': 'disabled checked checkbox' }} />
+                }
                 <p>Noisy instances</p>
-            </div> : null;
+            </div>;
 
-        const semanticallyJoinable = (this.props.methodName !== "Semantically Joinable") ?
-            <div className={classes.Choice}>
+        const verbatimInstances = <div className={classes.Choice}>
+            {(this.props.methodName !== "Joinable" && this.props.methodName !== "Semantically Joinable") ?
                 <Checkbox
-                    checked={this.state.selected}
-                    onChange={() => this.toggleSelected()}
+                    checked={this.state.nInstances}
+                    onChange={() => this.toggleNoisyInstances()}
                     color="primary"
-                />
+                /> :
+                (this.props.methodName === "Joinable") ?
+                    <Checkbox disabled checked inputProps={{ 'aria-label': 'disabled checked checkbox' }} />
+                    : <Checkbox disabled inputProps={{ 'aria-label': 'disabled checked checkbox' }} />
+                }
                 <p>Verbatim instances</p>
-            </div>: null;
+            </div>;
 
         return(
             <div className={classes.FabricationMethod}>
@@ -61,20 +90,20 @@ class FabricationMethod extends Component{
                     <div className={classes.IncludeHeader}>
                         <h5> Include: </h5>
                     </div>
-                    {joinable}
+                    {noisyInstances}
                     <div className={classes.Choice}>
                         <Checkbox
-                            checked={this.state.selected}
-                            onChange={() => this.toggleSelected()}
+                            checked={this.state.nSchemata}
+                            onChange={() => this.toggleNoisySchemata()}
                             color="primary"
                         />
                         <p>Noisy schemata</p>
                     </div>
-                    {semanticallyJoinable}
+                    {verbatimInstances}
                     <div className={classes.Choice}>
                         <Checkbox
-                            checked={this.state.selected}
-                            onChange={() => this.toggleSelected()}
+                            checked={this.state.vSchemata}
+                            onChange={() => this.toggleVerbatimSchemata()}
                             color="primary"
                         />
                         <p>Verbatim schemata</p>

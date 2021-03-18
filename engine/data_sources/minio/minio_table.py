@@ -57,10 +57,10 @@ class MinioTable(BaseTable):
         return [str(self.unique_identifier)]
 
     def remove_table(self, guid: object) -> BaseTable:
-        pass
+        pass  # Since its a single table we cannot delete it (overridden from BaseDB)
 
     def add_table(self, table: BaseTable) -> None:
-        pass
+        pass  # Since its a single table we cannot add another table to it (overridden from BaseDB)
 
     @property
     def is_empty(self) -> bool:
@@ -78,18 +78,23 @@ class MinioTable(BaseTable):
             d_type = str(column_data.dtype)
             data = list(column_data.dropna().values)
             if len(data) != 0:
-                if d_type == "object":
-                    if is_date(data[0]):
-                        d_type = "date"
-                    else:
-                        d_type = "varchar"
-                elif d_type.startswith("int"):
-                    d_type = "int"
-                elif d_type.startswith("float"):
-                    d_type = "float"
+                d_type = self.__get_true_data_type(d_type, data)
                 self.__columns[column_name] = MinioColumn(column_name, data, d_type, self.unique_identifier)
             else:
                 if d_type == "object":
                     self.__columns[column_name] = MinioColumn(column_name, data, "varchar", self.unique_identifier)
                 else:
                     self.__columns[column_name] = MinioColumn(column_name, data, d_type, self.unique_identifier)
+
+    @staticmethod
+    def __get_true_data_type(d_type, data):
+        if d_type == "object":
+            if is_date(data[0]):
+                d_type = "date"
+            else:
+                d_type = "varchar"
+        elif d_type.startswith("int"):
+            d_type = "int"
+        elif d_type.startswith("float"):
+            d_type = "float"
+        return d_type

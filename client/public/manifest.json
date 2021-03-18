@@ -1,9 +1,9 @@
 {
   "short_name": "Valentine",
-  "name": "Valentine Matcher",
+  "name": "Valentine",
   "icons": [
     {
-      "src": "delta.png",
+      "src": "delft_kiss.png",
       "sizes": "481x433",
       "type": "image/png"
     }

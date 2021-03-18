@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: worker-deployment
 spec:
-  replicas: 1
+  replicas: 9
   selector:
     matchLabels:
       component: worker
@@ -17,13 +17,13 @@ spec:
           image: kpsarakis/schema-matching-engine:latest
           resources:
             limits:
-              memory: "1Gi"
-              cpu: "1"
+              memory: "24Gi"
+              cpu: "8"
             requests:
-              memory: "1Gi"
-              cpu: "1"
+              memory: "24Gi"
+              cpu: "8"
           command: ["celery"]
-          args: ["worker", "-A", "app.celery", "--concurrency=1", "--loglevel=info"]
+          args: ["worker", "-A", "app.celery", "--concurrency=8", "--loglevel=info"]
           ports:
             - containerPort: 5000
           env:

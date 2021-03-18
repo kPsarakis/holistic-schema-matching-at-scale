@@ -5,6 +5,7 @@ import Spinner from "../../../components/UI/Spinner/Spinner";
 import classes from "./FabricatedDatasets.module.css";
 import axios from "axios";
 import {Checkbox, List, ListItem, ListItemSecondaryAction, ListItemText} from "@material-ui/core";
+import TableChartIcon from '@material-ui/icons/TableChart';
 
 
 class FabricatedDataset {
@@ -80,15 +81,20 @@ class FabricatedDatasets extends Component {
                     <List dense className={classes.ListRoot}>
                         {this.state.fabricatedData.map((value, index) => (
                           <ListItem key={value.id}>
-                            <ListItemText id={value.name} primary={`${value.name}`} />
-                            <ListItemSecondaryAction>
-                              <Checkbox
-                                  color="primary"
-                                  edge="end"
-                                  onChange={() => this.handleToggle(index)}
-                                  checked={this.state.fabricatedData[index].selected}
-                              />
-                            </ListItemSecondaryAction>
+                              <div className={classes.labelRoot}>
+                                  <div className={classes.labelIcon}>
+                                      <TableChartIcon color="primary"/>
+                                  </div>
+                                  <ListItemText id={value.name} primary={`${value.name}`} />
+                                  <ListItemSecondaryAction>
+                                      <Checkbox
+                                          color="primary"
+                                          edge="end"
+                                          onChange={() => this.handleToggle(index)}
+                                          checked={this.state.fabricatedData[index].selected}
+                                      />
+                                  </ListItemSecondaryAction>
+                              </div>
                           </ListItem>
                         ))}
                     </List>

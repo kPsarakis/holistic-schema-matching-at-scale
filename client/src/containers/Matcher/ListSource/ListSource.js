@@ -1,18 +1,19 @@
 import React, {Component} from "react";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import StorageIcon from "@material-ui/icons/Storage";
 import TableChartIcon from "@material-ui/icons/TableChart";
 import TreeView from "@material-ui/lab/TreeView";
 import TreeItem from "@material-ui/lab/TreeItem";
 import Checkbox from "@material-ui/core/Checkbox";
-import { blue, indigo } from "@material-ui/core/colors";
 import classes from "./ListSource.module.css";
 import Aux from "../../../hoc/Aux";
 import Modal from "../../../components/UI/Modal/Modal";
 import Spinner from "../../../components/UI/Spinner/Spinner";
 import axios from "axios";
 import Typography from "@material-ui/core/Typography";
+import PostgresLogo from "../../../assets/PostgreSQL-Logo.wine.svg"
+import MinioLogo from "../../../assets/minio-1.svg"
+
 
 class Database {
     constructor(id, name, tables) {
@@ -21,6 +22,7 @@ class Database {
         this.tables = [];
         this.selected = false;
         this.add_tables(tables);
+        this.provider = (Math.random() > 0.5) ? MinioLogo : PostgresLogo;
     }
     add_tables(tables){
         tables.map((tableName, index) => this.tables.push(new Table(index, tableName)));
@@ -95,7 +97,7 @@ class ListSource extends Component {
                             onClick={e => e.stopPropagation()}
                             color="primary"
                         />
-                        <StorageIcon style={{ color: indigo[500] }} className={classes.labelIcon}/>
+                        <img src={dbInfo.provider} alt={"Postgres logo"} width="40px" height="40px" className={classes.labelIcon}/>
                         <Typography variant="body2" className={classes.labelText}>
                             {dbInfo.name}
                         </Typography>
@@ -114,7 +116,7 @@ class ListSource extends Component {
                                 onClick={e => e.stopPropagation()}
                                 color="primary"
                             />
-                            <TableChartIcon style={{ color: blue[400] }} className={classes.labelIcon}/>
+                            <TableChartIcon style={{ color: "#016b9f" }} className={classes.labelIcon}/>
                             <Typography variant="body2" className={classes.labelText}>
                                 {table.name}
                             </Typography>

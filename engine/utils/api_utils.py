@@ -46,8 +46,7 @@ class MinioPayload(BaseModel):
 
 
 class MinioBulkPayload(BaseModel):
-    source_tables: List[Dict[str, str]]  # The source tables in the format [{db_name: ..., table_name: ...}, ...]
-    target_tables: List[Dict[str, str]]  # The target tables in the format [{db_name: ..., table_name: ...}, ...]
+    tables: List[Dict[str, str]]  # The tables in the format [{db_name: ..., table_name: ...}, ...]
     algorithms: List[Dict[str, Optional[Dict[str, object]]]]  # The algorithms to run [{#algorithm_name: {params dict}}]
 
     class Config:
@@ -85,10 +84,8 @@ def get_atlas_payload(request_json: dict) -> AtlasPayload:
 def get_minio_bulk_payload(request_json: dict) -> MinioBulkPayload:
     try:
         payload = MinioBulkPayload(**request_json)
-        if not payload.source_tables:
-            abort(400, "Empty source table list")
-        if not payload.target_tables:
-            abort(400, "Empty target table list")
+        if not payload.tables:
+            abort(400, "Empty table list")
         if not payload.algorithms:
             abort(400, "Empty algorithm list")
     except ValidationError:

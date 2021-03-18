@@ -167,8 +167,28 @@ class MatchList extends Component {
                                             <GradientProgressBar similarity={item["sim"]} />
                                         </TableCell>
                                         <StyledTableCell className={classes.Cell} align="left">
-                                            <Button variant="contained" color="primary" onClick={() => this.deleteMatchHandler(index, true)}>Verify</Button>
-                                            <Button color="secondary" onClick={() => this.deleteMatchHandler(index, false)}>Discard</Button>
+                                            <Button variant="contained"
+                                                    style={{
+                                                        borderRadius: 10,
+                                                        color: "white",
+                                                        background: "#016b9f",
+                                                        padding: "10px 10px",
+                                                        fontSize: "14px"
+                                                    }}
+                                                    onClick={() => this.deleteMatchHandler(index, true)}>
+                                                Verify
+                                            </Button>
+                                            <Button style={{
+                                                        borderRadius: 10,
+                                                        color: "white",
+                                                        padding: "10px 10px",
+                                                        marginLeft: "10px",
+                                                        fontSize: "14px",
+                                                        background: "#71100f"
+                                                    }}
+                                                    onClick={() => this.deleteMatchHandler(index, false)}>
+                                                Discard
+                                            </Button>
                                         </StyledTableCell>
                                     </StyledTableRow>
                                 )

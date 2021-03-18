@@ -20,26 +20,26 @@ class AlgorithmSelection extends Component {
              },
             Coma_strategy: {
                 name: "Strategy",
-                elementType: "select",
+                elementType: "input",
                 elementConfig: {
                     options: [
                         {value: "COMA_OPT", displayValue: "Schema"},
                         {value: "COMA_OPT_INST", displayValue: "Schema + Instances"}
                         ]
                 },
-                value: "COMA_OPT",
+                value: "",
                 show: false
             },
             Coma_max_n: {
                 name: "max_n",
-                elementType: "range",
+                elementType: "input",
                 elementConfig : {
                     min: 0,
                     max: 10,
                     step: 1,
                     defaultValue: 0
                 },
-                value: 0,
+                value: "",
                 show: false
             }
         },
@@ -57,74 +57,74 @@ class AlgorithmSelection extends Component {
              },
             Cupid_leaf_w_struct: {
                 name: "leaf_w_struct",
-                elementType: "range",
+                elementType: "input",
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
                     step: 0.01,
                     defaultValue: 0.2
                 },
-                value: 0.2,
+                value: "",
                 show: false
             },
             Cupid_w_struct: {
                 name: "w_struct",
-                elementType: "range",
+                elementType: "input",
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
                     step: 0.01,
                     defaultValue: 0.2
                 },
-                value: 0.2,
+                value: "",
                 show: false
             },
             Cupid_th_accept: {
                 name: "th_accept",
-                elementType: "range",
+                elementType: "input",
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
                     step: 0.01,
                     defaultValue: 0.7
                 },
-                value: 0.7,
+                value: "",
                 show: false
             },
             Cupid_th_high: {
                 name: "th_high",
-                elementType: "range",
+                elementType: "input",
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
                     step: 0.01,
                     defaultValue: 0.6
                 },
-                value: 0.6,
+                value: '',
                 show: false
             },
             Cupid_th_low: {
                 name: "th_low",
-                elementType: "range",
+                elementType: "input",
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
                     step: 0.01,
                     defaultValue: 0.35
                 },
-                value: 0.35,
+                value: '',
                 show: false
             },
             Cupid_th_ns: {
                 name: "th_ns",
-                elementType: "range",
+                elementType: "input",
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
                     step: 0.01,
                     defaultValue: 0.7
                 },
-                value: 0.7,
+                value: "",
                 show: false
             }
         },
@@ -142,38 +142,38 @@ class AlgorithmSelection extends Component {
              },
             CorrelationClustering_threshold1: {
                 name: "Phase 1 threshold",
-                elementType: "range",
+                elementType: "input",
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
                     step: 0.01,
                     defaultValue: 0.15
                 },
-                value: 0.15,
+                value: "",
                 show: false
             },
             CorrelationClustering_threshold2: {
                 name: "Phase 2 threshold",
-                elementType: "range",
+                elementType: "input",
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
                     step: 0.01,
                     defaultValue: 0.15
                 },
-                value: 0.15,
+                value: "",
                 show: false
             },
             CorrelationClustering_quantiles: {
                 name: "quantiles",
-                elementType: "range",
+                elementType: "input",
                 elementConfig : {
                     min: 1,
                     max: 1024,
                     step: 1,
                     defaultValue: 256
                 },
-                value: 256,
+                value: "",
                 show: false
             }
         },
@@ -191,14 +191,14 @@ class AlgorithmSelection extends Component {
             },
             JaccardLevenMatcher_threshold_leven: {
                 name: "th_leven",
-                elementType: "range",
+                elementType: "input",
                 elementConfig : {
                     min: 0.0,
                     max: 1.0,
                     step: 0.01,
                     defaultValue: 0.8
                 },
-                value: 0.8,
+                value: "",
                 show: false
             }
         },
@@ -269,6 +269,9 @@ class AlgorithmSelection extends Component {
         return(
             <div className={classes.Algorithms}>
                 <h5>Select algorithms to run</h5>
+                <p className={classes.Description}>For the grid search add parameter values separated by coma.
+                    For range definitions use the notation min:step:max
+                </p>
                 <div className={classes.Algorithm}>
                     <Algorithm algoName={"Coma"} params={this.state.comaParams}
                                sendSelected={(val) => this.getSelectedAlgorithms(val, "Coma")}

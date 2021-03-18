@@ -4,8 +4,8 @@
 
 .Result {
     width: 90%;
-    border: 1px solid #eee;
-    box-shadow: 0 2px 3px #ccc;
+    border-bottom: 2px solid #455a64;
+    border-left: 2px solid #455a64;
     padding: 10px;
     margin: 10px auto;
     box-sizing: border-box;
@@ -20,7 +20,12 @@
 }
 
 .Parent {
+    width: 75%;
     margin-top: 80px;
-    margin-right: 100px;
-    margin-left: 100px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.Pagination {
+    transform: translateX(-100px);
 }
