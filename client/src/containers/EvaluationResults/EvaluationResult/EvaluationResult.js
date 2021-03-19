@@ -5,15 +5,26 @@ import Spinner from "../../../components/UI/Spinner/Spinner";
 import classes from "./EvaluationResult.module.css";
 import Button from "@material-ui/core/Button";
 import GetAppIcon from "@material-ui/icons/GetApp";
-import BarChartIcon from '@material-ui/icons/BarChart';
-import TestFigure from "../../../assets/Unionable-all-1.png";
 import {TableContainer} from "@material-ui/core";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableFooter from "@material-ui/core/TableFooter";
 import TableRow from "@material-ui/core/TableRow";
 import TablePagination from "@material-ui/core/TablePagination";
+import SimpleTable from "../../../components/UI/SimpleTable/SimpleTable";
 
+
+const spurious_head = ["Algorithm", "Column 1", "Column 2", "Similarity", "Type"]
+
+const spurious_body = [
+    ["Cupid", "Climate change adaptation (marker)", "miller2_TradeDevelopment(marker)", "0.932", "False Positive"],
+    ["EmbDI", "Desertification (marker)", "miller2_ChildrenIssues(marker)", "0.757", "False Positive"],
+    ["EmbDI", "Desertification (marker)", "miller2_UrbanIssues(marker)", "0.755", "False Positive"],
+    ["EmbDI", "Climate change mitigation (marker)", "miller2_Biodiversity(marker)", "0.754", "False Positive"],
+    ["EmbDI", "Climate change mitigation (marker)", "miller2_Biodiversity(marker)", "0.754", "False Positive"],
+    ["EmbDI", "Climate change mitigation (marker)", "miller2_Biodiversity(marker)", "0.754", "False Positive"],
+    ["EmbDI", "Climate change mitigation (marker)", "miller2_Biodiversity(marker)", "0.754", "False Positive"],
+]
 
 class EvaluationResult extends Component {
 
@@ -21,14 +32,29 @@ class EvaluationResult extends Component {
         loading: false,
         page: 0,
         rowsPerPage: 5,
+        showSpurious: {},
+        spurious: {},
+    }
+
+    componentDidMount() {
+        const spurious = {};
+        const showSpurious = {};
+        console.log(this.props.pairIds)
+        for (const pairId of this.props.pairIds) {
+            spurious[pairId] = {};
+            showSpurious[pairId] = false;
+        }
+        this.setState({showSpurious: showSpurious, spurious:spurious});
     }
 
     downloadDataset = (fabricatedPairId) => {
 
     }
 
-    showSpuriousResults = () => {
-
+    showSpuriousResults = (fabricatedPairId) => {
+        const showSpurious = {...this.state.showSpurious};
+        showSpurious[fabricatedPairId] = !showSpurious[fabricatedPairId];
+        this.setState({showSpurious: showSpurious});
     }
 
     handleChangePage = (event, newPage) => {
@@ -53,6 +79,11 @@ class EvaluationResult extends Component {
                                 {this.props.pairIds.slice(this.state.page * this.state.rowsPerPage,
                                     this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
                                     .map((datasetId) => {
+                                        const spuriousResults = this.state.showSpurious[datasetId] ?
+                                                <div>
+                                                    <SimpleTable head={spurious_head} body={spurious_body}/>
+                                                </div>
+                                                : null;
                                         return (<div className={classes.FabricatedPair}>
                                                     <p>Fabricated pair: {datasetId}</p>
                                                     <Button
@@ -77,6 +108,9 @@ class EvaluationResult extends Component {
                                                         onClick={() => this.showSpuriousResults(datasetId)}>
                                                         Show Spurious Results
                                                     </Button>
+                                                    <div className={classes.Sample}>
+                                                        {spuriousResults}
+                                                    </div>
                                                 </div>);
                                         }
                                     )

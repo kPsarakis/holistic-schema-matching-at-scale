@@ -20,7 +20,17 @@ import GetAppIcon from "@material-ui/icons/GetApp";
 class EvaluationResults extends Component {
 
     state = {
-        evaluationResults: {"Job_1": ["miller_j_vu_150"], "Job_2": ["miller_j_vu_150", "miller_j_vu_150", "miller_j_vu_150", "miller_j_vu_150"]},
+        evaluationResults: {"miller": ["miller_both_0_1_ac1_av", "miller_both_50_70_ac4_av", "miller_both_0_1_ac1_ev",
+                    "miller_both_50_70_ac4_ev", "miller_both_0_1_ac2_av", "miller_both_50_70_ac5_av", "miller_both_0_1_ac2_ev",
+                    "miller_both_50_70_ac5_ev", "miller_both_0_1_ac3_av", "miller_both_50_70_ec_av", "miller_both_0_1_ac3_ev",
+                    "miller_both_50_70_ec_ev", "miller_both_0_1_ac4_av", "miller_horizontal_0_ac1_av", "miller_both_0_1_ac4_ev",
+                    "miller_horizontal_0_ac1_ev", "miller_both_0_1_ac5_av", "miller_horizontal_0_ac2_av", "miller_both_0_1_ac5_ev",
+                    "miller_horizontal_0_ac2_ev", "miller_both_0_1_ec_av", "miller_horizontal_0_ac3_av", "miller_both_0_1_ec_ev",
+                    "miller_horizontal_0_ac3_ev", "miller_both_0_30_ac1_av", "miller_horizontal_0_ac4_av", "miller_both_0_30_ac1_ev",
+                    "miller_horizontal_0_ac4_ev", "miller_both_0_30_ac2_av", "miller_horizontal_0_ac5_av", "miller_both_0_30_ac2_ev",
+                    "miller_horizontal_0_ac5_ev", "miller_both_0_30_ac3_av", "miller_horizontal_0_ec_av", "miller_both_0_30_ac3_ev",
+                    "miller_horizontal_0_ec_ev", "miller_both_0_30_ac4_av", "miller_horizontal_100_ac1_av", "miller_both_0_30_ac4_ev",
+                    "miller_horizontal_100_ac1_ev"]},
         page: 0,
         rowsPerPage: 5,
         loading: false,
@@ -78,7 +88,7 @@ class EvaluationResults extends Component {
                                     this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
                                     .map((datasetId) => {
                                         return (<div className={classes.Result}>
-                                            <p className={classes.Paragraph}>Job: {datasetId}</p>
+                                            <p className={classes.Paragraph}>Job: 264c73fe-53a8-43b7-a837-c3d0c6b7373a</p>
                                             <p className={classes.Paragraph}>Dataset group: {datasetId}</p>
                                             <Button
                                                 style={{

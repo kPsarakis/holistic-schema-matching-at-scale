@@ -3,7 +3,7 @@ import Aux from "../../../hoc/Aux";
 import Modal from "../../../components/UI/Modal/Modal";
 import Spinner from "../../../components/UI/Spinner/Spinner";
 import classes from "./FabricatedDatasets.module.css";
-import axios from "axios";
+// import axios from "axios";
 import {Checkbox, List, ListItem, ListItemSecondaryAction, ListItemText} from "@material-ui/core";
 import TableChartIcon from '@material-ui/icons/TableChart';
 
@@ -26,20 +26,23 @@ class FabricatedDatasets extends Component {
     }
 
     componentDidMount() {
-        this.setState({loading: true})
-        axios({
-             method: "get",
-             url: process.env.REACT_APP_SERVER_ADDRESS + "/valentine/results/get_fabricated_data"
-        }).then(res => {
-            const fabricatedData = [];
-            for (const [datasetId, datasetValue] of Object.entries(res.data)){
-                fabricatedData.push(new FabricatedDataset(datasetId, datasetValue));
-            }
-            this.setState({loading: false, fabricatedData: fabricatedData});
-        }).catch(err => {
-            this.setState({loading: false});
-            console.log(err);
-        })
+        const fabricatedData = [];
+        fabricatedData.push(new FabricatedDataset("miller", "miller"));
+        this.setState({fabricatedData: fabricatedData});
+        // this.setState({loading: true})
+        // axios({
+        //      method: "get",
+        //      url: process.env.REACT_APP_SERVER_ADDRESS + "/valentine/results/get_fabricated_data"
+        // }).then(res => {
+        //     const fabricatedData = [];
+        //     for (const [datasetId, datasetValue] of Object.entries(res.data)){
+        //         fabricatedData.push(new FabricatedDataset(datasetId, datasetValue));
+        //     }
+        //     this.setState({loading: false, fabricatedData: fabricatedData});
+        // }).catch(err => {
+        //     this.setState({loading: false});
+        //     console.log(err);
+        // })
     }
 
 

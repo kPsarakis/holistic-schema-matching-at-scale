@@ -8,10 +8,10 @@ class FabricationMethod extends Component{
 
     state = {
         selected: false,
-        vInstances: false,
-        nInstances: false,
-        vSchemata: false,
-        nSchemata: false,
+        vInstances: true,
+        nInstances: true,
+        vSchemata: true,
+        nSchemata: true,
         numberOfPairs: 0,
         params: {}
     }
@@ -62,8 +62,8 @@ class FabricationMethod extends Component{
         const verbatimInstances = <div className={classes.Choice}>
             {(this.props.methodName !== "Joinable" && this.props.methodName !== "Semantically Joinable") ?
                 <Checkbox
-                    checked={this.state.nInstances}
-                    onChange={() => this.toggleNoisyInstances()}
+                    checked={this.state.vInstances}
+                    onChange={() => this.toggleVerbatimInstances()}
                     color="primary"
                 /> :
                 (this.props.methodName === "Joinable") ?

@@ -22,7 +22,7 @@ class Database {
         this.tables = [];
         this.selected = false;
         this.add_tables(tables);
-        this.provider = (Math.random() > 0.5) ? MinioLogo : PostgresLogo;
+        this.provider = (id % 2 === 0) ? MinioLogo : PostgresLogo;
     }
     add_tables(tables){
         tables.map((tableName, index) => this.tables.push(new Table(index, tableName)));

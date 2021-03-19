@@ -34,3 +34,9 @@
 .Results {
     width: 100%;
 }
+
+.Sample {
+    margin-left: 5px;
+    margin-right: 5px;
+    /*width: 49%;*/
+}
