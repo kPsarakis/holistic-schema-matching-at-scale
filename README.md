@@ -1,3 +1,5 @@
+# :warning: Development for this project has been moved to [this repo](https://github.com/delftdata/valentine-system) managed by TU Delft's data managment group
+
 # Holistic Schema Matching at Scale
 
 This repository contains the implementation of the holistic schema matching system detailed in my 
